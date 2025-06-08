@@ -6,8 +6,23 @@ import 'package:demo_vps/DesktopLayout/customwidgets/secondarybuttonwidget.dart'
 import 'package:demo_vps/DesktopLayout/customwidgets/inputfieldwidget.dart';
 
 // Class name should be PascalCase
-class LoginWidgets extends StatelessWidget {
+class LoginWidgets extends StatefulWidget {
   const LoginWidgets({super.key});
+
+  @override
+  State<LoginWidgets> createState() => _LoginWidgetsState();
+}
+
+class _LoginWidgetsState extends State<LoginWidgets> {
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void login(BuildContext context) {
     Navigator.push(
@@ -57,9 +72,9 @@ class LoginWidgets extends StatelessWidget {
               ),
             ),
             SizedBox(height: 50.h),
-            InputFieldWidget(input: "Username"),
+            InputFieldWidget(input: "Username", controller: _usernameController),
             SizedBox(height: 30.h),
-            InputFieldWidget(input: "Password"),
+            InputFieldWidget(input: "Password", controller: _passwordController),
             SizedBox(height: 20.h),
             Align(
               alignment: Alignment.centerLeft,

@@ -1,11 +1,18 @@
 import 'package:demo_vps/DesktopLayout/loginscreen/loginscreen.dart';
+import 'package:demo_vps/DesktopLayout/teacheradmission/teacheradmission.dart';
 import 'package:flutter/material.dart';
 
-class DesktopMain extends StatelessWidget {
+class DesktopMain extends StatefulWidget {
   const DesktopMain({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return LoginScreen();
-  }
+  State<DesktopMain> createState() => _DesktopMainState();
 }
+
+class _DesktopMainState extends State<DesktopMain> {
+  @override
+  Widget build(BuildContext context) {
+    // return LoginScreen();
+    return TeacherAdmission();
+  }
+} 

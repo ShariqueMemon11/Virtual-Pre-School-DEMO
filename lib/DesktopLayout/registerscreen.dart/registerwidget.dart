@@ -5,8 +5,27 @@ import 'package:demo_vps/DesktopLayout/customwidgets/primarybuttonwidget.dart';
 import 'package:demo_vps/DesktopLayout/customwidgets/secondarybuttonwidget.dart';
 
 // Class name should be PascalCase
-class Registerwidget extends StatelessWidget {
+class Registerwidget extends StatefulWidget {
   const Registerwidget({super.key});
+
+  @override
+  State<Registerwidget> createState() => _RegisterwidgetState();
+}
+
+class _RegisterwidgetState extends State<Registerwidget> {
+  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void back(BuildContext context) {
     Navigator.pop(context);
@@ -46,13 +65,13 @@ class Registerwidget extends StatelessWidget {
               ),
             ),
             SizedBox(height: 30.h),
-            InputFieldWidget(input: "Username"),
+            InputFieldWidget(input: "Username", controller: _usernameController),
             SizedBox(height: 30.h),
-            InputFieldWidget(input: "Email"),
+            InputFieldWidget(input: "Email", controller: _emailController),
             SizedBox(height: 30.h),
-            InputFieldWidget(input: "Phone"),
+            InputFieldWidget(input: "Phone", controller: _phoneController),
             SizedBox(height: 30.h),
-            InputFieldWidget(input: "Password"),
+            InputFieldWidget(input: "Password", controller: _passwordController),
 
             SizedBox(height: 30.h),
             Row(
