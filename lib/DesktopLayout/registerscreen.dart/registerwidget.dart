@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:demo_vps/DesktopLayout/customwidgets/inputfieldwidget.dart';
@@ -13,18 +14,25 @@ class Registerwidget extends StatefulWidget {
 }
 
 class _RegisterwidgetState extends State<Registerwidget> {
-  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   void dispose() {
-    _usernameController.dispose();
     _emailController.dispose();
-    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> createuserwithemailpassword() async {
+    // ignore: unused_local_variable
+    final UserCredential = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+    _emailController.clear();
+    _passwordController.clear();
   }
 
   void back(BuildContext context) {
@@ -39,7 +47,7 @@ class _RegisterwidgetState extends State<Registerwidget> {
     return Center(
       child: Container(
         padding: EdgeInsets.all(14.0.h),
-        height: screenHeight * 0.75,
+        height: screenHeight * 0.6,
         width: screenWidth * 0.25,
         decoration: BoxDecoration(
           color: const Color.fromARGB(141, 233, 233, 233),
@@ -64,21 +72,25 @@ class _RegisterwidgetState extends State<Registerwidget> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 30.h),
-            InputFieldWidget(input: "Username", controller: _usernameController),
-            SizedBox(height: 30.h),
+            SizedBox(height: 50.h),
+
             InputFieldWidget(input: "Email", controller: _emailController),
-            SizedBox(height: 30.h),
-            InputFieldWidget(input: "Phone", controller: _phoneController),
-            SizedBox(height: 30.h),
-            InputFieldWidget(input: "Password", controller: _passwordController),
 
             SizedBox(height: 30.h),
+            InputFieldWidget(
+              input: "Password",
+              controller: _passwordController,
+            ),
+
+            SizedBox(height: 70.h),
             Row(
               spacing: 10.w,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Primarybuttonwidget(run: () => {}, input: "Register"),
+                Primarybuttonwidget(
+                  run: () => createuserwithemailpassword(),
+                  input: "Register",
+                ),
                 Secondarybuttonwidget(run: () => back(context), input: "Login"),
               ],
             ),

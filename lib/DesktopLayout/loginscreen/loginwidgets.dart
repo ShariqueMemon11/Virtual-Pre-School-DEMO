@@ -67,14 +67,17 @@ class _LoginWidgetsState extends State<LoginWidgets> {
               "Login",
               style: TextStyle(
                 fontSize: 50.sp,
-                color: Color(0xFFFFFFFFF),
+                color: Color(0xFFFFFFFF),
                 fontWeight: FontWeight.bold,
               ),
             ),
             SizedBox(height: 50.h),
-            InputFieldWidget(input: "Username", controller: _usernameController),
+            InputFieldWidget(input: "Email", controller: _usernameController),
             SizedBox(height: 30.h),
-            InputFieldWidget(input: "Password", controller: _passwordController),
+            InputFieldWidget(
+              input: "Password",
+              controller: _passwordController,
+            ),
             SizedBox(height: 20.h),
             Align(
               alignment: Alignment.centerLeft,

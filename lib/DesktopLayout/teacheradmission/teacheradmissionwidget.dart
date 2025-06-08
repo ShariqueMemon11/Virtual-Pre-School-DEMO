@@ -7,8 +7,10 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 
 // Class name should be PascalCase
+// Make code more modular and readable by separating widget logic into its own class
+// Make it responsive by using MediaQuery for screen size
 class TeacherAdmissionwidget extends StatefulWidget {
-  const TeacherAdmissionwidget({super.key});    
+  const TeacherAdmissionwidget({super.key});
 
   @override
   State<TeacherAdmissionwidget> createState() => _TeacherAdmissionwidgetState();
@@ -22,13 +24,16 @@ class _TeacherAdmissionwidgetState extends State<TeacherAdmissionwidget> {
   final _qualificationController = TextEditingController();
   final _experienceController = TextEditingController();
   final _subjectsController = TextEditingController();
-  final _addressController = TextEditingController();   
+  final _addressController = TextEditingController();
 
   File? _cvFile;
   String? _cvFileName;
 
   Future<void> _pickCV() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf', 'doc', 'docx']);
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx'],
+    );
     if (result != null && result.files.single.path != null) {
       setState(() {
         _cvFile = File(result.files.single.path!);
@@ -52,17 +57,18 @@ class _TeacherAdmissionwidgetState extends State<TeacherAdmissionwidget> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       if (_cvFile == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please upload your CV!')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Please upload your CV!')));
         return;
       }
       // Handle form submission logic here
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Form submitted successfully!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Form submitted successfully!')));
     }
   }
+
   void back(BuildContext context) {
     Navigator.pop(context);
   }
@@ -104,23 +110,58 @@ class _TeacherAdmissionwidgetState extends State<TeacherAdmissionwidget> {
               ),
             ),
             SizedBox(height: 20.h),
-            InputFieldWidget(input: "Name", controller: _nameController,  validator: (value) => value == null || value.isEmpty ? "Required" : null,),
+            InputFieldWidget(
+              input: "Name",
+              controller: _nameController,
+              validator:
+                  (value) => value == null || value.isEmpty ? "Required" : null,
+            ),
             SizedBox(height: 20.h),
-            InputFieldWidget(input: "Email", controller: _emailController, validator: (value) {
-                  if (value == null || value.isEmpty) return "Required";
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return "Enter a valid email";
-                  return null;
-                },),
+            InputFieldWidget(
+              input: "Email",
+              controller: _emailController,
+              validator: (value) {
+                if (value == null || value.isEmpty) return "Required";
+                if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value))
+                  return "Enter a valid email";
+                return null;
+              },
+            ),
             SizedBox(height: 20.h),
-            InputFieldWidget(input: "Phone", controller: _phoneController, validator: (value) => value == null || value.isEmpty ? "Required" : null,),
+            InputFieldWidget(
+              input: "Phone",
+              controller: _phoneController,
+              validator:
+                  (value) => value == null || value.isEmpty ? "Required" : null,
+            ),
             SizedBox(height: 20.h),
-            InputFieldWidget(input: "Qualification", controller: _qualificationController, validator: (value) => value == null || value.isEmpty ? "Required" : null,),
+            InputFieldWidget(
+              input: "Qualification",
+              controller: _qualificationController,
+              validator:
+                  (value) => value == null || value.isEmpty ? "Required" : null,
+            ),
             SizedBox(height: 20.h),
-            InputFieldWidget(input: "Experience", controller: _experienceController, validator: (value) => value == null || value.isEmpty ? "Required" : null,),
+            InputFieldWidget(
+              input: "Experience",
+              controller: _experienceController,
+              validator:
+                  (value) => value == null || value.isEmpty ? "Required" : null,
+            ),
             SizedBox(height: 20.h),
-            InputFieldWidget(input: "Subject Specialization", controller: _subjectsController, validator: (value) => value == null || value.isEmpty ? "Required" : null,),
+            InputFieldWidget(
+              input: "Subject Specialization",
+              controller: _subjectsController,
+              validator:
+                  (value) => value == null || value.isEmpty ? "Required" : null,
+            ),
             SizedBox(height: 20.h),
-            InputFieldWidget(input: "Address", controller: _addressController, validator: (value) => value == null || value.isEmpty ? "Required" : null,    ),     
+            InputFieldWidget(
+              input: "Address",
+              controller: _addressController,
+              validator:
+                  (value) => value == null || value.isEmpty ? "Required" : null,
+            ),
             SizedBox(height: 20.h),
             Align(
               alignment: Alignment.centerLeft,
