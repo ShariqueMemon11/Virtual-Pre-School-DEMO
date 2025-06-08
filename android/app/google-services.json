@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "470052620571",
+    "project_id": "demovps-d4779",
+    "storage_bucket": "demovps-d4779.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:470052620571:android:13bf66250cedbb5e282bbe",
+        "android_client_info": {
+          "package_name": "com.example.demo_vps"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtuxth63iTe6r2UAjPc7FBbpexlW3EdJw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
