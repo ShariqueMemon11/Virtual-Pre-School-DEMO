@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:demo_vps/DesktopLayout/registerscreen.dart/registerscreen.dart';
@@ -14,14 +15,34 @@ class LoginWidgets extends StatefulWidget {
 }
 
 class _LoginWidgetsState extends State<LoginWidgets> {
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> loginuserwithemailpassword() async {
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    try {
+      final userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
+      print(userCredential.user?.email);
+      print("Login successful");
+      _emailController.clear();
+      _passwordController.clear();
+    } on FirebaseAuthException catch (e) {
+      print(e.message);
+    }
+
+    // Implement your login logic here
   }
 
   void login(BuildContext context) {
@@ -72,7 +93,7 @@ class _LoginWidgetsState extends State<LoginWidgets> {
               ),
             ),
             SizedBox(height: 50.h),
-            InputFieldWidget(input: "Email", controller: _usernameController),
+            InputFieldWidget(input: "Email", controller: _emailController),
             SizedBox(height: 30.h),
             InputFieldWidget(
               input: "Password",
@@ -94,7 +115,10 @@ class _LoginWidgetsState extends State<LoginWidgets> {
               spacing: 10.w,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Primarybuttonwidget(run: () => login(context), input: "Login"),
+                Primarybuttonwidget(
+                  run: () => loginuserwithemailpassword(),
+                  input: "Login",
+                ),
                 Secondarybuttonwidget(
                   run: () => register(context),
                   input: "Register",
