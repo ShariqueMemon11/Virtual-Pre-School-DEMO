@@ -3,7 +3,7 @@ import 'package:demo_vps/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:demo_vps/firebase_options.dart';
-
+//checking 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Initialize Firebase with the default options
