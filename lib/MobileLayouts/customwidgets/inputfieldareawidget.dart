@@ -14,7 +14,7 @@ class InputFieldAreaWidget extends StatelessWidget {
         maxLines: 5,
         minLines: 5,
         keyboardType: TextInputType.multiline,
-        style: TextStyle(color: const Color(0xFF8C5FF5), fontSize: 16.sp),
+        style: TextStyle(color: const Color(0xFF8C5FF5), fontSize: 12.sp),
         decoration: InputDecoration(
           hintText: input,
           hintStyle: const TextStyle(color: Color(0xFF8C5FF5)),

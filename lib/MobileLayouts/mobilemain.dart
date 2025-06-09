@@ -1,3 +1,4 @@
+import 'package:demo_vps/MobileLayouts/notificationscreens/createnotificationscreen.dart';
 import 'package:demo_vps/MobileLayouts/loginscreen/loginscreen.dart';
 import 'package:flutter/material.dart';
 
@@ -6,6 +7,6 @@ class MobileMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LoginScreen();
+    return CreateNotificationScreen();
   }
 }

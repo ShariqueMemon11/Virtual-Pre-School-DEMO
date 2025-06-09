@@ -1,10 +1,10 @@
-import 'package:demo_vps/DesktopLayout/customwidgets/dropdownselectorwidget.dart';
-import 'package:demo_vps/DesktopLayout/customwidgets/inputfieldareawidget.dart';
-import 'package:demo_vps/DesktopLayout/customwidgets/primarybuttonwidget.dart';
+import 'package:demo_vps/MobileLayouts/customwidgets/primarybuttonwidget.dart';
+import 'package:demo_vps/MobileLayouts/customwidgets/dropdownselectorwidget.dart';
+import 'package:demo_vps/MobileLayouts/customwidgets/inputfieldareawidget.dart';
+import 'package:demo_vps/MobileLayouts/customwidgets/inputfieldwidget.dart';
+import 'package:demo_vps/MobileLayouts/customwidgets/uploadfilewidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:demo_vps/DesktopLayout/customwidgets/inputfieldwidget.dart';
-import 'package:demo_vps/DesktopLayout/customwidgets/uploadfilewidget.dart';
 
 class CreateNotificationWidget extends StatefulWidget {
   const CreateNotificationWidget({super.key});
@@ -24,8 +24,8 @@ class _CreateNotificationWidgetState extends State<CreateNotificationWidget> {
     final screenWidth = screenSize.width;
     final screenHeight = screenSize.height;
     return Container(
-      height: screenHeight * 0.85,
-      width: screenWidth * 0.4,
+      height: screenHeight * 0.6,
+      width: screenWidth * 0.8,
       padding: EdgeInsets.all(screenWidth * 0.01),
       decoration: BoxDecoration(
         color: const Color.fromARGB(141, 233, 233, 233),
@@ -45,39 +45,32 @@ class _CreateNotificationWidgetState extends State<CreateNotificationWidget> {
           Text(
             "Create Notification",
             style: TextStyle(
-              fontSize: 50.sp,
+              fontSize: 30.sp,
               color: Color(0xFFFFFFFF),
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 50.h),
-
+          SizedBox(height: 20.h),
           Padding(
-            padding: EdgeInsets.only(
-              right: screenWidth * 0.02,
-              left: screenWidth * 0.02,
-            ),
-
+            padding: EdgeInsets.all(20.0.w),
             child: Column(
               children: [
-                InputFieldWidget(
-                  input: "Notification Title",
-                  controller: _titleController,
-                ),
-                SizedBox(height: 20.h),
+                InputFieldWidget(input: "Title", controller: _titleController),
+                SizedBox(height: 25.h),
                 InputFieldAreaWidget(input: "Notification Body"),
-
-                SizedBox(height: 20.h),
+                SizedBox(height: 25.h),
                 Row(
                   children: [DropdownSelectorWidget(options: audienceOptions)],
                 ),
-                SizedBox(height: 20.h),
+                SizedBox(height: 25.h),
                 Row(children: [UploadFileWidget()]),
-                SizedBox(height: 40.h),
+                SizedBox(height: 25.h),
                 Primarybuttonwidget(run: () {}, input: "Create Notification"),
               ],
             ),
           ),
+
+          // Add more widgets here as needed
         ],
       ),
     );
