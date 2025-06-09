@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class InputFieldWidget extends StatelessWidget {
   final String input;
@@ -12,6 +13,7 @@ class InputFieldWidget extends StatelessWidget {
       shadowColor: Colors.black54,
       borderRadius: BorderRadius.circular(55),
       child: TextField(
+        style: TextStyle(color: const Color(0xFF8C5FF5), fontSize: 16.sp),
         decoration: InputDecoration(
           labelText: input,
           labelStyle: TextStyle(color: Color(0xFF8C5FF5)), // Added label color

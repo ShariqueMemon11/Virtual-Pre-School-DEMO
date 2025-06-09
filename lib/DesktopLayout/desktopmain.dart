@@ -13,6 +13,6 @@ class _DesktopMainState extends State<DesktopMain> {
   @override
   Widget build(BuildContext context) {
     // return LoginScreen();
-    return TeacherAdmission();
+    return LoginScreen();
   }
-} 
+}
