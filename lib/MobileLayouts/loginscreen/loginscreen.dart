@@ -37,7 +37,7 @@ class LoginScreen extends StatelessWidget {
                 elevation: 10.0,
                 color: Color(0xFF8C5FF5),
                 shape: BoxShape.circle,
-                child: buildCircle(335, 0xFF8C5FF5),
+                child: buildCircle(280, 0xFF8C5FF5),
               ),
             ),
 
