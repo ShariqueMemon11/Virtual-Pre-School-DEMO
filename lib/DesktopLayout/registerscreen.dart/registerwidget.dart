@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:demo_vps/DesktopLayout/customwidgets/inputfieldwidget.dart';
 import 'package:demo_vps/DesktopLayout/customwidgets/primarybuttonwidget.dart';
 import 'package:demo_vps/DesktopLayout/customwidgets/secondarybuttonwidget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // Class name should be PascalCase
 class Registerwidget extends StatefulWidget {
@@ -16,23 +17,35 @@ class Registerwidget extends StatefulWidget {
 class _RegisterwidgetState extends State<Registerwidget> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-
+  final _nameController = TextEditingController();
+      
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
   Future<void> createuserwithemailpassword() async {
-    // ignore: unused_local_variable
-    final UserCredential = await FirebaseAuth.instance
-        .createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-    _emailController.clear();
-    _passwordController.clear();
+    try {
+      final UserCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
+      await FirebaseFirestore.instance.collection('students').doc(userCredential.user!.uid).set({
+        'email': _emailController.text.trim(),
+        'name': _nameController.text.trim(),
+        // Add other fields as needed
+      });
+      _emailController.clear();
+      _passwordController.clear();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
   }
 
   void back(BuildContext context) {

@@ -5,6 +5,8 @@ import 'package:demo_vps/DesktopLayout/registerscreen.dart/registerscreen.dart';
 import 'package:demo_vps/DesktopLayout/customwidgets/primarybuttonwidget.dart';
 import 'package:demo_vps/DesktopLayout/customwidgets/secondarybuttonwidget.dart';
 import 'package:demo_vps/DesktopLayout/customwidgets/inputfieldwidget.dart';
+import 'package:demo_vps/DesktopLayout/dashboardscreen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // Class name should be PascalCase
 class LoginWidgets extends StatefulWidget {
@@ -17,11 +19,17 @@ class LoginWidgets extends StatefulWidget {
 class _LoginWidgetsState extends State<LoginWidgets> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
     super.dispose();
   }
 
@@ -36,11 +44,66 @@ class _LoginWidgetsState extends State<LoginWidgets> {
       print("Login successful");
       _emailController.clear();
       _passwordController.clear();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => DashboardScreen()),
+      );
     } on FirebaseAuthException catch (e) {
-      print(e.message);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'An error occurred')),
+      );
     }
 
     // Implement your login logic here
+  }
+
+  Future<void> createuserwithemailpassword() async {
+    if (_nameController.text.trim().isEmpty ||
+        _emailController.text.trim().isEmpty ||
+        _passwordController.text.trim().isEmpty ||
+        _phoneController.text.trim().isEmpty ||
+        _addressController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill all fields')),
+      );
+      return;
+    }
+    try {
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
+
+      // Save extra info to Firestore
+      await FirebaseFirestore.instance
+          .collection('students')
+          .doc(userCredential.user!.uid)
+          .set({
+        'name': _nameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'phone': _phoneController.text.trim(),
+        'address': _addressController.text.trim(),
+        // Add other fields as needed
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      // Optionally clear controllers or navigate
+      _nameController.clear();
+      _emailController.clear();
+      _phoneController.clear();
+      _addressController.clear();
+      // ...etc
+
+      // Show success message or navigate
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Registration successful!')),
+      );
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Registration failed')),
+      );
+    }
   }
 
   void login(BuildContext context) {
@@ -90,7 +153,13 @@ class _LoginWidgetsState extends State<LoginWidgets> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 50.h),
+            SizedBox(height: 30.h),
+            InputFieldWidget(input: "Name", controller: _nameController),
+            SizedBox(height: 30.h),
+            InputFieldWidget(input: "Phone", controller: _phoneController),
+            SizedBox(height: 30.h),
+            InputFieldWidget(input: "Address", controller: _addressController),
+            SizedBox(height: 30.h),
             InputFieldWidget(input: "Email", controller: _emailController),
             SizedBox(height: 30.h),
             InputFieldWidget(
@@ -118,7 +187,7 @@ class _LoginWidgetsState extends State<LoginWidgets> {
                   input: "Login",
                 ),
                 Secondarybuttonwidget(
-                  run: () => register(context),
+                  run: () => createuserwithemailpassword(),
                   input: "Register",
                 ),
               ],
