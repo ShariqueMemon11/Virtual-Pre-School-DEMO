@@ -18,25 +18,13 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF8C5FF5), // Light gray
-              Color.fromARGB(255, 156, 129, 219), // Slightly lighter gray
-            ],
-          ),
-        ),
-        child: Center(
-          child: StudentDetailsWidget(
-            name: name,
-            phone: phone,
-            address: address,
-            email: email,
-          ),
+      backgroundColor: Color.fromARGB(240, 224, 206, 230),
+      body: Center(
+        child: StudentDetailsWidget(
+          name: name,
+          phone: phone,
+          address: address,
+          email: email,
         ),
       ),
     );
