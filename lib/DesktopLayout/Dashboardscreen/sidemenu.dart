@@ -21,9 +21,11 @@ class _SideMenu extends State<SideMenu> {
                 255,
                 1,
               ), // Moved color inside BoxDecoration
-              border: Border.all(
-                width: 2.0,
-                color: Color.fromRGBO(140, 95, 245, 1),
+              border: Border(
+                top: BorderSide(
+                  width: 2.0,
+                  color: Color.fromRGBO(140, 95, 245, 1),
+                ),
               ),
             ),
             child: Center(
