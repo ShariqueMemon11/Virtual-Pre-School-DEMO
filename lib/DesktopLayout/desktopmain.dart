@@ -1,5 +1,6 @@
-import 'package:demo_vps/DesktopLayout/loginscreen/loginscreen.dart';
-import 'package:demo_vps/DesktopLayout/notificationscreens/createnotificationscreen.dart';
+import 'package:demo_vps/DesktopLayout/Dashboardscreen/dashboardscreen.dart';
+
+import 'package:demo_vps/DesktopLayout/Dashboardscreen/dashboardscreen.dart';
 
 import 'package:flutter/material.dart';
 
@@ -14,6 +15,6 @@ class _DesktopMainState extends State<DesktopMain> {
   @override
   Widget build(BuildContext context) {
     // return LoginScreen();
-    return LoginScreen();
+    return DashboardScreen(name: "", email: "", phone: "", address: "");
   }
 }

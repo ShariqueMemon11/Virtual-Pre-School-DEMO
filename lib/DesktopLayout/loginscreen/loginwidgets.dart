@@ -36,18 +36,23 @@ class _LoginWidgetsState extends State<LoginWidgets> {
           );
       final user = userCredential.user;
       if (user != null) {
-        final doc = await FirebaseFirestore.instance.collection('students').doc(user.uid).get();
+        final doc =
+            await FirebaseFirestore.instance
+                .collection('students')
+                .doc(user.uid)
+                .get();
         if (doc.exists) {
           final data = doc.data();
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => DashboardScreen(
-                name: data!['name'] ?? '',
-                phone: data['phone'] ?? '',
-                address: data['address'] ?? '',
-                email: data['email'] ?? '',
-              ),
+              builder:
+                  (context) => DashboardScreen(
+                    name: data!['name'] ?? '',
+                    phone: data['phone'] ?? '',
+                    address: data['address'] ?? '',
+                    email: data['email'] ?? '',
+                  ),
             ),
           );
         }
@@ -55,9 +60,9 @@ class _LoginWidgetsState extends State<LoginWidgets> {
       _emailController.clear();
       _passwordController.clear();
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'An error occurred')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message ?? 'An error occurred')));
     }
   }
 
@@ -115,10 +120,7 @@ class _LoginWidgetsState extends State<LoginWidgets> {
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   "Forgot Password",
-                  style: TextStyle(
-                    color: Color(0xFF8C5FF5),
-                    fontSize: 15.sp,
-                  ),
+                  style: TextStyle(color: Color(0xFF8C5FF5), fontSize: 15.sp),
                 ),
               ),
             ),
