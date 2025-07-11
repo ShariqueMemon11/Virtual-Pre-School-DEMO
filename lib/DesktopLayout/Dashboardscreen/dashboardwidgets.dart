@@ -58,11 +58,12 @@ class _StudentDetailsWidgetState extends State<StudentDetailsWidget> {
 
         // Main content with conditional sidebar
         Expanded(
-          flex: 14,
+          flex: 12,
           child: Row(
             children: [
               if (_isMenuOpen) Expanded(flex: 1, child: SideMenu()),
-              Expanded(flex: 6, child: MainSide()),
+              Expanded(flex: 5, child: MainSide()),
+              Expanded(flex: 2, child: Container(color: Colors.amberAccent)),
             ],
           ),
         ),
