@@ -1,5 +1,5 @@
-import 'package:demo_vps/MobileLayouts/mobilemain.dart';
-import 'package:demo_vps/DesktopLayout/desktopmain.dart';
+import 'package:demo_vps/View/MobileLayouts/mobilemain.dart';
+import 'package:demo_vps/View/DesktopLayout/desktopmain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
