@@ -18,7 +18,7 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(240, 224, 206, 230),
+      backgroundColor: const Color.fromARGB(255, 255, 230, 238),
       body: Center(
         child: StudentDetailsWidget(
           name: name,

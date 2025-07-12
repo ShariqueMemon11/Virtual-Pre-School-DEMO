@@ -26,7 +26,7 @@ class _SideMenu extends State<SideMenu> {
               child: Text(
                 "Menu",
                 style: TextStyle(
-                  color: Color.fromRGBO(140, 95, 245, 1),
+                  color: Colors.blueGrey,
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
                 ),
@@ -123,19 +123,23 @@ class _SidebarItemState extends State<SidebarItem> {
             ),
             child: Row(
               children: [
-                Icon(widget.icon, size: 20, color: Colors.black),
+                Icon(widget.icon, size: 20, color: Colors.blueGrey),
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     widget.label,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Colors.blueGrey,
                     ),
                   ),
                 ),
                 if (widget.hasArrow)
-                  Icon(Icons.arrow_forward_ios, size: 14, color: Colors.black),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: Colors.blueGrey,
+                  ),
               ],
             ),
           ),

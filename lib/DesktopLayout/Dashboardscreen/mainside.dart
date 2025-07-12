@@ -45,21 +45,21 @@ class _MainSide extends State<MainSide> {
 
                   children: [
                     statscard(
-                      color: Color.fromARGB(197, 184, 109, 211),
+                      color: Color.fromARGB(255, 238, 212, 248),
                       dataname: "Student",
                       ic: Icons.child_care_rounded,
                       quantity: "400",
                     ),
                     SizedBox(width: 50.w),
                     statscard(
-                      color: Color.fromARGB(197, 206, 176, 57),
+                      color: Color.fromARGB(255, 249, 236, 184),
                       dataname: "Teacher",
                       ic: Icons.school,
                       quantity: "24",
                     ),
                     SizedBox(width: 50.w),
                     statscard(
-                      color: Color.fromARGB(197, 184, 109, 211),
+                      color: Color.fromARGB(255, 238, 212, 248),
                       dataname: "Staff",
                       ic: Icons.person_3_outlined,
                       quantity: "10",

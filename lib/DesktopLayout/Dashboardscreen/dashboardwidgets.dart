@@ -36,7 +36,7 @@ class _StudentDetailsWidgetState extends State<StudentDetailsWidget> {
         Expanded(
           flex: 1,
           child: Container(
-            color: Color.fromRGBO(140, 95, 245, 1),
+            color: Color.fromRGBO(181, 154, 245, 1),
             child: Row(
               children: [
                 Padding(
@@ -44,7 +44,7 @@ class _StudentDetailsWidgetState extends State<StudentDetailsWidget> {
                   child: IconButton(
                     icon: Icon(
                       _isMenuOpen ? Icons.arrow_back_sharp : Icons.menu,
-                      color: Colors.black,
+                      color: Colors.blueGrey,
                     ),
                     onPressed: () {
                       setState(() {
@@ -56,7 +56,7 @@ class _StudentDetailsWidgetState extends State<StudentDetailsWidget> {
                 Spacer(),
                 IconButton(
                   onPressed: () {},
-                  icon: Icon(Icons.notifications, color: Colors.black),
+                  icon: Icon(Icons.notifications, color: Colors.white),
                 ),
                 SizedBox(width: 15.w),
                 Container(
