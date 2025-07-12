@@ -21,12 +21,6 @@ class _SideMenu extends State<SideMenu> {
                 255,
                 1,
               ), // Moved color inside BoxDecoration
-              border: Border(
-                top: BorderSide(
-                  width: 2.0,
-                  color: Color.fromRGBO(140, 95, 245, 1),
-                ),
-              ),
             ),
             child: Center(
               child: Text(
@@ -129,27 +123,19 @@ class _SidebarItemState extends State<SidebarItem> {
             ),
             child: Row(
               children: [
-                Icon(
-                  widget.icon,
-                  size: 20,
-                  color: Color.fromARGB(255, 150, 1, 199),
-                ),
+                Icon(widget.icon, size: 20, color: Colors.black),
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     widget.label,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 158, 11, 207),
+                      color: Colors.black,
                     ),
                   ),
                 ),
                 if (widget.hasArrow)
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                    color: Color.fromARGB(255, 158, 11, 207),
-                  ),
+                  Icon(Icons.arrow_forward_ios, size: 14, color: Colors.black),
               ],
             ),
           ),

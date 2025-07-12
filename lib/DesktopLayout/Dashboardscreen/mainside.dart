@@ -28,7 +28,7 @@ class _MainSide extends State<MainSide> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 25.sp,
-                    color: Colors.white,
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -75,7 +75,7 @@ class _MainSide extends State<MainSide> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 25.sp,
-                    color: Colors.white,
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -172,11 +172,11 @@ class statscard extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 25.sp,
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                   ),
 
-                  Icon(ic, size: 30.sp, color: Colors.white),
+                  Icon(ic, size: 30.sp, color: Colors.black),
                 ],
               ),
             ),
@@ -193,7 +193,7 @@ class statscard extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 25.sp,
-                  color: Colors.white,
+                  color: Colors.black,
                 ),
               ),
             ),
