@@ -1,7 +1,5 @@
 import 'package:demo_vps/Model/user_model.dart';
-import 'package:demo_vps/View/DesktopLayout/Dashboardscreen/dashboardscreen.dart';
-
-import 'package:demo_vps/View/DesktopLayout/Dashboardscreen/dashboardscreen.dart';
+import 'package:demo_vps/View/DesktopLayout/loginscreen/loginscreen.dart';
 
 import 'package:flutter/material.dart';
 
@@ -22,6 +20,6 @@ class _DesktopMainState extends State<DesktopMain> {
       email: 'alice@example.com',
     );
     // return LoginScreen();
-    return DashboardScreen(user: dummyUser);
+    return LoginScreen();
   }
 }

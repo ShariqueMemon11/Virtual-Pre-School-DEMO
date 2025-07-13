@@ -53,7 +53,7 @@ class _RegisterWidgetState extends State<RegisterWidget> {
     return Center(
       child: Container(
         padding: EdgeInsets.all(14.0.h),
-        height: screenHeight * 0.75,
+        height: screenHeight * 0.85,
         width: screenWidth * 0.25,
         decoration: BoxDecoration(
           color: const Color.fromARGB(141, 233, 233, 233),
@@ -102,6 +102,7 @@ class _RegisterWidgetState extends State<RegisterWidget> {
                     run: _controller.registerUser,
                     input: "Register",
                   ),
+                  SizedBox(width: 20.h),
                   Secondarybuttonwidget(
                     run: _controller.navigateBackToLogin,
                     input: "Login",
