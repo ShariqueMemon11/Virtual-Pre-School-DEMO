@@ -33,8 +33,9 @@ class TeacherAdmissionController {
 
   String? emailValidator(String? value) {
     if (value == null || value.isEmpty) return "Required";
-    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value))
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
       return "Enter a valid email";
+    }
     return null;
   }
 

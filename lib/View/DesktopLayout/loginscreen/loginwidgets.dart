@@ -43,7 +43,7 @@ class _LoginWidgetsState extends State<LoginWidgets> {
     return Center(
       child: Container(
         padding: EdgeInsets.all(14.0.h),
-        height: screenHeight * 0.5,
+        height: screenHeight * 0.6,
         width: screenWidth * 0.25,
         decoration: BoxDecoration(
           color: const Color.fromARGB(141, 233, 233, 233),
@@ -96,6 +96,7 @@ class _LoginWidgetsState extends State<LoginWidgets> {
                   run: _controller.loginUserWithEmailPassword,
                   input: "Login",
                 ),
+                SizedBox(width: 20.w),
                 Secondarybuttonwidget(
                   run: () => _controller.navigateToRegister(),
                   input: "Register",

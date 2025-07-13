@@ -15,43 +15,39 @@ class DropdownSelectorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
+    return Container(
+      width: double.infinity, // takes full width of parent
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: Colors.grey.shade400),
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+        ],
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          isExpanded: true,
+          value: selectedOption == "Select Audience" ? null : selectedOption,
+          dropdownColor: Colors.white,
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: Colors.grey.shade400),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 4,
-              offset: Offset(0, 2),
+          items:
+              options
+                  .map(
+                    (aud) =>
+                        DropdownMenuItem<String>(value: aud, child: Text(aud)),
+                  )
+                  .toList(),
+          hint: Text(
+            selectedOption ?? "Select Audience",
+            style: TextStyle(
+              fontSize: 16.sp,
+              color: const Color.fromARGB(255, 2, 2, 2),
             ),
-          ],
-        ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            isExpanded: true,
-            value: selectedOption == "Select Audience" ? null : selectedOption,
-            dropdownColor: Colors.white,
-            borderRadius: BorderRadius.circular(12.r),
-            items:
-                options
-                    .map(
-                      (aud) => DropdownMenuItem<String>(
-                        value: aud,
-                        child: Text(aud),
-                      ),
-                    )
-                    .toList(),
-            hint: Text(
-              selectedOption ?? "Select Audience",
-              style: TextStyle(fontSize: 16.sp, color: const Color(0xFF8C5FF5)),
-            ),
-            style: TextStyle(fontSize: 16.sp, color: const Color(0xFF8C5FF5)),
-            onChanged: onChanged,
           ),
+          style: TextStyle(fontSize: 16.sp, color: const Color(0xFF8C5FF5)),
+          onChanged: onChanged,
         ),
       ),
     );

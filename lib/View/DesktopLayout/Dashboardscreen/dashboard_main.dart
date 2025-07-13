@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MainSide extends StatefulWidget {
+  const MainSide({super.key});
+
   @override
   State<StatefulWidget> createState() => _MainSide();
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SideMenu extends StatefulWidget {
+  const SideMenu({super.key});
+
   @override
   State<StatefulWidget> createState() => _SideMenu();
 }
@@ -90,12 +92,12 @@ class SidebarItem extends StatefulWidget {
   final VoidCallback? onTap;
 
   const SidebarItem({
-    Key? key,
+    super.key,
     required this.icon,
     required this.label,
     this.hasArrow = false,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   _SidebarItemState createState() => _SidebarItemState();
