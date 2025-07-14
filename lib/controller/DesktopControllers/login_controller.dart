@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../View/DesktopLayout/Dashboardscreen/dashboardscreen.dart';
-import '../../View/DesktopLayout/registerscreen.dart/registerscreen.dart';
+import '../../View/DesktopLayout/registersteps/student_registration_flow.dart';
+import '../../View/DesktopLayout/teacheradmission/teacheradmission.dart';
 
 class LoginController {
   final TextEditingController emailController;
@@ -57,9 +58,41 @@ class LoginController {
   }
 
   void navigateToRegister() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const RegisterScreen()),
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Registration Type'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StudentRegistrationFlow(),
+                  ),
+                );
+              },
+              child: const Text('Student Registration'),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const TeacherAdmission(),
+                  ),
+                );
+              },
+              child: const Text('Teacher Registration'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

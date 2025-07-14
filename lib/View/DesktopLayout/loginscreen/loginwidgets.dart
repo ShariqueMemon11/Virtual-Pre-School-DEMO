@@ -43,8 +43,9 @@ class _LoginWidgetsState extends State<LoginWidgets> {
     return Center(
       child: Container(
         padding: EdgeInsets.all(14.0.h),
-        height: screenHeight * 0.6,
+        // Remove height constraint for tighter fit
         width: screenWidth * 0.25,
+        margin: const EdgeInsets.symmetric(vertical: 32), // Add vertical margin
         decoration: BoxDecoration(
           color: const Color.fromARGB(141, 233, 233, 233),
           borderRadius: BorderRadius.circular(20.r),
@@ -58,6 +59,7 @@ class _LoginWidgetsState extends State<LoginWidgets> {
           ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min, // Only as tall as needed
           children: [
             Text(
               "Login",

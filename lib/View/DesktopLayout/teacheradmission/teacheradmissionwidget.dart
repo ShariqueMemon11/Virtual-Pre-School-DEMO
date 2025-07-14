@@ -61,8 +61,9 @@ class _TeacherAdmissionWidgetState extends State<TeacherAdmissionWidget> {
         key: _formKey,
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 14.0.h, vertical: 10.0.h),
-          height: screenSize.height * 0.85,
+          // Remove height constraint for tighter fit
           width: screenSize.width * 0.25,
+          margin: const EdgeInsets.symmetric(vertical: 32), // Add vertical margin
           decoration: BoxDecoration(
             color: const Color.fromARGB(141, 233, 233, 233),
             borderRadius: BorderRadius.circular(20.r),
@@ -76,6 +77,7 @@ class _TeacherAdmissionWidgetState extends State<TeacherAdmissionWidget> {
             ],
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min, // Only as tall as needed
             children: [
               Text(
                 "Teacher Admission",
