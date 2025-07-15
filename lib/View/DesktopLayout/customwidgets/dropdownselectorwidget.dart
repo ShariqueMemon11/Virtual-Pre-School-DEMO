@@ -5,12 +5,14 @@ class DropdownSelectorWidget extends StatelessWidget {
   final List<String> options;
   final String? selectedOption;
   final ValueChanged<String?> onChanged;
+  final String hintText;
 
   const DropdownSelectorWidget({
     super.key,
     required this.options,
     required this.selectedOption,
     required this.onChanged,
+    this.hintText = "Select Option",
   });
 
   @override
@@ -23,27 +25,33 @@ class DropdownSelectorWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: Colors.grey.shade400),
         boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           isExpanded: true,
-          value: selectedOption == "Select Audience" ? null : selectedOption,
+          value: selectedOption,
           dropdownColor: Colors.white,
           borderRadius: BorderRadius.circular(12.r),
           items:
               options
                   .map(
-                    (aud) =>
-                        DropdownMenuItem<String>(value: aud, child: Text(aud)),
+                    (option) => DropdownMenuItem<String>(
+                      value: option,
+                      child: Text(option),
+                    ),
                   )
                   .toList(),
           hint: Text(
-            selectedOption ?? "Select Audience",
+            hintText,
             style: TextStyle(
               fontSize: 16.sp,
-              color: const Color.fromARGB(255, 2, 2, 2),
+              color: const Color.fromARGB(255, 100, 100, 100),
             ),
           ),
           style: TextStyle(fontSize: 16.sp, color: const Color(0xFF8C5FF5)),
