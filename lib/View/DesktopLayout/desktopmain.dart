@@ -1,4 +1,5 @@
 import 'package:demo_vps/Model/user_model.dart';
+import 'package:demo_vps/View/DesktopLayout/assignTeacher/assign_teacher_screen.dart';
 import 'package:demo_vps/View/DesktopLayout/loginscreen/loginscreen.dart';
 
 import 'package:flutter/material.dart';
@@ -20,6 +21,6 @@ class _DesktopMainState extends State<DesktopMain> {
       email: 'alice@example.com',
     );
     // return LoginScreen();
-    return LoginScreen();
+    return AssignTeacherScreen();
   }
 }
