@@ -9,6 +9,7 @@ class CreateNotificationController {
   final TextEditingController titleController;
   final TextEditingController bodyController;
   final BuildContext context;
+  final bool isTest;
 
   String? audience = "Select Audience";
   File? attachedFile;
@@ -21,6 +22,7 @@ class CreateNotificationController {
     required this.titleController,
     required this.bodyController,
     required this.context,
+    this.isTest = false,
   });
 
   Future<void> handleFileUpload() async {
@@ -53,6 +55,16 @@ class CreateNotificationController {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Sending notification...')));
+
+    if (isTest) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Notification sent successfully! (test mode)')),
+      );
+      isSubmitting = false;
+      onStateChanged();
+      return;
+    }
 
     await FirebaseFirestore.instance.collection('notifications').add({
       'title': titleController.text.trim(),

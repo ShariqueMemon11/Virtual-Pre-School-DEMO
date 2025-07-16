@@ -81,8 +81,8 @@ class LoginController {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                Navigator.push(
-                  context,
+    Navigator.push(
+      context,
                   MaterialPageRoute(
                     builder: (context) => const TeacherAdmission(),
                   ),
