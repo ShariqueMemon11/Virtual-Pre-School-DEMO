@@ -8,6 +8,10 @@ class StudentRegistrationData {
   String? motherCell;
   String? fatherCell;
 
+  // Registration Info
+  String? username;
+  String? password;
+
   // Mother Info
   String? motherName;
   String? motherId;
@@ -45,6 +49,8 @@ class StudentRegistrationData {
       'email': email,
       'motherCell': motherCell,
       'fatherCell': fatherCell,
+      'username': username,
+      'password': password,
       'motherName': motherName,
       'motherId': motherId,
       'motherAddress': motherAddress,

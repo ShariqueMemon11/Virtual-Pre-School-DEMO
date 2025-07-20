@@ -28,10 +28,10 @@ class InputFieldWidget extends StatelessWidget {
         validator: validator,
         obscureText: obscureText,
         keyboardType: keyboardType,
-        style: TextStyle(color: const Color(0xFF8C5FF5), fontSize: 16.sp),
+        style: TextStyle(color: Colors.black87, fontSize: 16.sp),
         decoration: InputDecoration(
           hintText: input,
-          hintStyle: TextStyle(color: Color(0xFF8C5FF5)),
+          hintStyle: TextStyle(color: Color(0xFF4B2E83)),
           fillColor: const Color.fromARGB(202, 245, 245, 245),
           filled: true,
           border: OutlineInputBorder(
