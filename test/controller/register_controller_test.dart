@@ -20,7 +20,9 @@ void main() {
       formKey = GlobalKey<FormState>();
     });
 
-    testWidgets('shows error if any field is empty', (WidgetTester tester) async {
+    testWidgets('shows error if any field is empty', (
+      WidgetTester tester,
+    ) async {
       nameController.text = '';
       await tester.pumpWidget(
         MaterialApp(
@@ -56,7 +58,9 @@ void main() {
       // Optionally, check for error SnackBar
     });
 
-    testWidgets('registers successfully with valid fields', (WidgetTester tester) async {
+    testWidgets('registers successfully with valid fields', (
+      WidgetTester tester,
+    ) async {
       nameController.text = 'Test User';
       emailController.text = 'test@email.com';
       passwordController.text = 'password123';
@@ -132,7 +136,9 @@ void main() {
       // Optionally, check for error SnackBar
     });
 
-    testWidgets('shows error if password is too short', (WidgetTester tester) async {
+    testWidgets('shows error if password is too short', (
+      WidgetTester tester,
+    ) async {
       passwordController.text = '123';
       await tester.pumpWidget(
         MaterialApp(
@@ -168,4 +174,4 @@ void main() {
       // Optionally, check for error SnackBar
     });
   });
-} 
+}

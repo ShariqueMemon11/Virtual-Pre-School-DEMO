@@ -12,7 +12,9 @@ void main() {
       bodyController = TextEditingController();
     });
 
-    testWidgets('should validate and submit notification', (WidgetTester tester) async {
+    testWidgets('should validate and submit notification', (
+      WidgetTester tester,
+    ) async {
       titleController.text = 'Test';
       bodyController.text = 'Message';
       await tester.pumpWidget(
@@ -45,7 +47,9 @@ void main() {
       // Optionally, check for SnackBar or other side effects here
     });
 
-    testWidgets('should show error if title or message is empty', (WidgetTester tester) async {
+    testWidgets('should show error if title or message is empty', (
+      WidgetTester tester,
+    ) async {
       titleController.text = '';
       bodyController.text = '';
       await tester.pumpWidget(
@@ -78,7 +82,9 @@ void main() {
       // Optionally, check for error SnackBar
     });
 
-    testWidgets('should show error if audience is not selected', (WidgetTester tester) async {
+    testWidgets('should show error if audience is not selected', (
+      WidgetTester tester,
+    ) async {
       titleController.text = 'Test';
       bodyController.text = 'Message';
       await tester.pumpWidget(
@@ -111,7 +117,9 @@ void main() {
       // Optionally, check for error SnackBar
     });
 
-    testWidgets('should handle file attachment logic', (WidgetTester tester) async {
+    testWidgets('should handle file attachment logic', (
+      WidgetTester tester,
+    ) async {
       titleController.text = 'Test';
       bodyController.text = 'Message';
       await tester.pumpWidget(
@@ -145,4 +153,4 @@ void main() {
       // Optionally, check for SnackBar or file logic
     });
   });
-} 
+}

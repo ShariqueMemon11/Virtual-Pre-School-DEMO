@@ -25,7 +25,9 @@ void main() {
       formKey = GlobalKey<FormState>();
     });
 
-    testWidgets('shows error if CV is not uploaded', (WidgetTester tester) async {
+    testWidgets('shows error if CV is not uploaded', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -63,48 +65,53 @@ void main() {
       // Optionally, check for error SnackBar
     });
 
-    testWidgets('should submit successfully when all fields are valid and CV is uploaded', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Form(
-              key: formKey,
-              child: Builder(
-                builder: (context) {
-                  final controller = TeacherAdmissionController(
-                    nameController: nameController,
-                    emailController: emailController,
-                    phoneController: phoneController,
-                    qualificationController: qualificationController,
-                    experienceController: experienceController,
-                    subjectsController: subjectsController,
-                    addressController: addressController,
-                    context: context,
-                    formKey: formKey,
-                  );
-                  // Simulate CV upload
-                  controller.cvFileName = 'cv.pdf';
-                  controller.testCvFile = File('dummy');
-                  return ElevatedButton(
-                    onPressed: () {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        controller.submit();
-                      });
-                    },
-                    child: Text('Submit'),
-                  );
-                },
+    testWidgets(
+      'should submit successfully when all fields are valid and CV is uploaded',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Form(
+                key: formKey,
+                child: Builder(
+                  builder: (context) {
+                    final controller = TeacherAdmissionController(
+                      nameController: nameController,
+                      emailController: emailController,
+                      phoneController: phoneController,
+                      qualificationController: qualificationController,
+                      experienceController: experienceController,
+                      subjectsController: subjectsController,
+                      addressController: addressController,
+                      context: context,
+                      formKey: formKey,
+                    );
+                    // Simulate CV upload
+                    controller.cvFileName = 'cv.pdf';
+                    controller.testCvFile = File('dummy');
+                    return ElevatedButton(
+                      onPressed: () {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          controller.submit();
+                        });
+                      },
+                      child: Text('Submit'),
+                    );
+                  },
+                ),
               ),
             ),
           ),
-        ),
-      );
-      await tester.tap(find.text('Submit'));
-      await tester.pumpAndSettle();
-      // Optionally, check for success SnackBar
-    });
+        );
+        await tester.tap(find.text('Submit'));
+        await tester.pumpAndSettle();
+        // Optionally, check for success SnackBar
+      },
+    );
 
-    testWidgets('should show error if email is invalid', (WidgetTester tester) async {
+    testWidgets('should show error if email is invalid', (
+      WidgetTester tester,
+    ) async {
       emailController.text = 'invalid-email';
       await tester.pumpWidget(
         MaterialApp(
@@ -146,7 +153,9 @@ void main() {
       // Optionally, check for error SnackBar
     });
 
-    testWidgets('should show error if required field is missing', (WidgetTester tester) async {
+    testWidgets('should show error if required field is missing', (
+      WidgetTester tester,
+    ) async {
       nameController.text = '';
       await tester.pumpWidget(
         MaterialApp(
@@ -188,4 +197,4 @@ void main() {
       // Optionally, check for error SnackBar
     });
   });
-} 
+}

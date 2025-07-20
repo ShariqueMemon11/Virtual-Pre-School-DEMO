@@ -1,4 +1,6 @@
+import 'package:demo_vps/View/DesktopLayout/assignTeacher/assign_teacher_screen.dart';
 import 'package:demo_vps/View/DesktopLayout/loginscreen/loginscreen.dart';
+import 'package:demo_vps/View/DesktopLayout/notificationscreens/createnotificationscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -102,6 +104,7 @@ class _MainSide extends State<MainSide> {
                     DashboardCard(
                       icon: Icons.assignment_ind,
                       label: "Assign Teacher to Class",
+                      destination: AssignTeacherScreen(),
                     ),
                   ],
                 ),
@@ -116,6 +119,7 @@ class _MainSide extends State<MainSide> {
                     DashboardCard(
                       icon: Icons.notifications,
                       label: "Notification Management",
+                      destination: CreateNotificationScreen(),
                     ),
                     SizedBox(width: 50.w),
                     DashboardCard(
