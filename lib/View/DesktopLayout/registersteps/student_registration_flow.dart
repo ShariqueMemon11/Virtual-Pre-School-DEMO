@@ -10,7 +10,8 @@ class StudentRegistrationFlow extends StatefulWidget {
   const StudentRegistrationFlow({Key? key}) : super(key: key);
 
   @override
-  State<StudentRegistrationFlow> createState() => _StudentRegistrationFlowState();
+  State<StudentRegistrationFlow> createState() =>
+      _StudentRegistrationFlowState();
 }
 
 class _StudentRegistrationFlowState extends State<StudentRegistrationFlow> {
@@ -35,27 +36,30 @@ class _StudentRegistrationFlowState extends State<StudentRegistrationFlow> {
       _isSubmitting = true;
     });
     try {
-      await FirebaseFirestore.instance.collection('students').add(_registrationData.toMap());
+      await FirebaseFirestore.instance
+          .collection('students')
+          .add(_registrationData.toMap());
       setState(() {
         _isSubmitting = false;
       });
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Success'),
-          content: const Text('Registration completed successfully!'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  _currentStep = 0;
-                });
-              },
-              child: const Text('OK'),
+        builder:
+            (context) => AlertDialog(
+              title: const Text('Success'),
+              content: const Text('Registration completed successfully!'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      _currentStep = 0;
+                    });
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
             ),
-          ],
-        ),
       );
     } catch (e) {
       setState(() {
@@ -63,16 +67,17 @@ class _StudentRegistrationFlowState extends State<StudentRegistrationFlow> {
       });
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Error'),
-          content: Text('Failed to register: ${e.toString()}'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
+        builder:
+            (context) => AlertDialog(
+              title: const Text('Error'),
+              content: Text('Failed to register: ${e.toString()}'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('OK'),
+                ),
+              ],
             ),
-          ],
-        ),
       );
     }
   }
@@ -117,69 +122,76 @@ class _StudentRegistrationFlowState extends State<StudentRegistrationFlow> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF8C5FF5),
-              Color.fromARGB(255, 156, 129, 219),
-            ],
+            colors: [Color(0xFF8C5FF5), Color.fromARGB(255, 156, 129, 219)],
           ),
         ),
         child: Center(
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.6,
-            constraints: const BoxConstraints(maxWidth: 700),
-            padding: const EdgeInsets.all(32.0),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(141, 233, 233, 233),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  spreadRadius: 7,
-                  blurRadius: 7,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Stack(
-              children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min, // Only as tall as needed
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(4, (index) =>
-                          Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 6),
-                            width: 18,
-                            height: 18,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: _currentStep == index ? Colors.blue : Colors.grey[300],
-                              border: Border.all(color: Colors.blue, width: 1.5),
+          child: SingleChildScrollView(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.6,
+              constraints: const BoxConstraints(maxWidth: 700),
+              padding: const EdgeInsets.all(32.0),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(141, 233, 233, 233),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 7,
+                    blurRadius: 7,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min, // Only as tall as needed
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            4,
+                            (index) => Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 6),
+                              width: 18,
+                              height: 18,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color:
+                                    _currentStep == index
+                                        ? Colors.blue
+                                        : Colors.grey[300],
+                                border: Border.all(
+                                  color: Colors.blue,
+                                  width: 1.5,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 8),
-                    SizedBox(
-                      height: 520, // You can adjust this or remove for dynamic height
-                      child: _buildStep(),
-                    ),
-                  ],
-                ),
-                if (_isSubmitting)
-                  Container(
-                    color: Colors.black.withOpacity(0.3),
-                    child: const Center(child: CircularProgressIndicator()),
+                      SizedBox(height: 8),
+                      SizedBox(
+                        height:
+                            520, // You can adjust this or remove for dynamic height
+                        child: _buildStep(),
+                      ),
+                    ],
                   ),
-              ],
+                  if (_isSubmitting)
+                    Container(
+                      color: Colors.black.withOpacity(0.3),
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
   }
-} 
+}
