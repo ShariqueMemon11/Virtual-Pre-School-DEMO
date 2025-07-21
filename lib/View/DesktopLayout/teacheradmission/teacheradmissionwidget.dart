@@ -6,7 +6,10 @@ import 'package:demo_vps/View/DesktopLayout/customwidgets/primarybuttonwidget.da
 import 'package:demo_vps/View/DesktopLayout/customwidgets/secondarybuttonwidget.dart';
 
 class TeacherAdmissionWidget extends StatefulWidget {
-  const TeacherAdmissionWidget({super.key});
+  final String initialUsername;
+  final String initialEmail;
+  final String initialPassword;
+  const TeacherAdmissionWidget({super.key, required this.initialUsername, required this.initialEmail, required this.initialPassword});
 
   @override
   State<TeacherAdmissionWidget> createState() => _TeacherAdmissionWidgetState();
@@ -27,6 +30,9 @@ class _TeacherAdmissionWidgetState extends State<TeacherAdmissionWidget> {
   @override
   void initState() {
     super.initState();
+    _nameController.text = widget.initialUsername;
+    _emailController.text = widget.initialEmail;
+    // If you want to use password, store it in the controller or pass to Firestore on submit
     _controller = TeacherAdmissionController(
       nameController: _nameController,
       emailController: _emailController,
@@ -37,6 +43,7 @@ class _TeacherAdmissionWidgetState extends State<TeacherAdmissionWidget> {
       addressController: _addressController,
       context: context,
       formKey: _formKey,
+      initialPassword: widget.initialPassword,
     );
   }
 
@@ -62,7 +69,7 @@ class _TeacherAdmissionWidgetState extends State<TeacherAdmissionWidget> {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 14.0.h, vertical: 10.0.h),
           // Remove height constraint for tighter fit
-          width: screenSize.width * 0.25,
+          width: screenSize.width * 0.4,
           margin: const EdgeInsets.symmetric(vertical: 32), // Add vertical margin
           decoration: BoxDecoration(
             color: const Color.fromARGB(141, 233, 233, 233),
@@ -79,6 +86,16 @@ class _TeacherAdmissionWidgetState extends State<TeacherAdmissionWidget> {
           child: Column(
             mainAxisSize: MainAxisSize.min, // Only as tall as needed
             children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: TextButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  icon: Icon(Icons.arrow_back, color: Color(0xFF8C5FF5)),
+                  label: Text('Back to Login', style: TextStyle(color: Color(0xFF8C5FF5))),
+                ),
+              ),
               Text(
                 "Teacher Admission",
                 style: TextStyle(
@@ -173,10 +190,6 @@ class _TeacherAdmissionWidgetState extends State<TeacherAdmissionWidget> {
               Row(
                 children: [
                   Primarybuttonwidget(run: _controller.submit, input: "Submit"),
-                  Secondarybuttonwidget(
-                    run: () => _controller.navigateBack(),
-                    input: "Back",
-                  ),
                 ],
               ),
             ],

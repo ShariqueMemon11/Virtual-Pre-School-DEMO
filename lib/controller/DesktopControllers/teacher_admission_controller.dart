@@ -13,6 +13,7 @@ class TeacherAdmissionController {
   final TextEditingController addressController;
   final BuildContext context;
   final GlobalKey<FormState> formKey;
+  final String initialPassword;
 
   File? _cvFile;
   String? cvFileName;
@@ -30,6 +31,7 @@ class TeacherAdmissionController {
     required this.addressController,
     required this.context,
     required this.formKey,
+    required this.initialPassword,
   });
 
   String? requiredValidator(String? value) =>
@@ -64,6 +66,20 @@ class TeacherAdmissionController {
     }
 
     // Handle the actual submission logic (e.g., Firebase storage, Firestore)
+    // Example Firestore data map:
+    final teacherData = {
+      'name': nameController.text.trim(),
+      'email': emailController.text.trim(),
+      'phone': phoneController.text.trim(),
+      'qualification': qualificationController.text.trim(),
+      'experience': experienceController.text.trim(),
+      'subjects': subjectsController.text.trim(),
+      'address': addressController.text.trim(),
+      'password': initialPassword,
+      'cvFileName': cvFileName,
+      'createdAt': DateTime.now(),
+    };
+    // TODO: Save teacherData to Firestore
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Form submitted successfully!')),
     );

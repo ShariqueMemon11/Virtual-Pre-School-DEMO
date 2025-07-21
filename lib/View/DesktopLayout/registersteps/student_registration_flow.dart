@@ -7,17 +7,27 @@ import 'registration_step3.dart';
 import 'registration_step4.dart';
 
 class StudentRegistrationFlow extends StatefulWidget {
-  const StudentRegistrationFlow({Key? key}) : super(key: key);
+  final String initialUsername;
+  final String initialEmail;
+  final String initialPassword;
+  const StudentRegistrationFlow({Key? key, required this.initialUsername, required this.initialEmail, required this.initialPassword}) : super(key: key);
 
   @override
-  State<StudentRegistrationFlow> createState() =>
-      _StudentRegistrationFlowState();
+  State<StudentRegistrationFlow> createState() => _StudentRegistrationFlowState();
 }
 
 class _StudentRegistrationFlowState extends State<StudentRegistrationFlow> {
   int _currentStep = 0;
   final StudentRegistrationData _registrationData = StudentRegistrationData();
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _registrationData.username = widget.initialUsername;
+    _registrationData.email = widget.initialEmail;
+    _registrationData.password = widget.initialPassword;
+  }
 
   void _nextStep() {
     setState(() {
@@ -148,6 +158,16 @@ class _StudentRegistrationFlowState extends State<StudentRegistrationFlow> {
                   Column(
                     mainAxisSize: MainAxisSize.min, // Only as tall as needed
                     children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: TextButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          icon: Icon(Icons.arrow_back, color: Color(0xFF8C5FF5)),
+                          label: Text('Back to Login', style: TextStyle(color: Color(0xFF8C5FF5))),
+                        ),
+                      ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
                         child: Row(

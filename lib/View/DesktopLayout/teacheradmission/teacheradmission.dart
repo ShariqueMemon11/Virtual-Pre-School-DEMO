@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:demo_vps/View/DesktopLayout/teacheradmission/teacheradmissionwidget.dart';
 
 class TeacherAdmission extends StatelessWidget {
-  const TeacherAdmission({super.key});
+  final String initialUsername;
+  final String initialEmail;
+  final String initialPassword;
+  const TeacherAdmission({super.key, required this.initialUsername, required this.initialEmail, required this.initialPassword});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +18,11 @@ class TeacherAdmission extends StatelessWidget {
             colors: [Color(0xFF8C5FF5), Color.fromARGB(255, 156, 129, 219)],
           ),
         ),
-        child: const TeacherAdmissionWidget(),
+        child: TeacherAdmissionWidget(
+          initialUsername: initialUsername,
+          initialEmail: initialEmail,
+          initialPassword: initialPassword,
+        ),
       ),
     );
   }

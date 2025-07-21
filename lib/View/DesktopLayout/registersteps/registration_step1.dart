@@ -26,6 +26,18 @@ class _StudentRegistrationStep1State extends State<StudentRegistrationStep1> {
   final _fatherCellController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // Prefill with username and email if available
+    if (widget.registrationData.username != null && widget.registrationData.username!.isNotEmpty) {
+      _nameController.text = widget.registrationData.username!;
+    }
+    if (widget.registrationData.email != null && widget.registrationData.email!.isNotEmpty) {
+      _emailController.text = widget.registrationData.email!;
+    }
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _ageController.dispose();
@@ -78,7 +90,7 @@ class _StudentRegistrationStep1State extends State<StudentRegistrationStep1> {
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Name of Child'),
+              decoration: const InputDecoration(labelText: 'Name of Student (from username)'),
               validator: (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 16),
