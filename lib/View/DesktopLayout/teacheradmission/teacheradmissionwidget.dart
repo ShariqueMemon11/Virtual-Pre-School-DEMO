@@ -9,7 +9,12 @@ class TeacherAdmissionWidget extends StatefulWidget {
   final String initialUsername;
   final String initialEmail;
   final String initialPassword;
-  const TeacherAdmissionWidget({super.key, required this.initialUsername, required this.initialEmail, required this.initialPassword});
+  const TeacherAdmissionWidget({
+    super.key,
+    required this.initialUsername,
+    required this.initialEmail,
+    required this.initialPassword,
+  });
 
   @override
   State<TeacherAdmissionWidget> createState() => _TeacherAdmissionWidgetState();
@@ -63,136 +68,146 @@ class _TeacherAdmissionWidgetState extends State<TeacherAdmissionWidget> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
-    return Center(
-      child: Form(
-        key: _formKey,
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 14.0.h, vertical: 10.0.h),
-          // Remove height constraint for tighter fit
-          width: screenSize.width * 0.4,
-          margin: const EdgeInsets.symmetric(vertical: 32), // Add vertical margin
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(141, 233, 233, 233),
-            borderRadius: BorderRadius.circular(20.r),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                spreadRadius: 7,
-                blurRadius: 7,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // Only as tall as needed
-            children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: TextButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  icon: Icon(Icons.arrow_back, color: Color(0xFF8C5FF5)),
-                  label: Text('Back to Login', style: TextStyle(color: Color(0xFF8C5FF5))),
+    return SingleChildScrollView(
+      child: Center(
+        child: Form(
+          key: _formKey,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 14.0.h, vertical: 10.0.h),
+            // Remove height constraint for tighter fit
+            width: screenSize.width * 0.4,
+            margin: const EdgeInsets.symmetric(
+              vertical: 32,
+            ), // Add vertical margin
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(141, 233, 233, 233),
+              borderRadius: BorderRadius.circular(20.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  spreadRadius: 7,
+                  blurRadius: 7,
+                  offset: const Offset(0, 3),
                 ),
-              ),
-              Text(
-                "Teacher Admission",
-                style: TextStyle(
-                  fontSize: 30.sp,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 20.h),
-              InputFieldWidget(
-                input: "Name",
-                controller: _nameController,
-                validator: _controller.requiredValidator,
-              ),
-              SizedBox(height: 20.h),
-              InputFieldWidget(
-                input: "Email",
-                controller: _emailController,
-                validator: _controller.emailValidator,
-              ),
-              SizedBox(height: 20.h),
-              InputFieldWidget(
-                input: "Phone",
-                controller: _phoneController,
-                validator: _controller.requiredValidator,
-              ),
-              SizedBox(height: 20.h),
-              InputFieldWidget(
-                input: "Qualification",
-                controller: _qualificationController,
-                validator: _controller.requiredValidator,
-              ),
-              SizedBox(height: 20.h),
-              InputFieldWidget(
-                input: "Experience",
-                controller: _experienceController,
-                validator: _controller.requiredValidator,
-              ),
-              SizedBox(height: 20.h),
-              InputFieldWidget(
-                input: "Subject Specialization",
-                controller: _subjectsController,
-                validator: _controller.requiredValidator,
-              ),
-              SizedBox(height: 20.h),
-              InputFieldWidget(
-                input: "Address",
-                controller: _addressController,
-                validator: _controller.requiredValidator,
-              ),
-              SizedBox(height: 20.h),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(left: 5.w),
-                  child: Text(
-                    "Upload CV",
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF784BE1),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Only as tall as needed
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: TextButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    icon: Icon(Icons.arrow_back, color: Color(0xFF8C5FF5)),
+                    label: Text(
+                      'Back to Login',
+                      style: TextStyle(color: Color(0xFF8C5FF5)),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(height: 10.h),
-              Row(
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: _controller.pickCV,
-                    icon: Icon(Icons.upload_file),
-                    label: Text('Upload File'),
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                      textStyle: TextStyle(fontSize: 16),
-                    ),
+                Text(
+                  "Teacher Admission",
+                  style: TextStyle(
+                    fontSize: 30.sp,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
-                  SizedBox(width: 10),
-                  Expanded(
+                ),
+                SizedBox(height: 20.h),
+                InputFieldWidget(
+                  input: "Name",
+                  controller: _nameController,
+                  validator: _controller.requiredValidator,
+                ),
+                SizedBox(height: 20.h),
+                InputFieldWidget(
+                  input: "Email",
+                  controller: _emailController,
+                  validator: _controller.emailValidator,
+                ),
+                SizedBox(height: 20.h),
+                InputFieldWidget(
+                  input: "Phone",
+                  controller: _phoneController,
+                  validator: _controller.requiredValidator,
+                ),
+                SizedBox(height: 20.h),
+                InputFieldWidget(
+                  input: "Qualification",
+                  controller: _qualificationController,
+                  validator: _controller.requiredValidator,
+                ),
+                SizedBox(height: 20.h),
+                InputFieldWidget(
+                  input: "Experience",
+                  controller: _experienceController,
+                  validator: _controller.requiredValidator,
+                ),
+                SizedBox(height: 20.h),
+                InputFieldWidget(
+                  input: "Subject Specialization",
+                  controller: _subjectsController,
+                  validator: _controller.requiredValidator,
+                ),
+                SizedBox(height: 20.h),
+                InputFieldWidget(
+                  input: "Address",
+                  controller: _addressController,
+                  validator: _controller.requiredValidator,
+                ),
+                SizedBox(height: 20.h),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 5.w),
                     child: Text(
-                      _controller.cvFileName ?? 'No file selected',
-                      style: TextStyle(fontSize: 14, color: Colors.black54),
-                      overflow: TextOverflow.ellipsis,
+                      "Upload CV",
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF784BE1),
+                      ),
                     ),
                   ),
-                ],
-              ),
-              SizedBox(height: 20.h),
-              Row(
-                children: [
-                  Primarybuttonwidget(run: _controller.submit, input: "Submit"),
-                ],
-              ),
-            ],
+                ),
+                SizedBox(height: 10.h),
+                Row(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: _controller.pickCV,
+                      icon: Icon(Icons.upload_file),
+                      label: Text('Upload File'),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        textStyle: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        _controller.cvFileName ?? 'No file selected',
+                        style: TextStyle(fontSize: 14, color: Colors.black54),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20.h),
+                Row(
+                  children: [
+                    Primarybuttonwidget(
+                      run: _controller.submit,
+                      input: "Submit",
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
