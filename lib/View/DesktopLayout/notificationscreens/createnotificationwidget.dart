@@ -1,3 +1,4 @@
+import 'package:demo_vps/View/DesktopLayout/customwidgets/secondarybuttonwidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:demo_vps/controller/DesktopControllers/create_notification_controller.dart';
@@ -22,6 +23,7 @@ class _CreateNotificationWidgetState extends State<CreateNotificationWidget> {
   late CreateNotificationController _controller;
 
   final List<String> _audienceOptions = [
+    'Select Audience',
     'Students/Parents',
     'Teachers',
     'Admins',
@@ -50,7 +52,7 @@ class _CreateNotificationWidgetState extends State<CreateNotificationWidget> {
 
     return SingleChildScrollView(
       child: Container(
-        height: screenSize.height * 1.5,
+        height: screenSize.height * 1,
         width: screenSize.width * 0.4,
         padding: EdgeInsets.all(screenSize.width * 0.01),
         decoration: BoxDecoration(
@@ -111,16 +113,29 @@ class _CreateNotificationWidgetState extends State<CreateNotificationWidget> {
                     fileName: _controller.fileName,
                   ),
                   SizedBox(height: 40.h),
-                  Primarybuttonwidget(
-                    input: "Create Notification",
-                    run:
-                        _controller.isSubmitting
-                            ? null
-                            : () {
-                              _controller.submitNotification(
-                                () => setState(() {}),
-                              );
-                            },
+                  Row(
+                    children: [
+                      Primarybuttonwidget(
+                        input: "Create Notification",
+                        run:
+                            _controller.isSubmitting
+                                ? null
+                                : () {
+                                  _controller.submitNotification(
+                                    () => setState(() {}),
+                                  );
+                                },
+                      ),
+                      SizedBox(width: 20.w),
+                      Secondarybuttonwidget(
+                        run: () {
+                          setState(() {
+                            Navigator.pop(context);
+                          });
+                        },
+                        input: "Back",
+                      ),
+                    ],
                   ),
                 ],
               ),

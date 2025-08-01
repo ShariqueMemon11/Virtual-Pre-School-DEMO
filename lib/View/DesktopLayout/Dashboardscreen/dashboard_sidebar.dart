@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 class SideMenu extends StatefulWidget {
@@ -72,8 +74,14 @@ class _SideMenu extends State<SideMenu> {
                 SidebarItem(
                   icon: Icons.logout,
                   label: 'LogOut',
-                  onTap: () {
-                    // FirebaseAuth.instance.signOut(); // if using Firebase
+                  onTap: () async {
+                    // Example if you're using Firebase:
+                    // await FirebaseAuth.instance.signOut();
+                    await FirebaseAuth.instance.signOut();
+                    // After logout, navigate to login screen and clear stack
+                    setState(() {
+                      Navigator.pop(context);
+                    });
                   },
                 ),
               ],

@@ -1,3 +1,4 @@
+import 'package:demo_vps/View/DesktopLayout/customwidgets/secondarybuttonwidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:demo_vps/controller/DesktopControllers/assign_teacher_controller.dart';
@@ -103,14 +104,29 @@ class _AssignTeacherWidgetState extends State<AssignTeacherWidget> {
                   SizedBox(height: 40.h),
 
                   // Submit Button
-                  Primarybuttonwidget(
-                    input: "Assign",
-                    run:
-                        _controller.isSubmitting
-                            ? null
-                            : () {
-                              _controller.AssignTeacher(() => setState(() {}));
-                            },
+                  Row(
+                    children: [
+                      Primarybuttonwidget(
+                        input: "Assign",
+                        run:
+                            _controller.isSubmitting
+                                ? null
+                                : () {
+                                  _controller.AssignTeacher(
+                                    () => setState(() {}),
+                                  );
+                                },
+                      ),
+                      SizedBox(width: 20.w),
+                      Secondarybuttonwidget(
+                        run: () {
+                          setState(() {
+                            Navigator.pop(context);
+                          });
+                        },
+                        input: "Back",
+                      ),
+                    ],
                   ),
                 ],
               ),
