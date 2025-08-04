@@ -126,6 +126,11 @@ class _MainSide extends State<MainSide> {
                       icon: Icons.report_problem,
                       label: "Issue Management",
                     ),
+                    SizedBox(width: 50.w),
+                    DashboardCard(
+                      icon: Icons.report_problem,
+                      label: "Classroom Management",
+                    ),
                   ],
                 ),
               ),
