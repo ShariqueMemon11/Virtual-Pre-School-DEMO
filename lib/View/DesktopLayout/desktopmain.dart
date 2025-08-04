@@ -1,8 +1,5 @@
 import 'package:demo_vps/Model/user_model.dart';
-import 'package:demo_vps/View/DesktopLayout/Dashboardscreen/dashboardscreen.dart';
-import 'package:demo_vps/View/DesktopLayout/assignTeacher/assign_teacher_screen.dart';
-import 'package:demo_vps/View/DesktopLayout/Dashboardscreen/dashboardscreen.dart';
-import 'package:demo_vps/View/DesktopLayout/loginscreen/loginscreen.dart';
+import 'package:demo_vps/View/DesktopLayout/adminClassManagement/ClassManagement.dart';
 
 import 'package:flutter/material.dart';
 // issues shariq Side
@@ -18,13 +15,14 @@ class DesktopMain extends StatefulWidget {
 class _DesktopMainState extends State<DesktopMain> {
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
     final dummyUser = UserModel(
       name: 'Alice Smith',
       phone: '+1 234 567 8900',
       address: '123 Main Street, Springfield',
       email: 'alice@example.com',
     );
-    return LoginScreen();
+    return ClassManagementScreen();
     //DashboardScreen(user: dummyUser)
   }
 }
