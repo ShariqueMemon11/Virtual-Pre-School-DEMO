@@ -10,10 +10,16 @@ class StudentRegistrationFlow extends StatefulWidget {
   final String initialUsername;
   final String initialEmail;
   final String initialPassword;
-  const StudentRegistrationFlow({Key? key, required this.initialUsername, required this.initialEmail, required this.initialPassword}) : super(key: key);
+  const StudentRegistrationFlow({
+    super.key,
+    required this.initialUsername,
+    required this.initialEmail,
+    required this.initialPassword,
+  });
 
   @override
-  State<StudentRegistrationFlow> createState() => _StudentRegistrationFlowState();
+  State<StudentRegistrationFlow> createState() =>
+      _StudentRegistrationFlowState();
 }
 
 class _StudentRegistrationFlowState extends State<StudentRegistrationFlow> {
@@ -164,8 +170,14 @@ class _StudentRegistrationFlowState extends State<StudentRegistrationFlow> {
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
-                          icon: Icon(Icons.arrow_back, color: Color(0xFF8C5FF5)),
-                          label: Text('Back to Login', style: TextStyle(color: Color(0xFF8C5FF5))),
+                          icon: Icon(
+                            Icons.arrow_back,
+                            color: Color(0xFF8C5FF5),
+                          ),
+                          label: Text(
+                            'Back to Login',
+                            style: TextStyle(color: Color(0xFF8C5FF5)),
+                          ),
                         ),
                       ),
                       Padding(

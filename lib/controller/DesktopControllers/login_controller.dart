@@ -1,7 +1,6 @@
 import 'package:demo_vps/Model/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../View/DesktopLayout/Dashboardscreen/dashboardscreen.dart';
 import '../../View/DesktopLayout/registersteps/student_registration_flow.dart';
 import '../../View/DesktopLayout/teacheradmission/teacheradmission.dart';
@@ -34,7 +33,7 @@ class LoginController {
         address: 'Lahore',
         email: enteredEmail,
       );
-      
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -53,21 +52,19 @@ class LoginController {
             email: enteredEmail,
             password: enteredPassword,
           );
-      
+
       // Student/teacher login successful - go to demo
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => const DemoScreen(),
-        ),
+        MaterialPageRoute(builder: (context) => const DemoScreen()),
       );
-      
+
       emailController.clear();
       passwordController.clear();
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'An error occurred')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message ?? 'An error occurred')));
     }
   }
 
@@ -80,57 +77,62 @@ class LoginController {
       pageBuilder: (context, animation, secondaryAnimation) {
         return SafeArea(
           child: Builder(
-            builder: (context) => RegistrationModalWidget(
-              onNext: (username, email, password) {
-                Navigator.of(context).pop();
-                // After validation, show registration type selection
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Select Registration Type'),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => StudentRegistrationFlow(
-                                  initialUsername: username,
-                                  initialEmail: email,
-                                  initialPassword: password,
+            builder:
+                (context) => RegistrationModalWidget(
+                  onNext: (username, email, password) {
+                    Navigator.of(context).pop();
+                    // After validation, show registration type selection
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder:
+                          (context) => AlertDialog(
+                            title: const Text('Select Registration Type'),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) =>
+                                                StudentRegistrationFlow(
+                                                  initialUsername: username,
+                                                  initialEmail: email,
+                                                  initialPassword: password,
+                                                ),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text('Student Registration'),
                                 ),
-                              ),
-                            );
-                          },
-                          child: const Text('Student Registration'),
-                        ),
-                        const SizedBox(height: 12),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => TeacherAdmission(
-                                  initialUsername: username,
-                                  initialEmail: email,
-                                  initialPassword: password,
+                                const SizedBox(height: 12),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => TeacherAdmission(
+                                              initialUsername: username,
+                                              initialEmail: email,
+                                              initialPassword: password,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text('Teacher Registration'),
                                 ),
-                              ),
-                            );
-                          },
-                          child: const Text('Teacher Registration'),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+                              ],
+                            ),
+                          ),
+                    );
+                  },
+                ),
           ),
         );
       },

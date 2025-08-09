@@ -7,14 +7,15 @@ class StudentRegistrationStep4 extends StatefulWidget {
   final VoidCallback onBack;
 
   const StudentRegistrationStep4({
-    Key? key,
+    super.key,
     required this.registrationData,
     required this.onSubmit,
     required this.onBack,
-  }) : super(key: key);
+  });
 
   @override
-  State<StudentRegistrationStep4> createState() => _StudentRegistrationStep4State();
+  State<StudentRegistrationStep4> createState() =>
+      _StudentRegistrationStep4State();
 }
 
 class _StudentRegistrationStep4State extends State<StudentRegistrationStep4> {
@@ -26,7 +27,9 @@ class _StudentRegistrationStep4State extends State<StudentRegistrationStep4> {
       widget.onSubmit();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You must accept the policies to continue.')),
+        const SnackBar(
+          content: Text('You must accept the policies to continue.'),
+        ),
       );
     }
   }
@@ -69,4 +72,4 @@ class _StudentRegistrationStep4State extends State<StudentRegistrationStep4> {
       ),
     );
   }
-} 
+}
