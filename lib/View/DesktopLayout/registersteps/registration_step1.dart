@@ -6,13 +6,14 @@ class StudentRegistrationStep1 extends StatefulWidget {
   final VoidCallback onNext;
 
   const StudentRegistrationStep1({
-    Key? key,
+    super.key,
     required this.registrationData,
     required this.onNext,
-  }) : super(key: key);
+  });
 
   @override
-  State<StudentRegistrationStep1> createState() => _StudentRegistrationStep1State();
+  State<StudentRegistrationStep1> createState() =>
+      _StudentRegistrationStep1State();
 }
 
 class _StudentRegistrationStep1State extends State<StudentRegistrationStep1> {
@@ -29,10 +30,12 @@ class _StudentRegistrationStep1State extends State<StudentRegistrationStep1> {
   void initState() {
     super.initState();
     // Prefill with username and email if available
-    if (widget.registrationData.username != null && widget.registrationData.username!.isNotEmpty) {
+    if (widget.registrationData.username != null &&
+        widget.registrationData.username!.isNotEmpty) {
       _nameController.text = widget.registrationData.username!;
     }
-    if (widget.registrationData.email != null && widget.registrationData.email!.isNotEmpty) {
+    if (widget.registrationData.email != null &&
+        widget.registrationData.email!.isNotEmpty) {
       _emailController.text = widget.registrationData.email!;
     }
   }
@@ -90,15 +93,19 @@ class _StudentRegistrationStep1State extends State<StudentRegistrationStep1> {
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Name of Student (from username)'),
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              decoration: const InputDecoration(
+                labelText: 'Name of Student (from username)',
+              ),
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _ageController,
               decoration: const InputDecoration(labelText: 'Age'),
               keyboardType: TextInputType.number,
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 16),
             GestureDetector(
@@ -111,9 +118,10 @@ class _StudentRegistrationStep1State extends State<StudentRegistrationStep1> {
                     suffixIcon: const Icon(Icons.calendar_today),
                   ),
                   controller: TextEditingController(
-                    text: _selectedDate == null
-                        ? ''
-                        : '${_selectedDate!.month}/${_selectedDate!.day}/${_selectedDate!.year}',
+                    text:
+                        _selectedDate == null
+                            ? ''
+                            : '${_selectedDate!.month}/${_selectedDate!.day}/${_selectedDate!.year}',
                   ),
                   validator: (_) => _selectedDate == null ? 'Required' : null,
                 ),
@@ -124,28 +132,32 @@ class _StudentRegistrationStep1State extends State<StudentRegistrationStep1> {
               controller: _homePhoneController,
               decoration: const InputDecoration(labelText: 'Home Phone Number'),
               keyboardType: TextInputType.phone,
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _emailController,
               decoration: const InputDecoration(labelText: 'Email Address'),
               keyboardType: TextInputType.emailAddress,
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _motherCellController,
               decoration: const InputDecoration(labelText: 'Mother Cell Phone'),
               keyboardType: TextInputType.phone,
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _fatherCellController,
               decoration: const InputDecoration(labelText: 'Father Cell Phone'),
               keyboardType: TextInputType.phone,
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 32),
             Align(
@@ -160,4 +172,4 @@ class _StudentRegistrationStep1State extends State<StudentRegistrationStep1> {
       ),
     );
   }
-} 
+}

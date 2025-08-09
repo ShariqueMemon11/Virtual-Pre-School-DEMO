@@ -2,8 +2,62 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:demo_vps/View/DesktopLayout/adminClassManagement/ClassDetailsScreen.dart';
 
+class ClassSelection extends StatefulWidget {
+  const ClassSelection({super.key});
+
+  @override
+  State<ClassSelection> createState() => _ClassSelectionState();
+}
+
+class _ClassSelectionState extends State<ClassSelection> {
+  List<Map<String, dynamic>> classes = [
+    {
+      'name': 'Playgroup A',
+      'teacher': 'Miss Sana',
+      'capacity': 20,
+      'students': 18,
+    },
+    {
+      'name': 'Playgroup B',
+      'teacher': 'Miss Hira',
+      'capacity': 20,
+      'students': 19,
+    },
+    // ... other initial classes
+  ];
+
+  void _addClass(Map<String, dynamic> newClass) {
+    setState(() {
+      classes.add(newClass);
+    });
+  }
+
+  void _openCreateClassModal() {
+    showDialog(
+      context: context,
+      builder:
+          (_) => CreateClassModal(
+            onSave: (newClass) {
+              _addClass(newClass);
+            },
+          ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        HeaderWidget(onCreateClass: _openCreateClassModal),
+        BodyWidget(classes: classes),
+      ],
+    );
+  }
+}
+
 class HeaderWidget extends StatelessWidget {
-  const HeaderWidget({super.key});
+  final VoidCallback onCreateClass;
+  const HeaderWidget({super.key, required this.onCreateClass});
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +105,20 @@ class HeaderWidget extends StatelessWidget {
               ),
             ),
           ),
+          SizedBox(width: 20.w),
+          ElevatedButton.icon(
+            onPressed: onCreateClass,
+            icon: Icon(Icons.add, size: 20.sp),
+            label: Text("Create Class", style: TextStyle(fontSize: 16.sp)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white.withOpacity(0.3),
+              foregroundColor: Colors.white,
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -58,50 +126,8 @@ class HeaderWidget extends StatelessWidget {
 }
 
 class BodyWidget extends StatelessWidget {
-  BodyWidget({super.key});
-
-  final List<Map<String, dynamic>> Classes = [
-    {
-      'name': 'Playgroup A',
-      'teacher': 'Miss Sana',
-      'capacity': 20,
-      'students': 18,
-    },
-    {
-      'name': 'Playgroup B',
-      'teacher': 'Miss Hira',
-      'capacity': 20,
-      'students': 19,
-    },
-    {
-      'name': 'Nursery A',
-      'teacher': 'Miss Sara',
-      'capacity': 25,
-      'students': 22,
-    },
-    {
-      'name': 'Nursery B',
-      'teacher': 'Mr. Zain',
-      'capacity': 25,
-      'students': 23,
-    },
-    {
-      'name': 'KG 1 A',
-      'teacher': 'Miss Fatima',
-      'capacity': 30,
-      'students': 27,
-    },
-    {'name': 'KG 1 B', 'teacher': 'Mr. Ali', 'capacity': 30, 'students': 28},
-    {'name': 'KG 2 A', 'teacher': 'Miss Huma', 'capacity': 30, 'students': 29},
-    {'name': 'KG 2 B', 'teacher': 'Mr. Saad', 'capacity': 30, 'students': 30},
-    {
-      'name': 'Prep A',
-      'teacher': 'Miss Ayesha',
-      'capacity': 28,
-      'students': 26,
-    },
-    {'name': 'Prep B', 'teacher': 'Mr. Imran', 'capacity': 28, 'students': 27},
-  ];
+  final List<Map<String, dynamic>> classes;
+  const BodyWidget({super.key, required this.classes});
 
   @override
   Widget build(BuildContext context) {
@@ -110,12 +136,12 @@ class BodyWidget extends StatelessWidget {
         width: double.infinity,
         child: SingleChildScrollView(
           child: Column(
-            children: List.generate(Classes.length, (index) {
-              final classData = Classes[index];
+            children: List.generate(classes.length, (index) {
+              final classData = classes[index];
 
               return Padding(
                 padding: EdgeInsets.symmetric(vertical: 5.h),
-                child: Container(
+                child: SizedBox(
                   width: 0.95.sw,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(
@@ -180,17 +206,157 @@ class BodyWidget extends StatelessWidget {
   }
 }
 
-class ClassSelection extends StatelessWidget {
-  const ClassSelection({super.key});
+class CreateClassModal extends StatefulWidget {
+  final void Function(Map<String, dynamic>) onSave;
+
+  const CreateClassModal({super.key, required this.onSave});
+
+  @override
+  State<CreateClassModal> createState() => _CreateClassModalState();
+}
+
+class _CreateClassModalState extends State<CreateClassModal> {
+  final _formKey = GlobalKey<FormState>();
+
+  String className = '';
+  String teacherName = '';
+  int? capacity;
+  int? students;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        HeaderWidget(),
-        BodyWidget(),
-        // Other widgets will go here
-      ],
+    return Dialog(
+      insetPadding: EdgeInsets.all(20.w),
+      child: Container(
+        width: 0.6.sw,
+        padding: EdgeInsets.all(24.w),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Create New Class",
+                style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20.h),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "Class Name",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                      ),
+                      onChanged: (val) => className = val,
+                      validator:
+                          (val) =>
+                              val == null || val.isEmpty
+                                  ? "Enter class name"
+                                  : null,
+                    ),
+                    SizedBox(height: 16.h),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "Teacher Name",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                      ),
+                      onChanged: (val) => teacherName = val,
+                      validator:
+                          (val) =>
+                              val == null || val.isEmpty
+                                  ? "Enter teacher name"
+                                  : null,
+                    ),
+                    SizedBox(height: 16.h),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "Capacity",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (val) => capacity = int.tryParse(val),
+                      validator: (val) {
+                        if (val == null || val.isEmpty) {
+                          return "Enter capacity";
+                        }
+                        if (int.tryParse(val) == null) {
+                          return "Enter valid number";
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 16.h),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: "Enrolled Students",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (val) => students = int.tryParse(val),
+                      validator: (val) {
+                        if (val == null || val.isEmpty) {
+                          return "Enter enrolled students";
+                        }
+                        if (int.tryParse(val) == null) {
+                          return "Enter valid number";
+                        }
+                        if (capacity != null &&
+                            int.tryParse(val)! > capacity!) {
+                          return "Students cannot exceed capacity";
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 24.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(
+                            "Cancel",
+                            style: TextStyle(fontSize: 16.sp),
+                          ),
+                        ),
+                        SizedBox(width: 12.w),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              widget.onSave({
+                                'name': className,
+                                'teacher': teacherName,
+                                'capacity': capacity,
+                                'students': students,
+                              });
+                              Navigator.of(context).pop();
+                            }
+                          },
+                          child: Text(
+                            "Save",
+                            style: TextStyle(fontSize: 16.sp),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
+// still have some issues

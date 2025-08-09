@@ -7,20 +7,23 @@ class StudentRegistrationStep3 extends StatefulWidget {
   final VoidCallback onBack;
 
   const StudentRegistrationStep3({
-    Key? key,
+    super.key,
     required this.registrationData,
     required this.onNext,
     required this.onBack,
-  }) : super(key: key);
+  });
 
   @override
-  State<StudentRegistrationStep3> createState() => _StudentRegistrationStep3State();
+  State<StudentRegistrationStep3> createState() =>
+      _StudentRegistrationStep3State();
 }
 
 class _StudentRegistrationStep3State extends State<StudentRegistrationStep3> {
   final _formKey = GlobalKey<FormState>();
-  final List<TextEditingController> _familyControllers =
-      List.generate(3, (_) => TextEditingController());
+  final List<TextEditingController> _familyControllers = List.generate(
+    3,
+    (_) => TextEditingController(),
+  );
   final _specialEquipmentController = TextEditingController();
   final _allergiesController = TextEditingController();
   final _behavioralController = TextEditingController();
@@ -39,13 +42,16 @@ class _StudentRegistrationStep3State extends State<StudentRegistrationStep3> {
   void _handleNext() {
     if (_formKey.currentState!.validate()) {
       for (int i = 0; i < 3; i++) {
-        widget.registrationData.otherFamilyMembers[i] = _familyControllers[i].text.trim().isEmpty
-            ? null
-            : _familyControllers[i].text.trim();
+        widget.registrationData.otherFamilyMembers[i] =
+            _familyControllers[i].text.trim().isEmpty
+                ? null
+                : _familyControllers[i].text.trim();
       }
-      widget.registrationData.specialEquipment = _specialEquipmentController.text.trim();
+      widget.registrationData.specialEquipment =
+          _specialEquipmentController.text.trim();
       widget.registrationData.allergies = _allergiesController.text.trim();
-      widget.registrationData.behavioralIssues = _behavioralController.text.trim();
+      widget.registrationData.behavioralIssues =
+          _behavioralController.text.trim();
       widget.onNext();
     }
   }
@@ -77,7 +83,8 @@ class _StudentRegistrationStep3State extends State<StudentRegistrationStep3> {
               controller: _specialEquipmentController,
               decoration: const InputDecoration(
                 labelText: 'Special equipment',
-                helperText: 'Please list any orthodontic devices/prosthesis, glasses etc.',
+                helperText:
+                    'Please list any orthodontic devices/prosthesis, glasses etc.',
               ),
               validator: (value) => null, // Optional
             ),
@@ -86,7 +93,8 @@ class _StudentRegistrationStep3State extends State<StudentRegistrationStep3> {
               controller: _allergiesController,
               decoration: const InputDecoration(
                 labelText: 'Allergies',
-                helperText: 'Please list any allergies or reactions to any food, animals, pediatric asthma etc. It’s very important to mention nut allergies.',
+                helperText:
+                    'Please list any allergies or reactions to any food, animals, pediatric asthma etc. It’s very important to mention nut allergies.',
               ),
               validator: (value) => null, // Optional
             ),
@@ -95,7 +103,8 @@ class _StudentRegistrationStep3State extends State<StudentRegistrationStep3> {
               controller: _behavioralController,
               decoration: const InputDecoration(
                 labelText: 'Behavioral/Mental Health Issues',
-                helperText: 'Please mention any behavioral conditions or mental health diagnoses e.g. Autism, ADHD etc.',
+                helperText:
+                    'Please mention any behavioral conditions or mental health diagnoses e.g. Autism, ADHD etc.',
               ),
               validator: (value) => null, // Optional
             ),
@@ -118,4 +127,4 @@ class _StudentRegistrationStep3State extends State<StudentRegistrationStep3> {
       ),
     );
   }
-} 
+}

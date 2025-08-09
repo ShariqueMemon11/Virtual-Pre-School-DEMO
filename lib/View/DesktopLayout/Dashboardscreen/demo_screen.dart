@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DemoScreen extends StatelessWidget {
-  const DemoScreen({Key? key}) : super(key: key);
+  const DemoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -9,9 +9,13 @@ class DemoScreen extends StatelessWidget {
       body: Center(
         child: Text(
           'Working on it',
-          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Colors.deepPurple,
+          ),
         ),
       ),
     );
   }
-} 
+}

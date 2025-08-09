@@ -7,14 +7,15 @@ class StudentRegistrationStep2 extends StatefulWidget {
   final VoidCallback onBack;
 
   const StudentRegistrationStep2({
-    Key? key,
+    super.key,
     required this.registrationData,
     required this.onNext,
     required this.onBack,
-  }) : super(key: key);
+  });
 
   @override
-  State<StudentRegistrationStep2> createState() => _StudentRegistrationStep2State();
+  State<StudentRegistrationStep2> createState() =>
+      _StudentRegistrationStep2State();
 }
 
 class _StudentRegistrationStep2State extends State<StudentRegistrationStep2> {
@@ -58,17 +59,25 @@ class _StudentRegistrationStep2State extends State<StudentRegistrationStep2> {
       // Mother
       widget.registrationData.motherName = _motherNameController.text.trim();
       widget.registrationData.motherId = _motherIdController.text.trim();
-      widget.registrationData.motherAddress = _motherAddressController.text.trim();
-      widget.registrationData.motherOccupation = _motherOccupationController.text.trim();
-      widget.registrationData.motherWorkAddress = _motherWorkAddressController.text.trim();
-      widget.registrationData.motherSalary = _motherSalaryController.text.trim();
+      widget.registrationData.motherAddress =
+          _motherAddressController.text.trim();
+      widget.registrationData.motherOccupation =
+          _motherOccupationController.text.trim();
+      widget.registrationData.motherWorkAddress =
+          _motherWorkAddressController.text.trim();
+      widget.registrationData.motherSalary =
+          _motherSalaryController.text.trim();
       // Father
       widget.registrationData.fatherName = _fatherNameController.text.trim();
       widget.registrationData.fatherId = _fatherIdController.text.trim();
-      widget.registrationData.fatherAddress = _fatherAddressController.text.trim();
-      widget.registrationData.fatherOccupation = _fatherOccupationController.text.trim();
-      widget.registrationData.fatherWorkAddress = _fatherWorkAddressController.text.trim();
-      widget.registrationData.fatherSalary = _fatherSalaryController.text.trim();
+      widget.registrationData.fatherAddress =
+          _fatherAddressController.text.trim();
+      widget.registrationData.fatherOccupation =
+          _fatherOccupationController.text.trim();
+      widget.registrationData.fatherWorkAddress =
+          _fatherWorkAddressController.text.trim();
+      widget.registrationData.fatherSalary =
+          _fatherSalaryController.text.trim();
       widget.onNext();
     }
   }
@@ -90,38 +99,44 @@ class _StudentRegistrationStep2State extends State<StudentRegistrationStep2> {
             TextFormField(
               controller: _motherNameController,
               decoration: const InputDecoration(labelText: "Mother's Name"),
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 8),
             TextFormField(
               controller: _motherIdController,
               decoration: const InputDecoration(labelText: 'ID Nr.'),
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 8),
             TextFormField(
               controller: _motherAddressController,
               decoration: const InputDecoration(labelText: 'Home Address'),
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 8),
             TextFormField(
               controller: _motherOccupationController,
               decoration: const InputDecoration(labelText: 'Occupation'),
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 8),
             TextFormField(
               controller: _motherWorkAddressController,
               decoration: const InputDecoration(labelText: 'Work Address'),
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 8),
             TextFormField(
               controller: _motherSalaryController,
               decoration: const InputDecoration(labelText: 'Monthly Salary'),
               keyboardType: TextInputType.number,
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 24),
             const Text(
@@ -132,38 +147,44 @@ class _StudentRegistrationStep2State extends State<StudentRegistrationStep2> {
             TextFormField(
               controller: _fatherNameController,
               decoration: const InputDecoration(labelText: "Father's Name"),
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 8),
             TextFormField(
               controller: _fatherIdController,
               decoration: const InputDecoration(labelText: 'ID Nr.'),
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 8),
             TextFormField(
               controller: _fatherAddressController,
               decoration: const InputDecoration(labelText: 'Home Address'),
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 8),
             TextFormField(
               controller: _fatherOccupationController,
               decoration: const InputDecoration(labelText: 'Occupation'),
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 8),
             TextFormField(
               controller: _fatherWorkAddressController,
               decoration: const InputDecoration(labelText: 'Work Address'),
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 8),
             TextFormField(
               controller: _fatherSalaryController,
               decoration: const InputDecoration(labelText: 'Monthly Salary'),
               keyboardType: TextInputType.number,
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+              validator:
+                  (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 32),
             Row(
@@ -184,4 +205,4 @@ class _StudentRegistrationStep2State extends State<StudentRegistrationStep2> {
       ),
     );
   }
-} 
+}

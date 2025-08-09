@@ -5,10 +5,11 @@ import 'primarybuttonwidget.dart';
 
 class RegistrationModalWidget extends StatefulWidget {
   final void Function(String username, String email, String password) onNext;
-  const RegistrationModalWidget({Key? key, required this.onNext}) : super(key: key);
+  const RegistrationModalWidget({super.key, required this.onNext});
 
   @override
-  State<RegistrationModalWidget> createState() => _RegistrationModalWidgetState();
+  State<RegistrationModalWidget> createState() =>
+      _RegistrationModalWidgetState();
 }
 
 class _RegistrationModalWidgetState extends State<RegistrationModalWidget> {
@@ -65,15 +66,15 @@ class _RegistrationModalWidgetState extends State<RegistrationModalWidget> {
                 SizedBox(
                   height: 50,
                   width: 200,
-                  child: CustomPaint(
-                    painter: RegisterHeadingPainter(),
-                  ),
+                  child: CustomPaint(painter: RegisterHeadingPainter()),
                 ),
                 SizedBox(height: 30.h),
                 InputFieldWidget(
                   input: "Username",
                   controller: _usernameController,
-                  validator: (value) => value == null || value.isEmpty ? 'Required' : null,
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty ? 'Required' : null,
                 ),
                 SizedBox(height: 20.h),
                 InputFieldWidget(
@@ -91,13 +92,14 @@ class _RegistrationModalWidgetState extends State<RegistrationModalWidget> {
                   input: "Password",
                   controller: _passwordController,
                   obscureText: true,
-                  validator: (value) => value == null || value.length < 6 ? 'Min 6 chars' : null,
+                  validator:
+                      (value) =>
+                          value == null || value.length < 6
+                              ? 'Min 6 chars'
+                              : null,
                 ),
                 SizedBox(height: 30.h),
-                Primarybuttonwidget(
-                  run: _handleNext,
-                  input: "Next",
-                ),
+                Primarybuttonwidget(run: _handleNext, input: "Next"),
               ],
             ),
           ),
@@ -126,4 +128,4 @@ class RegisterHeadingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-} 
+}
