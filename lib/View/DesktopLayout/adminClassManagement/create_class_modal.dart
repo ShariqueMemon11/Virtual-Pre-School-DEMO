@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../Model/classmodal.dart';
 
-//merging
+//merging to git
 class CreateClassModal extends StatefulWidget {
   final void Function(ClassModel) onSave;
 
