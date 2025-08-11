@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../Model/student_registration_data.dart';
+import '../../../../Model/student_registration_data.dart';
 
 class StudentRegistrationStep1 extends StatefulWidget {
   final StudentRegistrationData registrationData;
