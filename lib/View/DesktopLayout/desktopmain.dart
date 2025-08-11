@@ -1,5 +1,5 @@
 import 'package:demo_vps/Model/user_model.dart';
-import 'package:demo_vps/View/DesktopLayout/adminClassManagement/ClassManagement.dart';
+import 'package:demo_vps/View/DesktopLayout/studentRegisterManagement/StudentApplicationManagementScreen.dart';
 
 import 'package:flutter/material.dart';
 // issues shariq Side
@@ -22,7 +22,7 @@ class _DesktopMainState extends State<DesktopMain> {
       address: '123 Main Street, Springfield',
       email: 'alice@example.com',
     );
-    return ClassManagementScreen();
+    return Studentapplicationmanagementscreen();
     //DashboardScreen(user: dummyUser)
   }
 }
