@@ -1,5 +1,7 @@
+import 'package:demo_vps/View/DesktopLayout/adminClassManagement/ClassManagement.dart';
 import 'package:demo_vps/View/DesktopLayout/assignTeacher/assign_teacher_screen.dart';
 import 'package:demo_vps/View/DesktopLayout/notificationscreens/createnotificationscreen.dart';
+import 'package:demo_vps/View/DesktopLayout/studentRegisterManagement/StudentApplicationManagementScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -15,9 +17,6 @@ class _MainSide extends State<MainSide> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Top Header
-
-        // Menu Items
         Expanded(
           flex: 1,
           child: Column(
@@ -98,7 +97,11 @@ class _MainSide extends State<MainSide> {
                       label: "Teacher Attendance",
                     ),
                     SizedBox(width: 50.w),
-                    DashboardCard(icon: Icons.people, label: "Students List"),
+                    DashboardCard(
+                      icon: Icons.people,
+                      label: "Students Application Management",
+                      destination: Studentapplicationmanagementscreen(),
+                    ),
                     SizedBox(width: 50.w),
                     DashboardCard(
                       icon: Icons.assignment_ind,
@@ -129,6 +132,7 @@ class _MainSide extends State<MainSide> {
                     DashboardCard(
                       icon: Icons.report_problem,
                       label: "Classroom Management",
+                      destination: ClassManagementScreen(),
                     ),
                   ],
                 ),

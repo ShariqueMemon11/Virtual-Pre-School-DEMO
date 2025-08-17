@@ -1,4 +1,5 @@
 import 'package:demo_vps/Model/user_model.dart';
+import 'package:demo_vps/View/DesktopLayout/loginscreen/loginscreen.dart';
 import 'package:demo_vps/View/DesktopLayout/studentRegisterManagement/StudentApplicationManagementScreen.dart';
 
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class _DesktopMainState extends State<DesktopMain> {
       address: '123 Main Street, Springfield',
       email: 'alice@example.com',
     );
-    return Studentapplicationmanagementscreen();
+    return LoginScreen();
     //DashboardScreen(user: dummyUser)
   }
 }
