@@ -1,3 +1,4 @@
+import 'package:demo_vps/View/DesktopLayout/studentRegisterManagement/StudentApplicationView.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -90,7 +91,7 @@ class _StudentapplicationListState extends State<StudentapplicationList> {
   ];
 
   void _deleteApplication(int index) {
-    final deletedName = applications[index]["name"]; // save before removing
+    final deletedName = applications[index]["name"];
     setState(() {
       applications.removeAt(index);
     });
@@ -118,119 +119,145 @@ class _StudentapplicationListState extends State<StudentapplicationList> {
   Widget build(BuildContext context) {
     return ListView.builder(
       itemCount: applications.length,
-      padding: EdgeInsets.all(20.w),
+      padding: EdgeInsets.all(16.w),
       itemBuilder: (context, index) {
         final app = applications[index];
-        return Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.r),
-          ),
-          elevation: 4,
-          margin: EdgeInsets.symmetric(vertical: 8.h),
-          child: Padding(
-            padding: EdgeInsets.all(14.w),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 28.r,
-                  backgroundColor: Colors.deepPurple,
-                  child: Text(
-                    app["name"]![0], // first letter
-                    style: const TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                ),
-                SizedBox(width: 14.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Name
-                      Text(
-                        app["name"]!,
+        return InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => StudentApplicationDetailScreen(application: app),
+              ),
+            );
+          },
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16.r),
+            ),
+            elevation: 6,
+            margin: EdgeInsets.symmetric(vertical: 10.h),
+            shadowColor: Colors.black26,
+            child: Padding(
+              padding: EdgeInsets.all(16.w),
+              child: Row(
+                children: [
+                  // Gradient Circle Avatar
+                  Container(
+                    width: 55.w,
+                    height: 55.w,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        app["name"]![0],
                         style: TextStyle(
-                          fontSize: 18.sp,
+                          color: Colors.white,
+                          fontSize: 20.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 5.h),
+                    ),
+                  ),
+                  SizedBox(width: 14.w),
 
-                      // Class (Prep Class)
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.child_care,
-                            size: 16,
-                            color: Colors.blueGrey,
+                  // Info Column
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Name
+                        Text(
+                          app["name"]!,
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
                           ),
-                          SizedBox(width: 5.w),
-                          Text(
-                            app["class"]!,
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: Colors.black87,
+                        ),
+                        SizedBox(height: 6.h),
+
+                        // Class + Date in one row
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.child_care,
+                              size: 16,
+                              color: Colors.blueGrey,
+                            ),
+                            SizedBox(width: 5.w),
+                            Text(
+                              app["class"]!,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            SizedBox(width: 15.w),
+                            Icon(
+                              Icons.calendar_today,
+                              size: 16,
+                              color: Colors.blueGrey,
+                            ),
+                            SizedBox(width: 5.w),
+                            Text(
+                              app["date"]!,
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8.h),
+
+                        // Status badge
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10.w,
+                            vertical: 4.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _getStatusColor(
+                              app["status"]!,
+                            ).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20.r),
+                            border: Border.all(
+                              color: _getStatusColor(app["status"]!),
+                              width: 1,
                             ),
                           ),
-                        ],
-                      ),
-                      SizedBox(height: 4.h),
-
-                      // Applied Date
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.calendar_today,
-                            size: 16,
-                            color: Colors.blueGrey,
-                          ),
-                          SizedBox(width: 5.w),
-                          Text(
-                            app["date"]!,
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 4.h),
-
-                      // Status
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.info,
-                            size: 16,
-                            color: _getStatusColor(app["status"]!),
-                          ),
-                          SizedBox(width: 5.w),
-                          Text(
+                          child: Text(
                             app["status"]!,
                             style: TextStyle(
                               color: _getStatusColor(app["status"]!),
                               fontWeight: FontWeight.w600,
-                              fontSize: 14.sp,
+                              fontSize: 13.sp,
                             ),
                           ),
-                        ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Action buttons
+                  Column(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _deleteApplication(index),
                       ),
                     ],
                   ),
-                ),
-                Column(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () => _deleteApplication(index),
-                    ),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      size: 18,
-                      color: Colors.grey[600],
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
