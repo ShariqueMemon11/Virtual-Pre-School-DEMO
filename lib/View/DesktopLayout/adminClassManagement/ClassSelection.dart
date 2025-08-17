@@ -122,6 +122,12 @@ class HeaderWidget extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Row(
         children: [
+          IconButton(
+            icon: Icon(Icons.arrow_back_ios, color: Colors.white, size: 20.sp),
+            onPressed: () {
+              Navigator.pop(context); // Pops the stack
+            },
+          ),
           Text(
             "Class Management",
             style: TextStyle(
