@@ -1,11 +1,11 @@
 import 'package:demo_vps/Model/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../View/DesktopLayout/Dashboardscreen/dashboardscreen.dart';
+import '../../View/DesktopLayout/adminDashboardScreen/dashboardscreen.dart';
 import '../../View/DesktopLayout/studentRegisterManagement/studentRegistration/student_registration_flow.dart';
-import '../../View/DesktopLayout/teacheradmission/teacheradmission.dart';
+import '../../View/DesktopLayout/teacherRegisterManagement/teacherAdmissionRegistration/teacheradmission.dart';
 import '../../View/DesktopLayout/customwidgets/registration_modal_widget.dart';
-import '../../View/DesktopLayout/Dashboardscreen/demo_screen.dart';
+import '../../View/DesktopLayout/adminDashboardScreen/demo_screen.dart';
 
 class LoginController {
   final TextEditingController emailController;
