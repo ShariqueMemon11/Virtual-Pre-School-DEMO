@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:demo_vps/View/DesktopLayout/teacheradmission/teacheradmissionwidget.dart';
+import 'package:demo_vps/View/DesktopLayout/teacherRegisterManagement/teacherAdmissionRegistration/teacheradmissionwidget.dart';
 
 class TeacherAdmission extends StatelessWidget {
   final String initialUsername;

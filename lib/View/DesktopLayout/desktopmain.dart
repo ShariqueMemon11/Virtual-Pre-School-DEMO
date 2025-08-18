@@ -1,6 +1,7 @@
 import 'package:demo_vps/Model/user_model.dart';
 import 'package:demo_vps/View/DesktopLayout/loginscreen/loginscreen.dart';
 import 'package:demo_vps/View/DesktopLayout/studentRegisterManagement/StudentApplicationManagementScreen.dart';
+import 'package:demo_vps/View/DesktopLayout/teacherRegisterManagement/TeacherRegisterManagement.dart';
 
 import 'package:flutter/material.dart';
 // issues shariq Side
@@ -23,7 +24,7 @@ class _DesktopMainState extends State<DesktopMain> {
       address: '123 Main Street, Springfield',
       email: 'alice@example.com',
     );
-    return LoginScreen();
+    return TeacherRegisterManagement();
     //DashboardScreen(user: dummyUser)
   }
 }
