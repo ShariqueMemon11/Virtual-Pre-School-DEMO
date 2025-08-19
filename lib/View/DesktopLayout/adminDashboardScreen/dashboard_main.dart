@@ -1,7 +1,7 @@
+import 'package:demo_vps/View/DesktopLayout/ComplainManagement/ComplainManagementScreen.dart';
 import 'package:demo_vps/View/DesktopLayout/adminClassManagement/ClassManagement.dart';
 import 'package:demo_vps/View/DesktopLayout/assignTeacher/assign_teacher_screen.dart';
 import 'package:demo_vps/View/DesktopLayout/notificationscreens/NotificationManagamentScreen.dart';
-import 'package:demo_vps/View/DesktopLayout/notificationscreens/createnotificationscreen.dart';
 import 'package:demo_vps/View/DesktopLayout/studentRegisterManagement/StudentApplicationManagementScreen.dart';
 import 'package:demo_vps/View/DesktopLayout/teacherRegisterManagement/TeacherRegisterManagement.dart';
 import 'package:flutter/material.dart';
@@ -60,13 +60,6 @@ class _MainSide extends State<MainSide> {
                       dataname: "Teacher",
                       ic: Icons.school,
                       quantity: "24",
-                    ),
-                    SizedBox(width: 50.w),
-                    statscard(
-                      color: Color.fromARGB(255, 238, 212, 248),
-                      dataname: "Staff",
-                      ic: Icons.person_3_outlined,
-                      quantity: "10",
                     ),
                   ],
                 ),
@@ -130,7 +123,8 @@ class _MainSide extends State<MainSide> {
                     SizedBox(width: 50.w),
                     DashboardCard(
                       icon: Icons.report_problem,
-                      label: "Issue Management",
+                      label: "Complain Management!",
+                      destination: ComplaintManagementScreen(),
                     ),
                     SizedBox(width: 50.w),
                     DashboardCard(
