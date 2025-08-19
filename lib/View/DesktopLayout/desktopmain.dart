@@ -25,7 +25,7 @@ class _DesktopMainState extends State<DesktopMain> {
       address: '123 Main Street, Springfield',
       email: 'alice@example.com',
     );
-    return TeacherRegisterManagement();
+    return LoginScreen();
     //DashboardScreen(user: dummyUser)
   }
 }
