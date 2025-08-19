@@ -1,5 +1,6 @@
 import 'package:demo_vps/Model/user_model.dart';
 import 'package:demo_vps/View/DesktopLayout/loginscreen/loginscreen.dart';
+import 'package:demo_vps/View/DesktopLayout/notificationscreens/NotificationManagamentScreen.dart';
 import 'package:demo_vps/View/DesktopLayout/studentRegisterManagement/StudentApplicationManagementScreen.dart';
 import 'package:demo_vps/View/DesktopLayout/teacherRegisterManagement/TeacherRegisterManagement.dart';
 
