@@ -1,9 +1,9 @@
+import 'package:demo_vps/View/DesktopLayout/customwidgets/dropdownselectorwidget.dart';
+import 'package:demo_vps/View/DesktopLayout/customwidgets/primarybuttonwidget.dart';
 import 'package:demo_vps/View/DesktopLayout/customwidgets/secondarybuttonwidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:demo_vps/controller/DesktopControllers/assign_teacher_controller.dart';
-import '../../DesktopLayout/customwidgets/dropdownselectorwidget.dart';
-import '../../DesktopLayout/customwidgets/primarybuttonwidget.dart';
 
 class AssignTeacherWidget extends StatefulWidget {
   const AssignTeacherWidget({super.key});

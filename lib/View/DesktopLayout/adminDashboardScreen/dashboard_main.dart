@@ -1,9 +1,9 @@
 import 'package:demo_vps/View/DesktopLayout/ComplainManagement/ComplainManagementScreen.dart';
+
 import 'package:demo_vps/View/DesktopLayout/adminClassManagement/ClassManagement.dart';
-import 'package:demo_vps/View/DesktopLayout/assignTeacher/assign_teacher_screen.dart';
+import 'package:demo_vps/View/DesktopLayout/adminTeachersManagement/TeacherManagementScreen.dart';
 import 'package:demo_vps/View/DesktopLayout/notificationscreens/NotificationManagamentScreen.dart';
 import 'package:demo_vps/View/DesktopLayout/studentRegisterManagement/StudentApplicationManagementScreen.dart';
-import 'package:demo_vps/View/DesktopLayout/teacherRegisterManagement/TeacherRegisterManagement.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -88,21 +88,21 @@ class _MainSide extends State<MainSide> {
 
                   children: [
                     DashboardCard(
+                      icon: Icons.report_problem,
+                      label: "Classroom Management",
+                      destination: ClassManagementScreen(),
+                    ),
+                    SizedBox(width: 50.w),
+                    DashboardCard(
                       icon: Icons.school,
-                      label: "Teacher Application Management",
-                      destination: TeacherRegisterManagement(),
+                      label: "Teacher Management",
+                      destination: TeacherManagementScreen(),
                     ),
                     SizedBox(width: 50.w),
                     DashboardCard(
                       icon: Icons.people,
                       label: "Students Application Management",
                       destination: Studentapplicationmanagementscreen(),
-                    ),
-                    SizedBox(width: 50.w),
-                    DashboardCard(
-                      icon: Icons.assignment_ind,
-                      label: "Assign Teacher to Class",
-                      destination: AssignTeacherScreen(),
                     ),
                   ],
                 ),
@@ -127,11 +127,6 @@ class _MainSide extends State<MainSide> {
                       destination: ComplaintManagementScreen(),
                     ),
                     SizedBox(width: 50.w),
-                    DashboardCard(
-                      icon: Icons.report_problem,
-                      label: "Classroom Management",
-                      destination: ClassManagementScreen(),
-                    ),
                   ],
                 ),
               ),
