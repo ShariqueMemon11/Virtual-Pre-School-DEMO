@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import "./TeacherApplicationDetailsScreen.dart";
 
 class HeaderWidget extends StatelessWidget {
-  const HeaderWidget({super.key});
+  final String title;
+  const HeaderWidget({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +21,7 @@ class HeaderWidget extends StatelessWidget {
           ),
           SizedBox(width: 8.w),
           Text(
-            "Teacher Application Management",
+            title,
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -37,7 +39,6 @@ class TeacherApplicationList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Sample teacher applications data
     final applications = [
       {
         'name': 'John Smith',
@@ -68,8 +69,13 @@ class TeacherApplicationList extends StatelessWidget {
           margin: EdgeInsets.only(bottom: 16.h),
           child: InkWell(
             onTap: () {
-              // Show details in a dialog instead of new screen
-              _showApplicationDetails(context, app);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (_) => TeacherApplicationDetailScreen(application: app),
+                ),
+              );
             },
             child: Padding(
               padding: EdgeInsets.all(16.w),
@@ -128,51 +134,6 @@ class TeacherApplicationList extends StatelessWidget {
         return Colors.orange;
     }
   }
-
-  void _showApplicationDetails(BuildContext context, Map<String, dynamic> app) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text('Application Details'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Name: ${app['name']}',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 8.h),
-                Text('Subject: ${app['subject']}'),
-                SizedBox(height: 8.h),
-                Text('Experience: ${app['experience']}'),
-                SizedBox(height: 8.h),
-                Text(
-                  'Status: ${app['status']}',
-                  style: TextStyle(color: _getStatusColor(app['status'])),
-                ),
-              ],
-            ),
-            actions: [
-              if (app['status'] == 'Pending') ...[
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Reject', style: TextStyle(color: Colors.red)),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Approve', style: TextStyle(color: Colors.green)),
-                ),
-              ],
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Close'),
-              ),
-            ],
-          ),
-    );
-  }
 }
 
 class TeacherRegisterManagement extends StatelessWidget {
@@ -183,7 +144,7 @@ class TeacherRegisterManagement extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          const HeaderWidget(),
+          const HeaderWidget(title: "Teacher Application Management"),
           Expanded(child: TeacherApplicationList()),
         ],
       ),
