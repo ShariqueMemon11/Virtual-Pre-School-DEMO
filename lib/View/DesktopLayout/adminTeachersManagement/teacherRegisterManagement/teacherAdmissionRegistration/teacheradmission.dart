@@ -1,11 +1,16 @@
+import 'package:demo_vps/View/DesktopLayout/adminTeachersManagement/teacherRegisterManagement/teacherAdmissionRegistration/teacheradmissionwidget.dart';
 import 'package:flutter/material.dart';
-import 'package:demo_vps/View/DesktopLayout/teacherRegisterManagement/teacherAdmissionRegistration/teacheradmissionwidget.dart';
 
 class TeacherAdmission extends StatelessWidget {
   final String initialUsername;
   final String initialEmail;
   final String initialPassword;
-  const TeacherAdmission({super.key, required this.initialUsername, required this.initialEmail, required this.initialPassword});
+  const TeacherAdmission({
+    super.key,
+    required this.initialUsername,
+    required this.initialEmail,
+    required this.initialPassword,
+  });
 
   @override
   Widget build(BuildContext context) {
