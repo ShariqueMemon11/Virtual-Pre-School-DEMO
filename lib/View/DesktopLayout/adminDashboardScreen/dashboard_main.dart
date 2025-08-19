@@ -1,7 +1,9 @@
 import 'package:demo_vps/View/DesktopLayout/adminClassManagement/ClassManagement.dart';
 import 'package:demo_vps/View/DesktopLayout/assignTeacher/assign_teacher_screen.dart';
+import 'package:demo_vps/View/DesktopLayout/notificationscreens/NotificationManagamentScreen.dart';
 import 'package:demo_vps/View/DesktopLayout/notificationscreens/createnotificationscreen.dart';
 import 'package:demo_vps/View/DesktopLayout/studentRegisterManagement/StudentApplicationManagementScreen.dart';
+import 'package:demo_vps/View/DesktopLayout/teacherRegisterManagement/TeacherRegisterManagement.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -94,7 +96,8 @@ class _MainSide extends State<MainSide> {
                   children: [
                     DashboardCard(
                       icon: Icons.school,
-                      label: "Teacher Attendance",
+                      label: "Teacher Application Management",
+                      destination: TeacherRegisterManagement(),
                     ),
                     SizedBox(width: 50.w),
                     DashboardCard(
@@ -121,7 +124,8 @@ class _MainSide extends State<MainSide> {
                     DashboardCard(
                       icon: Icons.notifications,
                       label: "Notification Management",
-                      destination: CreateNotificationScreen(),
+                      //changing Destination to management Screen
+                      destination: NotificationManagementScreen(),
                     ),
                     SizedBox(width: 50.w),
                     DashboardCard(
