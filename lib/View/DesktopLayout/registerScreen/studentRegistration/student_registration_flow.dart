@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../Model/student_registration_data.dart';
+import '../../../../Model/student_registration_data.dart';
 import 'registration_step1.dart';
 import 'registration_step2.dart';
 import 'registration_step3.dart';
