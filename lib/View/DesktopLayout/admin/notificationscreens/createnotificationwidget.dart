@@ -105,13 +105,7 @@ class _CreateNotificationWidgetState extends State<CreateNotificationWidget> {
                   ),
 
                   SizedBox(height: 20.h),
-                  UploadFileWidget(
-                    onFilePicked: () async {
-                      await _controller.handleFileUpload();
-                      setState(() {}); // Refresh UI to show file name
-                    },
-                    fileName: _controller.fileName,
-                  ),
+
                   SizedBox(height: 40.h),
                   Row(
                     children: [

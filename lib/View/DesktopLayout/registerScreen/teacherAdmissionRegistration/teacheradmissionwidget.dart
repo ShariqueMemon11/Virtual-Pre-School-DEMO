@@ -5,12 +5,10 @@ import 'package:demo_vps/View/DesktopLayout/customwidgets/inputfieldwidget.dart'
 import 'package:demo_vps/View/DesktopLayout/customwidgets/primarybuttonwidget.dart';
 
 class TeacherAdmissionWidget extends StatefulWidget {
-  final String initialUsername;
   final String initialEmail;
   final String initialPassword;
   const TeacherAdmissionWidget({
     super.key,
-    required this.initialUsername,
     required this.initialEmail,
     required this.initialPassword,
   });
@@ -34,7 +32,6 @@ class _TeacherAdmissionWidgetState extends State<TeacherAdmissionWidget> {
   @override
   void initState() {
     super.initState();
-    _nameController.text = widget.initialUsername;
     _emailController.text = widget.initialEmail;
     // If you want to use password, store it in the controller or pass to Firestore on submit
     _controller = TeacherAdmissionController(
