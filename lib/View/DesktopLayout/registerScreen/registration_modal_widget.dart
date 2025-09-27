@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../customwidgets/inputfieldwidget.dart';
 import '../customwidgets/primarybuttonwidget.dart';
+import '../../../controller/DesktopControllers/registration_controller.dart';
 
 class RegistrationModalWidget extends StatefulWidget {
   final void Function(String username, String email, String password) onNext;
@@ -18,6 +19,17 @@ class _RegistrationModalWidgetState extends State<RegistrationModalWidget> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  late final RegistrationController _registerController;
+
+  @override
+  void initState() {
+    super.initState();
+    _registerController = RegistrationController(
+      emailController: _emailController,
+      passwordController: _passwordController,
+      context: context,
+    );
+  }
 
   @override
   void dispose() {
@@ -28,8 +40,10 @@ class _RegistrationModalWidgetState extends State<RegistrationModalWidget> {
     super.dispose();
   }
 
-  void _handleNext() {
+  void _handleNext() async {
     if (_formKey.currentState!.validate()) {
+      await _registerController.registerUser();
+
       widget.onNext(
         _usernameController.text.trim(),
         _emailController.text.trim(),
