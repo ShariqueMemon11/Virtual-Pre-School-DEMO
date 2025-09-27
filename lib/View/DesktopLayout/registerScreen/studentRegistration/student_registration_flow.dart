@@ -1,130 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../../Model/student_registration_data.dart';
-import 'registration_step1.dart';
-import 'registration_step2.dart';
-import 'registration_step3.dart';
-import 'registration_step4.dart';
+import '../../../../controller/DesktopControllers/student_application_controller.dart';
+import '../../customwidgets/uploadfilewidget.dart';
 
-class StudentRegistrationFlow extends StatefulWidget {
-  final String initialUsername;
+class StudentRegistrationForm extends StatefulWidget {
   final String initialEmail;
   final String initialPassword;
-  const StudentRegistrationFlow({
+
+  const StudentRegistrationForm({
     super.key,
-    required this.initialUsername,
     required this.initialEmail,
     required this.initialPassword,
   });
 
   @override
-  State<StudentRegistrationFlow> createState() =>
-      _StudentRegistrationFlowState();
+  State<StudentRegistrationForm> createState() =>
+      _StudentRegistrationFormState();
 }
 
-class _StudentRegistrationFlowState extends State<StudentRegistrationFlow> {
-  int _currentStep = 0;
-  final StudentRegistrationData _registrationData = StudentRegistrationData();
-  bool _isSubmitting = false;
+class _StudentRegistrationFormState extends State<StudentRegistrationForm> {
+  late final StudentRegistrationController controller;
 
   @override
   void initState() {
     super.initState();
-    _registrationData.username = widget.initialUsername;
-    _registrationData.email = widget.initialEmail;
-    _registrationData.password = widget.initialPassword;
+    controller = StudentRegistrationController();
+    controller.init(widget.initialEmail, widget.initialPassword);
   }
 
-  void _nextStep() {
-    setState(() {
-      _currentStep++;
-    });
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
-  void _prevStep() {
-    setState(() {
-      if (_currentStep > 0) _currentStep--;
-    });
-  }
-
-  Future<void> _submitRegistration() async {
-    setState(() {
-      _isSubmitting = true;
-    });
-    try {
-      await FirebaseFirestore.instance
-          .collection('students')
-          .add(_registrationData.toMap());
-      setState(() {
-        _isSubmitting = false;
-      });
-      showDialog(
-        context: context,
-        builder:
-            (context) => AlertDialog(
-              title: const Text('Success'),
-              content: const Text('Registration completed successfully!'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    setState(() {
-                      _currentStep = 0;
-                    });
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
-      );
-    } catch (e) {
-      setState(() {
-        _isSubmitting = false;
-      });
-      showDialog(
-        context: context,
-        builder:
-            (context) => AlertDialog(
-              title: const Text('Error'),
-              content: Text('Failed to register: ${e.toString()}'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
-      );
-    }
-  }
-
-  Widget _buildStep() {
-    switch (_currentStep) {
-      case 0:
-        return StudentRegistrationStep1(
-          registrationData: _registrationData,
-          onNext: _nextStep,
-        );
-      case 1:
-        return StudentRegistrationStep2(
-          registrationData: _registrationData,
-          onNext: _nextStep,
-          onBack: _prevStep,
-        );
-      case 2:
-        return StudentRegistrationStep3(
-          registrationData: _registrationData,
-          onNext: _nextStep,
-          onBack: _prevStep,
-        );
-      case 3:
-        return StudentRegistrationStep4(
-          registrationData: _registrationData,
-          onSubmit: _submitRegistration,
-          onBack: _prevStep,
-        );
-      default:
-        return const SizedBox.shrink();
+  void _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(2015),
+      firstDate: DateTime(1990),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      setState(() => controller.setDate(picked));
     }
   }
 
@@ -132,93 +49,307 @@ class _StudentRegistrationFlowState extends State<StudentRegistrationFlow> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        width: double.infinity,
-        // Remove height: double.infinity to allow Center to work vertically
         decoration: const BoxDecoration(
           gradient: LinearGradient(
+            colors: [Color(0xFF8C5FF5), Color.fromARGB(255, 156, 129, 219)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF8C5FF5), Color.fromARGB(255, 156, 129, 219)],
           ),
         ),
         child: Center(
           child: SingleChildScrollView(
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.6,
-              constraints: const BoxConstraints(maxWidth: 700),
-              padding: const EdgeInsets.all(32.0),
+              width: MediaQuery.of(context).size.width * 0.65,
+              constraints: const BoxConstraints(maxWidth: 800),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color.fromARGB(141, 233, 233, 233),
+                color: Colors.white.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    spreadRadius: 7,
-                    blurRadius: 7,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
               ),
-              child: Stack(
-                children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min, // Only as tall as needed
-                    children: [
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: TextButton.icon(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          icon: Icon(
-                            Icons.arrow_back,
-                            color: Color(0xFF8C5FF5),
-                          ),
-                          label: Text(
-                            'Back to Login',
-                            style: TextStyle(color: Color(0xFF8C5FF5)),
-                          ),
-                        ),
+              child: Form(
+                key: controller.formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Student Registration",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            4,
-                            (index) => Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 6),
-                              width: 18,
-                              height: 18,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color:
-                                    _currentStep == index
-                                        ? Colors.blue
-                                        : Colors.grey[300],
-                                border: Border.all(
-                                  color: Colors.blue,
-                                  width: 1.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      SizedBox(
-                        height:
-                            520, // You can adjust this or remove for dynamic height
-                        child: _buildStep(),
-                      ),
-                    ],
-                  ),
-                  if (_isSubmitting)
-                    Container(
-                      color: Colors.black.withOpacity(0.3),
-                      child: const Center(child: CircularProgressIndicator()),
                     ),
-                ],
+                    const SizedBox(height: 16),
+
+                    // 🔹 Student Info
+                    TextFormField(
+                      controller: controller.nameController,
+                      decoration: const InputDecoration(
+                        labelText: "Name of Student",
+                      ),
+                      validator:
+                          (v) => v == null || v.isEmpty ? "Required" : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: controller.ageController,
+                      decoration: const InputDecoration(labelText: "Age"),
+                      keyboardType: TextInputType.number,
+                      validator:
+                          (v) => v == null || v.isEmpty ? "Required" : null,
+                    ),
+                    const SizedBox(height: 12),
+                    GestureDetector(
+                      onTap: _pickDate,
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          decoration: const InputDecoration(
+                            labelText: "Date of Birth",
+                            suffixIcon: Icon(Icons.calendar_today),
+                          ),
+                          controller: TextEditingController(
+                            text:
+                                controller.selectedDate == null
+                                    ? ""
+                                    : "${controller.selectedDate!.month}/${controller.selectedDate!.day}/${controller.selectedDate!.year}",
+                          ),
+                          validator:
+                              (_) =>
+                                  controller.selectedDate == null
+                                      ? "Required"
+                                      : null,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: controller.homePhoneController,
+                      decoration: const InputDecoration(
+                        labelText: "Home Phone Number",
+                      ),
+                      keyboardType: TextInputType.phone,
+                      validator:
+                          (v) => v == null || v.isEmpty ? "Required" : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: controller.emailController,
+                      decoration: const InputDecoration(
+                        labelText: "Parents Email Address",
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      validator:
+                          (v) => v == null || v.isEmpty ? "Required" : null,
+                    ),
+
+                    const SizedBox(height: 24),
+                    const Text(
+                      "Mother's Information",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: controller.motherNameController,
+                      decoration: const InputDecoration(
+                        labelText: "Mother's Name",
+                      ),
+                      validator:
+                          (v) => v == null || v.isEmpty ? "Required" : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: controller.motherIdController,
+                      decoration: const InputDecoration(
+                        labelText: "Mother CNIC",
+                      ),
+                      keyboardType: TextInputType.phone,
+                      validator:
+                          (v) => v == null || v.isEmpty ? "Required" : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: controller.motherOccupationController,
+                      decoration: const InputDecoration(
+                        labelText: "Mother Occupation",
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: controller.motherCellController,
+                      decoration: const InputDecoration(
+                        labelText: "Mother Cell Phone",
+                      ),
+                      keyboardType: TextInputType.phone,
+                      validator:
+                          (v) => v == null || v.isEmpty ? "Required" : null,
+                    ),
+
+                    const SizedBox(height: 24),
+                    const Text(
+                      "Father's Information",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: controller.fatherNameController,
+                      decoration: const InputDecoration(
+                        labelText: "Father's Name",
+                      ),
+                      validator:
+                          (v) => v == null || v.isEmpty ? "Required" : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: controller.fatherIdController,
+                      decoration: const InputDecoration(
+                        labelText: "Father CNIC",
+                      ),
+                      keyboardType: TextInputType.phone,
+                      validator:
+                          (v) => v == null || v.isEmpty ? "Required" : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: controller.fatherOccupationController,
+                      decoration: const InputDecoration(
+                        labelText: "Father Occupation",
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: controller.fatherCellController,
+                      decoration: const InputDecoration(
+                        labelText: "Father Cell Phone",
+                      ),
+                      keyboardType: TextInputType.phone,
+                      validator:
+                          (v) => v == null || v.isEmpty ? "Required" : null,
+                    ),
+
+                    const SizedBox(height: 24),
+                    const Text(
+                      "Other Information",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    for (int i = 0; i < 2; i++)
+                      TextFormField(
+                        controller: controller.familyControllers[i],
+                        decoration: InputDecoration(
+                          labelText: "Other family member ${i + 1} (optional)",
+                        ),
+                      ),
+                    TextFormField(
+                      controller: controller.specialEquipmentController,
+                      decoration: const InputDecoration(
+                        labelText: "Special Equipment (optional)",
+                      ),
+                    ),
+                    TextFormField(
+                      controller: controller.allergiesController,
+                      decoration: const InputDecoration(labelText: "Allergies"),
+                    ),
+                    TextFormField(
+                      controller: controller.behavioralController,
+                      decoration: const InputDecoration(
+                        labelText: "Behavioral/Mental Health Issues",
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+                    const Text(
+                      "Documents",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // 📌 Mother CNIC
+                    const Text(
+                      "Upload Mother CNIC",
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    UploadFileWidget(
+                      fileName: controller.motherCnicFileName,
+                      onFilePicked: (base64, name) {
+                        setState(() {
+                          controller.motherCnicFile = base64;
+                          controller.motherCnicFileName = name;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 📌 Father CNIC
+                    const Text(
+                      "Upload Father CNIC",
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    UploadFileWidget(
+                      fileName: controller.fatherCnicFileName,
+                      onFilePicked: (base64, name) {
+                        setState(() {
+                          controller.fatherCnicFile = base64;
+                          controller.fatherCnicFileName = name;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 📌 Child Birth Certificate
+                    const Text(
+                      "Upload Child Birth Certificate",
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    UploadFileWidget(
+                      fileName: controller.birthCertificateFileName,
+                      onFilePicked: (base64, name) {
+                        setState(() {
+                          controller.birthCertificateFile = base64;
+                          controller.birthCertificateFileName = name;
+                        });
+                      },
+                    ),
+
+                    const SizedBox(height: 24),
+                    CheckboxListTile(
+                      value: controller.policyAccepted,
+                      onChanged:
+                          (v) => setState(
+                            () => controller.policyAccepted = v ?? false,
+                          ),
+                      title: const Text(
+                        "I accept all the policies and grant permission...",
+                      ),
+                      controlAffinity: ListTileControlAffinity.leading,
+                    ),
+
+                    const SizedBox(height: 24),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () => controller.submit(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(
+                            179,
+                            208,
+                            208,
+                            208,
+                          ),
+                        ),
+                        child: const Text("Submit Registration"),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

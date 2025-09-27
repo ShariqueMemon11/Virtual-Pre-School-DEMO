@@ -79,7 +79,7 @@ class LoginController {
           child: Builder(
             builder:
                 (context) => RegistrationModalWidget(
-                  onNext: (username, email, password) {
+                  onNext: (email, password) {
                     Navigator.of(context).pop();
                     // After validation, show registration type selection
                     showDialog(
@@ -99,8 +99,7 @@ class LoginController {
                                       MaterialPageRoute(
                                         builder:
                                             (context) =>
-                                                StudentRegistrationFlow(
-                                                  initialUsername: username,
+                                                StudentRegistrationForm(
                                                   initialEmail: email,
                                                   initialPassword: password,
                                                 ),
@@ -118,7 +117,6 @@ class LoginController {
                                       MaterialPageRoute(
                                         builder:
                                             (context) => TeacherAdmission(
-                                              initialUsername: username,
                                               initialEmail: email,
                                               initialPassword: password,
                                             ),

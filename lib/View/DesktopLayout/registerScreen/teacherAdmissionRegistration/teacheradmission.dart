@@ -2,12 +2,10 @@ import '../teacherAdmissionRegistration/teacheradmissionwidget.dart';
 import 'package:flutter/material.dart';
 
 class TeacherAdmission extends StatelessWidget {
-  final String initialUsername;
   final String initialEmail;
   final String initialPassword;
   const TeacherAdmission({
     super.key,
-    required this.initialUsername,
     required this.initialEmail,
     required this.initialPassword,
   });
@@ -24,7 +22,6 @@ class TeacherAdmission extends StatelessWidget {
           ),
         ),
         child: TeacherAdmissionWidget(
-          initialUsername: initialUsername,
           initialEmail: initialEmail,
           initialPassword: initialPassword,
         ),

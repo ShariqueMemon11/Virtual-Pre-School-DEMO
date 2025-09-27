@@ -5,7 +5,7 @@ import '../customwidgets/primarybuttonwidget.dart';
 import '../../../controller/DesktopControllers/registration_controller.dart';
 
 class RegistrationModalWidget extends StatefulWidget {
-  final void Function(String username, String email, String password) onNext;
+  final void Function(String email, String password) onNext;
   const RegistrationModalWidget({super.key, required this.onNext});
 
   @override
@@ -45,7 +45,6 @@ class _RegistrationModalWidgetState extends State<RegistrationModalWidget> {
       await _registerController.registerUser();
 
       widget.onNext(
-        _usernameController.text.trim(),
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
@@ -92,14 +91,6 @@ class _RegistrationModalWidgetState extends State<RegistrationModalWidget> {
                       ),
                     ),
                   ),
-                ),
-                SizedBox(height: 30.h),
-                InputFieldWidget(
-                  input: "Username",
-                  controller: _usernameController,
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty ? 'Required' : null,
                 ),
                 SizedBox(height: 20.h),
                 InputFieldWidget(
