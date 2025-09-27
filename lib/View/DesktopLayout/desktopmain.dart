@@ -1,5 +1,6 @@
 import 'package:demo_vps/Model/user_model.dart';
-import 'package:demo_vps/View/DesktopLayout/adminTeachersManagement/TeacherManagementScreen.dart';
+import 'package:demo_vps/View/DesktopLayout/admin/adminDashboardScreen/dashboardscreen.dart';
+import 'package:demo_vps/View/DesktopLayout/admin/adminTeachersManagement/TeacherManagementScreen.dart';
 import 'package:demo_vps/View/DesktopLayout/loginscreen/loginscreen.dart';
 
 import 'package:flutter/material.dart';
