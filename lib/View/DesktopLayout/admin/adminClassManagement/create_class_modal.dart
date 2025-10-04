@@ -81,8 +81,9 @@ class _CreateClassModalState extends State<CreateClassModal> {
                       onChanged: (val) => capacity = int.tryParse(val),
                       validator: (val) {
                         if (val == null || val.isEmpty) return "Enter capacity";
-                        if (int.tryParse(val) == null)
+                        if (int.tryParse(val) == null) {
                           return "Enter valid number";
+                        }
                         return null;
                       },
                     ),
@@ -97,10 +98,12 @@ class _CreateClassModalState extends State<CreateClassModal> {
                       keyboardType: TextInputType.number,
                       onChanged: (val) => students = int.tryParse(val),
                       validator: (val) {
-                        if (val == null || val.isEmpty)
+                        if (val == null || val.isEmpty) {
                           return "Enter enrolled students";
-                        if (int.tryParse(val) == null)
+                        }
+                        if (int.tryParse(val) == null) {
                           return "Enter valid number";
+                        }
                         if (capacity != null &&
                             int.tryParse(val)! > capacity!) {
                           return "Students cannot exceed capacity";

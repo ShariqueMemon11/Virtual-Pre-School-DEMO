@@ -1,5 +1,4 @@
 // controllers/class_controller.dart
-import 'package:flutter/material.dart';
 import '../../Model/classmodal.dart';
 
 class ClassController {

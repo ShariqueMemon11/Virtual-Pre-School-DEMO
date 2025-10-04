@@ -14,6 +14,7 @@ class Responsive extends StatelessWidget {
           builder:
               (context, child) => MaterialApp(
                 debugShowCheckedModeBanner: false,
+
                 home: const DesktopMain(),
               ),
         );

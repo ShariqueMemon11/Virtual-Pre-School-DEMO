@@ -6,7 +6,6 @@ import '../../customwidgets/dropdownselectorwidget.dart';
 import '../../customwidgets/inputfieldareawidget.dart';
 import '../../customwidgets/inputfieldwidget.dart';
 import '../../customwidgets/primarybuttonwidget.dart';
-import '../../customwidgets/uploadfilewidget.dart';
 
 class CreateNotificationWidget extends StatefulWidget {
   const CreateNotificationWidget({super.key});

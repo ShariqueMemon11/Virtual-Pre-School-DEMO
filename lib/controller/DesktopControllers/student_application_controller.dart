@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../Model/student_registration_data.dart';
@@ -83,9 +84,12 @@ class StudentRegistrationController {
           familyControllers.map((c) => c.text.trim()).toList();
 
     try {
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+
       await FirebaseFirestore.instance
-          .collection("students")
-          .add(_data.toMap());
+          .collection("student applications")
+          .doc(uid)
+          .set(_data.toMap(), SetOptions(merge: true));
 
       showDialog(
         context: context,
