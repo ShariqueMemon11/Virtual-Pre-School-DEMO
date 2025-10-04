@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -20,6 +21,16 @@ class RegistrationController {
             password: passwordController.text.trim(),
           );
 
+      // Initial registration - create document with UID
+      await FirebaseFirestore.instance
+          .collection("student applications")
+          .doc(credential.user!.uid)
+          .set({
+            'email': emailController.text.trim(),
+            'uid': credential.user!.uid,
+            'createdAt': FieldValue.serverTimestamp(),
+            // Add initial fields
+          }, SetOptions(merge: true));
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Registered: ${credential.user?.email}")),
