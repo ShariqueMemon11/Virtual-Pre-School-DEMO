@@ -1,8 +1,8 @@
-import 'package:demo_vps/View/DesktopLayout/admin/studentRegisterManagement/StudentApplicationView.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:demo_vps/View/DesktopLayout/admin/studentRegisterManagement/StudentApplicationView.dart';
 
-// Header bar with navigation
 class Header extends StatelessWidget {
   const Header({super.key});
 
@@ -15,9 +15,7 @@ class Header extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            onPressed: () {
-              Navigator.pop(context); // back navigation
-            },
+            onPressed: () => Navigator.pop(context),
             icon: const Icon(Icons.arrow_back),
             color: Colors.white,
           ),
@@ -36,7 +34,6 @@ class Header extends StatelessWidget {
   }
 }
 
-// Student Application List
 class StudentapplicationList extends StatefulWidget {
   const StudentapplicationList({super.key});
 
@@ -45,64 +42,7 @@ class StudentapplicationList extends StatefulWidget {
 }
 
 class _StudentapplicationListState extends State<StudentapplicationList> {
-  List<Map<String, String>> applications = [
-    {
-      "name": "Ali Raza",
-      "status": "Pending",
-      "class": "Nursery",
-      "date": "12 Aug 2025",
-    },
-    {
-      "name": "Sara Khan",
-      "status": "Approved",
-      "class": "Play Group",
-      "date": "10 Aug 2025",
-    },
-    {
-      "name": "John Doe",
-      "status": "Rejected",
-      "class": "KG",
-      "date": "08 Aug 2025",
-    },
-    {
-      "name": "Fatima Noor",
-      "status": "Pending",
-      "class": "Pre-Nursery",
-      "date": "15 Aug 2025",
-    },
-    {
-      "name": "Ahmed Ali",
-      "status": "Approved",
-      "class": "Nursery",
-      "date": "11 Aug 2025",
-    },
-    {
-      "name": "Maryam Shah",
-      "status": "Pending",
-      "class": "KG",
-      "date": "13 Aug 2025",
-    },
-    {
-      "name": "Bilal Hassan",
-      "status": "Rejected",
-      "class": "Play Group",
-      "date": "09 Aug 2025",
-    },
-  ];
-
-  void _deleteApplication(int index) {
-    final deletedName = applications[index]["name"];
-    setState(() {
-      applications.removeAt(index);
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Deleted application of $deletedName"),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Color _getStatusColor(String status) {
     switch (status) {
@@ -117,149 +57,195 @@ class _StudentapplicationListState extends State<StudentapplicationList> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: applications.length,
-      padding: EdgeInsets.all(16.w),
-      itemBuilder: (context, index) {
-        final app = applications[index];
-        return InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (_) => StudentApplicationDetailScreen(application: app),
-              ),
-            );
-          },
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16.r),
-            ),
-            elevation: 6,
-            margin: EdgeInsets.symmetric(vertical: 10.h),
-            shadowColor: Colors.black26,
-            child: Padding(
-              padding: EdgeInsets.all(16.w),
-              child: Row(
-                children: [
-                  // Gradient Circle Avatar
-                  Container(
-                    width: 55.w,
-                    height: 55.w,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        app["name"]![0],
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 14.w),
+    return StreamBuilder<QuerySnapshot>(
+      stream:
+          _firestore
+              .collection('student applications')
+              .orderBy('createdAt', descending: true)
+              .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-                  // Info Column
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Name
-                        Text(
-                          app["name"]!,
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text('No student applications found.'));
+        }
+
+        final applications = snapshot.data!.docs;
+
+        return ListView.builder(
+          itemCount: applications.length,
+          padding: EdgeInsets.all(16.w),
+          itemBuilder: (context, index) {
+            final doc = applications[index];
+            final data = doc.data() as Map<String, dynamic>;
+
+            final approvalStatus = (data["approval"] ?? "Pending").toString();
+
+            return InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => StudentApplicationDetailScreen(
+                          documentId: doc.id,
+                          application: data.map(
+                            (key, value) =>
+                                MapEntry(key, value?.toString() ?? ""),
                           ),
                         ),
-                        SizedBox(height: 6.h),
-
-                        // Class + Date in one row
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.child_care,
-                              size: 16,
-                              color: Colors.blueGrey,
+                  ),
+                );
+              },
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16.r),
+                ),
+                elevation: 6,
+                margin: EdgeInsets.symmetric(vertical: 10.h),
+                shadowColor: Colors.black26,
+                child: Padding(
+                  padding: EdgeInsets.all(16.w),
+                  child: Row(
+                    children: [
+                      // Gradient Circle Avatar
+                      Container(
+                        width: 55.w,
+                        height: 55.w,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            data["childName"] != null &&
+                                    data["childName"].isNotEmpty
+                                ? data["childName"][0].toUpperCase()
+                                : "?",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.bold,
                             ),
-                            SizedBox(width: 5.w),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 14.w),
+
+                      // Info Column
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
-                              app["class"]!,
+                              data["childName"] ?? "Unknown",
                               style: TextStyle(
-                                fontSize: 14.sp,
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.bold,
                                 color: Colors.black87,
                               ),
                             ),
-                            SizedBox(width: 15.w),
-                            Icon(
-                              Icons.calendar_today,
-                              size: 16,
-                              color: Colors.blueGrey,
+                            SizedBox(height: 6.h),
+
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.email,
+                                  size: 16,
+                                  color: Colors.blueGrey,
+                                ),
+                                SizedBox(width: 5.w),
+                                Text(
+                                  data["email"] ?? "N/A",
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                SizedBox(width: 15.w),
+                                const Icon(
+                                  Icons.cake,
+                                  size: 16,
+                                  color: Colors.blueGrey,
+                                ),
+                                SizedBox(width: 5.w),
+                                Text(
+                                  data["dateOfBirth"]
+                                          ?.toString()
+                                          .split("T")
+                                          .first ??
+                                      "N/A",
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(width: 5.w),
-                            Text(
-                              app["date"]!,
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                color: Colors.black54,
+                            SizedBox(height: 8.h),
+
+                            // Status badge
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 10.w,
+                                vertical: 4.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _getStatusColor(
+                                  approvalStatus,
+                                ).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20.r),
+                                border: Border.all(
+                                  color: _getStatusColor(approvalStatus),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                approvalStatus,
+                                style: TextStyle(
+                                  color: _getStatusColor(approvalStatus),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13.sp,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 8.h),
+                      ),
 
-                        // Status badge
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 10.w,
-                            vertical: 4.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _getStatusColor(
-                              app["status"]!,
-                            ).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(20.r),
-                            border: Border.all(
-                              color: _getStatusColor(app["status"]!),
-                              width: 1,
-                            ),
-                          ),
-                          child: Text(
-                            app["status"]!,
-                            style: TextStyle(
-                              color: _getStatusColor(app["status"]!),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13.sp,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Action buttons
-                  Column(
-                    children: [
+                      // Delete button
                       IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _deleteApplication(index),
+                        onPressed: () async {
+                          await _firestore
+                              .collection('student applications')
+                              .doc(doc.id)
+                              .delete();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "Deleted ${data["childName"] ?? "application"}",
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );

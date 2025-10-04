@@ -177,7 +177,12 @@ class _LoginScreenState extends State<LoginScreen>
                                 child: Text(
                                   "Forgot Password?",
                                   style: TextStyle(
-                                    color: const Color(0xFF8C5FF5),
+                                    color: const Color.fromARGB(
+                                      255,
+                                      255,
+                                      255,
+                                      255,
+                                    ),
                                     fontSize: 15.sp,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -198,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   onPressed: _handleLogin,
                                 ),
                               ),
-                              SizedBox(width: 20.w),
+                              SizedBox(width: 22.w),
                               Expanded(
                                 child: _buildSecondaryButton(
                                   label: "Register",
@@ -279,7 +284,7 @@ class _LoginScreenState extends State<LoginScreen>
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 18.sp,
+            fontSize: 16.sp,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.8,
           ),
@@ -297,10 +302,10 @@ class _LoginScreenState extends State<LoginScreen>
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          side: BorderSide(color: Colors.white.withOpacity(0.5)),
+          side: BorderSide(color: Colors.white.withOpacity(0.3)),
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(20),
           ),
         ),
         child: Text(

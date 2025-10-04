@@ -101,7 +101,8 @@ class StudentRegistrationController {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed:
+                      () => {Navigator.pop(context), Navigator.pop(context)},
                   child: const Text("OK"),
                 ),
               ],
