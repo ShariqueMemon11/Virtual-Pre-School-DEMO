@@ -24,8 +24,11 @@ class StudentRegistrationData {
 
   // 📌 Add new fields
   String? motherCnicFile;
+  String? childPhotoFile;
   String? fatherCnicFile;
   String? birthCertificateFile;
+
+  String? approvalStatus;
 
   Map<String, dynamic> toMap() {
     return {
@@ -51,6 +54,9 @@ class StudentRegistrationData {
       'motherCnicFile': motherCnicFile,
       'fatherCnicFile': fatherCnicFile,
       'birthCertificateFile': birthCertificateFile,
+      'childPhotoFile': childPhotoFile,
+
+      'approvalStatus': approvalStatus,
     };
   }
 }

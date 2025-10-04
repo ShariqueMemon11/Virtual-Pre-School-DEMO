@@ -304,7 +304,20 @@ class _StudentRegistrationFormState extends State<StudentRegistrationForm> {
                       },
                     ),
                     const SizedBox(height: 16),
-
+                    const Text(
+                      "Upload Child's Photo",
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    UploadFileWidget(
+                      fileName: controller.childPhotoFileName,
+                      onFilePicked: (base64, name) {
+                        setState(() {
+                          controller.childPhotoFile = base64;
+                          controller.childPhotoFileName = name;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
                     // 📌 Child Birth Certificate
                     const Text(
                       "Upload Child Birth Certificate",
