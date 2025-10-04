@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -45,10 +46,10 @@ class _StudentapplicationListState extends State<StudentapplicationList> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Color _getStatusColor(String status) {
-    switch (status) {
-      case "Approved":
+    switch (status.toLowerCase()) {
+      case "approved":
         return Colors.green;
-      case "Rejected":
+      case "rejected":
         return Colors.red;
       default:
         return Colors.orange;
@@ -84,8 +85,25 @@ class _StudentapplicationListState extends State<StudentapplicationList> {
           itemBuilder: (context, index) {
             final doc = applications[index];
             final data = doc.data() as Map<String, dynamic>;
-
             final approvalStatus = (data["approval"] ?? "Pending").toString();
+
+            // 👶 Decode child photo if available
+            ImageProvider? childPhoto;
+            if (data["childPhotoFile"] != null &&
+                (data["childPhotoFile"] as String).isNotEmpty) {
+              try {
+                String base64Str = data["childPhotoFile"];
+                // Remove "data:image/...;base64," if present
+                if (base64Str.contains(',')) {
+                  base64Str = base64Str.split(',').last;
+                }
+                final bytes = base64Decode(base64Str);
+                childPhoto = MemoryImage(bytes);
+              } catch (e) {
+                debugPrint("Error decoding image: $e");
+                childPhoto = null;
+              }
+            }
 
             return InkWell(
               onTap: () {
@@ -114,31 +132,47 @@ class _StudentapplicationListState extends State<StudentapplicationList> {
                   padding: EdgeInsets.all(16.w),
                   child: Row(
                     children: [
-                      // Gradient Circle Avatar
+                      // 🧒 Circle Avatar or Gradient Placeholder
                       Container(
                         width: 55.w,
                         height: 55.w,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
+                          gradient:
+                              childPhoto == null
+                                  ? const LinearGradient(
+                                    colors: [
+                                      Color(0xFF8E2DE2),
+                                      Color(0xFF4A00E0),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  )
+                                  : null,
+                          image:
+                              childPhoto != null
+                                  ? DecorationImage(
+                                    image: childPhoto,
+                                    fit: BoxFit.cover,
+                                  )
+                                  : null,
                         ),
-                        child: Center(
-                          child: Text(
-                            data["childName"] != null &&
-                                    data["childName"].isNotEmpty
-                                ? data["childName"][0].toUpperCase()
-                                : "?",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
+                        child:
+                            childPhoto == null
+                                ? Center(
+                                  child: Text(
+                                    data["childName"] != null &&
+                                            data["childName"].isNotEmpty
+                                        ? data["childName"][0].toUpperCase()
+                                        : "?",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20.sp,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                )
+                                : null,
                       ),
                       SizedBox(width: 14.w),
 
@@ -156,7 +190,6 @@ class _StudentapplicationListState extends State<StudentapplicationList> {
                               ),
                             ),
                             SizedBox(height: 6.h),
-
                             Row(
                               children: [
                                 const Icon(

@@ -32,17 +32,19 @@ class StudentRegistrationController {
   bool policyAccepted = false;
 
   // files
-  String? motherCnicFile, fatherCnicFile, birthCertificateFile;
-  String? motherCnicFileName, fatherCnicFileName, birthCertificateFileName;
+  String? motherCnicFile, fatherCnicFile, birthCertificateFile, childPhotoFile;
+  String? motherCnicFileName,
+      fatherCnicFileName,
+      birthCertificateFileName,
+      childPhotoFileName;
 
-  // initial values
+  final StudentRegistrationData _data = StudentRegistrationData();
+
   void init(String email, String password) {
     emailController.text = email;
     _data.email = email;
     _data.password = password;
   }
-
-  final StudentRegistrationData _data = StudentRegistrationData();
 
   void setDate(DateTime date) {
     selectedDate = date;
@@ -58,7 +60,6 @@ class StudentRegistrationController {
       return;
     }
 
-    // map values to model
     _data
       ..childName = nameController.text.trim()
       ..age = ageController.text.trim()
@@ -80,8 +81,10 @@ class StudentRegistrationController {
       ..motherCnicFile = motherCnicFile
       ..fatherCnicFile = fatherCnicFile
       ..birthCertificateFile = birthCertificateFile
+      ..childPhotoFile = childPhotoFile
       ..otherFamilyMembers =
-          familyControllers.map((c) => c.text.trim()).toList();
+          familyControllers.map((c) => c.text.trim()).toList()
+      ..approvalStatus = "pending"; // Default status
 
     try {
       final uid = FirebaseAuth.instance.currentUser!.uid;
@@ -97,12 +100,14 @@ class StudentRegistrationController {
             (_) => AlertDialog(
               title: const Text("Success"),
               content: const Text(
-                "Student registration submitted successfully.",
+                "Student registration submitted successfully. Waiting for admin approval.",
               ),
               actions: [
                 TextButton(
-                  onPressed:
-                      () => {Navigator.pop(context), Navigator.pop(context)},
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
                   child: const Text("OK"),
                 ),
               ],
