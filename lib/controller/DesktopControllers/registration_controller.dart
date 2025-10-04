@@ -28,7 +28,9 @@ class RegistrationController {
           .set({
             'email': emailController.text.trim(),
             'uid': credential.user!.uid,
+            'approval': "pending",
             'createdAt': FieldValue.serverTimestamp(),
+
             // Add initial fields
           }, SetOptions(merge: true));
       // ignore: use_build_context_synchronously

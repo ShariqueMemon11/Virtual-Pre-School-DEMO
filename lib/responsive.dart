@@ -1,6 +1,8 @@
 import 'package:demo_vps/View/DesktopLayout/desktopmain.dart';
+import 'package:demo_vps/View/DesktopLayout/loginscreen/loginscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import './View/DesktopLayout/admin/studentRegisterManagement/StudentApplicationManagementScreen.dart';
 
 class Responsive extends StatelessWidget {
   const Responsive({super.key});
@@ -15,7 +17,7 @@ class Responsive extends StatelessWidget {
               (context, child) => MaterialApp(
                 debugShowCheckedModeBanner: false,
 
-                home: const DesktopMain(),
+                home: const LoginScreen(),
               ),
         );
       },

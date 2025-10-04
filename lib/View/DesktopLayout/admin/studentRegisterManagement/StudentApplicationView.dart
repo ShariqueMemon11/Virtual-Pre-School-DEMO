@@ -1,10 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class StudentApplicationDetailScreen extends StatefulWidget {
   final Map<String, String> application;
+  final String documentId;
 
-  const StudentApplicationDetailScreen({super.key, required this.application});
+  const StudentApplicationDetailScreen({
+    super.key,
+    required this.application,
+    required this.documentId,
+  });
 
   @override
   State<StudentApplicationDetailScreen> createState() =>
@@ -18,20 +24,26 @@ class _StudentApplicationDetailScreenState
   @override
   void initState() {
     super.initState();
-    status = widget.application["status"] ?? "Pending";
+    status = widget.application["approval"] ?? "Pending";
   }
 
-  void _updateStatus(String newStatus) {
+  Future<void> _updateStatus(String newStatus) async {
     setState(() {
       status = newStatus;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Application ${newStatus.toLowerCase()}!"),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    try {
+      await FirebaseFirestore.instance
+          .collection('student applications')
+          .doc(widget.documentId)
+          .update({'approval': newStatus});
+    } catch (e) {
+      print("Error updating Firestore: $e");
+    }
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Application marked as $newStatus")));
   }
 
   Color _getStatusColor(String status) {
@@ -47,6 +59,8 @@ class _StudentApplicationDetailScreenState
 
   @override
   Widget build(BuildContext context) {
+    final app = widget.application;
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -62,7 +76,6 @@ class _StudentApplicationDetailScreenState
         padding: EdgeInsets.all(16.w),
         child: ListView(
           children: [
-            // Status Badge
             Center(
               child: Chip(
                 avatar: Icon(
@@ -87,44 +100,64 @@ class _StudentApplicationDetailScreenState
             ),
             SizedBox(height: 20.h),
 
-            // Child Info Card
-            _infoCard("Child's Details", [
-              _detailRow(Icons.person, "Name", widget.application["name"]!),
+            // Child Info
+            _infoCard("Child Details", [
+              _detailRow(Icons.person, "Name", app["childName"] ?? "N/A"),
               _detailRow(
-                Icons.school,
-                "Class Applied",
-                widget.application["class"]!,
+                Icons.cake,
+                "Date of Birth",
+                app["dateOfBirth"]?.split("T").first ?? "N/A",
               ),
-              _detailRow(Icons.cake, "Date of Birth", "15 Jan 2020"),
-              _detailRow(Icons.male, "Gender", "Male"),
+              _detailRow(Icons.person_pin, "Age", app["age"] ?? "N/A"),
+              _detailRow(Icons.healing, "Allergies", app["allergies"] ?? "N/A"),
+              _detailRow(
+                Icons.accessibility,
+                "Special Equipment",
+                app["specialEquipment"] ?? "N/A",
+              ),
             ]),
             SizedBox(height: 16.h),
 
-            // Parent Info Card
-            _infoCard("Parent's Details", [
+            // Parent Info
+            _infoCard("Father's Details", [
+              _detailRow(Icons.person, "Name", app["fatherName"] ?? "N/A"),
               _detailRow(
-                Icons.person_outline,
-                "Father's Name",
-                "Muhammad Raza",
+                Icons.work,
+                "Occupation",
+                app["fatherOccupation"] ?? "N/A",
               ),
-              _detailRow(Icons.person_outline, "Mother's Name", "Ayesha Raza"),
-              _detailRow(Icons.phone, "Contact Number", "+92 300 1234567"),
-              _detailRow(Icons.home, "Address", "123 Main Street, Lahore"),
+              _detailRow(Icons.phone, "Phone", app["fatherCell"] ?? "N/A"),
+            ]),
+            SizedBox(height: 16.h),
+            _infoCard("Mother's Details", [
+              _detailRow(Icons.person, "Name", app["motherName"] ?? "N/A"),
+              _detailRow(
+                Icons.work,
+                "Occupation",
+                app["motherOccupation"] ?? "N/A",
+              ),
+              _detailRow(Icons.phone, "Phone", app["motherCell"] ?? "N/A"),
             ]),
             SizedBox(height: 16.h),
 
-            // Application Info Card
+            // Application Info
             _infoCard("Application Info", [
-              _detailRow(Icons.info, "Application Status", status),
+              _detailRow(Icons.email, "Email", app["email"] ?? "N/A"),
               _detailRow(
-                Icons.calendar_today,
-                "Date Applied",
-                widget.application["date"]!,
+                Icons.family_restroom,
+                "Other Family Members",
+                (app["otherFamilyMembers"] ?? "None").toString(),
               ),
+              _detailRow(
+                Icons.verified,
+                "Policy Accepted",
+                app["policyAccepted"] ?? "false",
+              ),
+              _detailRow(Icons.timer, "Created At", app["createdAt"] ?? "N/A"),
             ]),
             SizedBox(height: 30.h),
 
-            // Action Buttons
+            // Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -166,7 +199,6 @@ class _StudentApplicationDetailScreenState
               ),
             ),
             Divider(thickness: 1, color: Colors.grey[300]),
-            SizedBox(height: 6.h),
             ...children,
           ],
         ),
