@@ -62,7 +62,7 @@ class _StudentapplicationListState extends State<StudentapplicationList> {
       stream:
           _firestore
               .collection('student applications')
-              .orderBy('createdAt', descending: true)
+              .orderBy('childName', descending: true)
               .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -285,6 +285,7 @@ class _StudentapplicationListState extends State<StudentapplicationList> {
   }
 }
 
+//data update
 class Studentapplicationmanagementscreen extends StatelessWidget {
   const Studentapplicationmanagementscreen({super.key});
 
