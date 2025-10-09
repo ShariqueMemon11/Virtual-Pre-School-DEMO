@@ -32,7 +32,7 @@ class InputFieldWidget extends StatelessWidget {
         decoration: InputDecoration(
           hintText: input,
           hintStyle: TextStyle(color: Color(0xFF4B2E83)),
-          fillColor: const Color.fromARGB(202, 245, 245, 245),
+          fillColor: const Color.fromARGB(41, 147, 147, 147),
           filled: true,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(55.r),

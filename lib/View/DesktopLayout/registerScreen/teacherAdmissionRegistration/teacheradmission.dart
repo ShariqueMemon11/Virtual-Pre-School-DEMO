@@ -21,7 +21,7 @@ class TeacherAdmission extends StatelessWidget {
             colors: [Color(0xFF8C5FF5), Color.fromARGB(255, 156, 129, 219)],
           ),
         ),
-        child: TeacherAdmissionWidget(
+        child: TeacherAdmissionPage(
           initialEmail: initialEmail,
           initialPassword: initialPassword,
         ),

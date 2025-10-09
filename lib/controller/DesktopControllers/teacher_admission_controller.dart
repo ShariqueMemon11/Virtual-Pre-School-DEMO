@@ -1,90 +1,195 @@
+// lib/controller/DesktopControllers/teacher_admission_controller.dart
+import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../Model/teacher_admission_model.dart';
 
 class TeacherAdmissionController {
-  final TextEditingController nameController;
-  final TextEditingController emailController;
-  final TextEditingController phoneController;
-  final TextEditingController qualificationController;
-  final TextEditingController experienceController;
-  final TextEditingController subjectsController;
-  final TextEditingController addressController;
-  final BuildContext context;
-  final GlobalKey<FormState> formKey;
-  final String initialPassword;
+  // ---------------- Form and State ---------------- //
+  final formKey = GlobalKey<FormState>();
 
-  File? _cvFile;
+  // Controllers
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final phoneController = TextEditingController();
+  final qualificationController = TextEditingController();
+  final experienceController = TextEditingController();
+  final subjectsController = TextEditingController();
+  final addressController = TextEditingController();
+
+  // File Data
   String? cvFileName;
+  String? cvBase64;
 
-  @visibleForTesting
-  set testCvFile(File? file) => _cvFile = file;
+  // Auth Info
+  late String _email;
+  late String _password;
 
-  TeacherAdmissionController({
-    required this.nameController,
-    required this.emailController,
-    required this.phoneController,
-    required this.qualificationController,
-    required this.experienceController,
-    required this.subjectsController,
-    required this.addressController,
-    required this.context,
-    required this.formKey,
-    required this.initialPassword,
-  });
+  // ---------------- Initialization ---------------- //
+  void init(String email, String password) {
+    _email = email;
+    _password = password;
+    emailController.text = email;
+  }
 
+  // ---------------- Validators ---------------- //
   String? requiredValidator(String? value) =>
-      value == null || value.isEmpty ? "Required" : null;
+      value == null || value.trim().isEmpty ? "Required" : null;
 
   String? emailValidator(String? value) {
-    if (value == null || value.isEmpty) return "Required";
-    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+    if (value == null || value.trim().isEmpty) return "Required";
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(value.trim())) {
       return "Enter a valid email";
     }
     return null;
   }
 
-  void pickCV() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'doc', 'docx'],
-    );
-    if (result != null && result.files.single.path != null) {
-      _cvFile = File(result.files.single.path!);
-      cvFileName = result.files.single.name;
+  // ---------------- File Picker ---------------- //
+  Future<void> pickCV(BuildContext context) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx'],
+        withData: true, // works for web and desktop
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        final pickedFile = result.files.single;
+        cvFileName = pickedFile.name;
+
+        if (kIsWeb) {
+          cvBase64 = base64Encode(pickedFile.bytes!);
+        } else {
+          final file = File(pickedFile.path!);
+          final bytes = await file.readAsBytes();
+          cvBase64 = base64Encode(bytes);
+        }
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('CV selected: $cvFileName')));
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('No file selected')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error picking file: $e')));
     }
   }
 
-  void submit() {
-    if (!formKey.currentState!.validate()) return;
-    if (_cvFile == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please upload your CV!')));
+  // ---------------- Submit to Firestore ---------------- //
+  Future<void> submit(BuildContext context) async {
+    if (!formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill all required fields.")),
+      );
       return;
     }
 
-    // Handle the actual submission logic (e.g., Firebase storage, Firestore)
-    // Example Firestore data map:
-    final teacherData = {
-      'name': nameController.text.trim(),
-      'email': emailController.text.trim(),
-      'phone': phoneController.text.trim(),
-      'qualification': qualificationController.text.trim(),
-      'experience': experienceController.text.trim(),
-      'subjects': subjectsController.text.trim(),
-      'address': addressController.text.trim(),
-      'password': initialPassword,
-      'cvFileName': cvFileName,
-      'createdAt': DateTime.now(),
-    };
-    // TODO: Save teacherData to Firestore
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Form submitted successfully!')),
-    );
+    if (cvBase64 == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please upload your CV.")));
+      return;
+    }
+
+    try {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Submitting application...')),
+      );
+
+      // Get current logged-in user UID
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception("User not logged in");
+      final uid = user.uid;
+
+      // Build model
+      final model = TeacherAdmissionModel(
+        name: nameController.text.trim(),
+        email: emailController.text.trim(),
+        phone: phoneController.text.trim(),
+        qualification: qualificationController.text.trim(),
+        experience: experienceController.text.trim(),
+        subjects: subjectsController.text.trim(),
+        address: addressController.text.trim(),
+        cvBase64: cvBase64!,
+        createdAt: Timestamp.now(),
+      );
+
+      // Save to Firestore (doc ID = UID)
+      await FirebaseFirestore.instance
+          .collection('teacher_applications')
+          .doc(uid)
+          .set(model.toMap(), SetOptions(merge: true));
+
+      // Success dialog
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: const Text("Success"),
+              content: const Text(
+                "Teacher application submitted successfully. Waiting for admin approval.",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+      );
+
+      _clearForm();
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: const Text("Error"),
+              content: Text("Failed to submit: $e"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+      );
+    }
   }
 
-  void navigateBack() {
-    Navigator.pop(context);
+  // ---------------- Clear Form ---------------- //
+  void _clearForm() {
+    nameController.clear();
+    emailController.clear();
+    phoneController.clear();
+    qualificationController.clear();
+    experienceController.clear();
+    subjectsController.clear();
+    addressController.clear();
+    cvFileName = null;
+    cvBase64 = null;
+  }
+
+  // ---------------- Dispose ---------------- //
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    phoneController.dispose();
+    qualificationController.dispose();
+    experienceController.dispose();
+    subjectsController.dispose();
+    addressController.dispose();
   }
 }
