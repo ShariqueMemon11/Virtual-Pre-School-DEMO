@@ -1,8 +1,6 @@
 import 'package:demo_vps/View/DesktopLayout/loginscreen/loginscreen.dart';
-import 'package:demo_vps/View/DesktopLayout/registerScreen/teacherAdmissionRegistration/teacheradmission.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import './View/DesktopLayout/admin/studentRegisterManagement/StudentApplicationManagementScreen.dart';
 
 class Responsive extends StatelessWidget {
   const Responsive({super.key});
