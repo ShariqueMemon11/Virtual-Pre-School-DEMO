@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../loginscreen/loginscreen.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
@@ -74,13 +75,27 @@ class _SideMenu extends State<SideMenu> {
                   icon: Icons.logout,
                   label: 'LogOut',
                   onTap: () async {
-                    // Example if you're using Firebase:
-                    // await FirebaseAuth.instance.signOut();
-                    await FirebaseAuth.instance.signOut();
-                    // After logout, navigate to login screen and clear stack
-                    setState(() {
-                      Navigator.pop(context);
-                    });
+                    try {
+                      // Sign out from Firebase
+                      await FirebaseAuth.instance.signOut();
+
+                      // Navigate to login screen and clear the entire navigation stack
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginScreen(),
+                        ),
+                        (Route<dynamic> route) => false,
+                      );
+                    } catch (e) {
+                      // Handle any errors during logout
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error during logout: ${e.toString()}'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
                   },
                 ),
               ],
