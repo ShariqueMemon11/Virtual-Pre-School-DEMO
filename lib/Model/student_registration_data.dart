@@ -1,4 +1,5 @@
 class StudentRegistrationData {
+  String? id;
   String? childName;
   String? age;
   DateTime? dateOfBirth;
@@ -15,21 +16,47 @@ class StudentRegistrationData {
   String? fatherId;
   String? fatherOccupation;
 
-  List<String?> otherFamilyMembers = [];
+  List<String?> otherFamilyMembers;
   String? specialEquipment;
   String? allergies;
   String? behavioralIssues;
   bool? policyAccepted;
   String? password;
 
-  // 📌 Add new fields
+  // 📎 Files (Base64 or URLs)
   String? motherCnicFile;
-  String? childPhotoFile;
   String? fatherCnicFile;
   String? birthCertificateFile;
+  String? childPhotoFile;
 
-  String? approvalStatus;
+  StudentRegistrationData({
+    this.id,
+    this.childName,
+    this.age,
+    this.dateOfBirth,
+    this.homePhone,
+    this.email,
+    this.motherCell,
+    this.fatherCell,
+    this.motherName,
+    this.motherId,
+    this.motherOccupation,
+    this.fatherName,
+    this.fatherId,
+    this.fatherOccupation,
+    this.otherFamilyMembers = const [],
+    this.specialEquipment,
+    this.allergies,
+    this.behavioralIssues,
+    this.policyAccepted,
+    this.password,
+    this.motherCnicFile,
+    this.fatherCnicFile,
+    this.birthCertificateFile,
+    this.childPhotoFile,
+  });
 
+  /// ✅ Convert model → Firestore Map
   Map<String, dynamic> toMap() {
     return {
       'childName': childName,
@@ -50,13 +77,46 @@ class StudentRegistrationData {
       'allergies': allergies,
       'behavioralIssues': behavioralIssues,
       'policyAccepted': policyAccepted,
-
+      'password': password,
       'motherCnicFile': motherCnicFile,
       'fatherCnicFile': fatherCnicFile,
       'birthCertificateFile': birthCertificateFile,
       'childPhotoFile': childPhotoFile,
-
-      'approvalStatus': approvalStatus,
     };
+  }
+
+  /// ✅ Convert Firestore Document → Model
+  factory StudentRegistrationData.fromMap(Map<String, dynamic> map) {
+    return StudentRegistrationData(
+      childName: map['childName'],
+      age: map['age']?.toString(),
+      dateOfBirth:
+          map['dateOfBirth'] != null
+              ? DateTime.tryParse(map['dateOfBirth'])
+              : null,
+      homePhone: map['homePhone'],
+      email: map['email'],
+      motherCell: map['motherCell'],
+      fatherCell: map['fatherCell'],
+      motherName: map['motherName'],
+      motherId: map['motherId'],
+      motherOccupation: map['motherOccupation'],
+      fatherName: map['fatherName'],
+      fatherId: map['fatherId'],
+      fatherOccupation: map['fatherOccupation'],
+      otherFamilyMembers:
+          map['otherFamilyMembers'] != null
+              ? List<String?>.from(map['otherFamilyMembers'])
+              : [],
+      specialEquipment: map['specialEquipment'],
+      allergies: map['allergies'],
+      behavioralIssues: map['behavioralIssues'],
+      policyAccepted: map['policyAccepted'] ?? false,
+      password: map['password'],
+      motherCnicFile: map['motherCnicFile'],
+      fatherCnicFile: map['fatherCnicFile'],
+      birthCertificateFile: map['birthCertificateFile'],
+      childPhotoFile: map['childPhotoFile'],
+    );
   }
 }

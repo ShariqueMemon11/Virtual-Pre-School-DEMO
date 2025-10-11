@@ -1,4 +1,3 @@
-import 'package:demo_vps/View/DesktopLayout/desktopmain.dart';
 import 'package:demo_vps/View/DesktopLayout/loginscreen/loginscreen.dart';
 import 'package:demo_vps/View/DesktopLayout/registerScreen/teacherAdmissionRegistration/teacheradmission.dart';
 import 'package:flutter/material.dart';

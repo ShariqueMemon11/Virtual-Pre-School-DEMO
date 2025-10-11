@@ -3,7 +3,8 @@ import 'package:demo_vps/View/DesktopLayout/admin/ComplainManagement/ComplainMan
 import 'package:demo_vps/View/DesktopLayout/admin/adminClassManagement/ClassManagement.dart';
 import 'package:demo_vps/View/DesktopLayout/admin/adminTeachersManagement/TeacherManagementScreen.dart';
 import 'package:demo_vps/View/DesktopLayout/admin/notificationscreens/NotificationManagamentScreen.dart';
-import 'package:demo_vps/View/DesktopLayout/admin/studentRegisterManagement/StudentApplicationManagementScreen.dart';
+import 'package:demo_vps/View/DesktopLayout/admin/studentRegisterManagement/student_application_view.dart'
+    show StudentApplicationView;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -102,7 +103,7 @@ class _MainSide extends State<MainSide> {
                     DashboardCard(
                       icon: Icons.people,
                       label: "Students Application Management",
-                      destination: Studentapplicationmanagementscreen(),
+                      destination: StudentApplicationView(),
                     ),
                   ],
                 ),
