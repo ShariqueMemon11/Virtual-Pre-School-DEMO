@@ -26,7 +26,9 @@ class TeacherAdmissionController {
   String? cvBase64;
 
   // Auth Info
+  // ignore: unused_field
   late String _email;
+  // ignore: unused_field
   late String _password;
 
   // ---------------- Initialization ---------------- //
