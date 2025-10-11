@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -132,6 +134,7 @@ class _StudentApplicationDetailScreenState
                   156,
                   129,
                   219,
+                  // ignore: deprecated_member_use
                 ).withOpacity(0.3),
                 child: const Icon(Icons.person, size: 50, color: Colors.white),
               ),
@@ -157,6 +160,7 @@ class _StudentApplicationDetailScreenState
                   fontSize: 15.sp,
                 ),
               ),
+              // ignore: deprecated_member_use
               backgroundColor: _getStatusColor(status).withOpacity(0.15),
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
             ),
@@ -260,7 +264,7 @@ class _StudentApplicationDetailScreenState
             borderRadius: BorderRadius.circular(12.r),
           ),
         ),
-        onPressed: hasFile ? () => _openDocumentViewer(file!, label) : null,
+        onPressed: hasFile ? () => _openDocumentViewer(file, label) : null,
         icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
         label: Text(label, style: const TextStyle(color: Colors.white)),
       ),

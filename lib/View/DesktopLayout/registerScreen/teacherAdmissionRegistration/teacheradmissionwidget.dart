@@ -81,6 +81,7 @@ class _TeacherAdmissionPageState extends State<TeacherAdmissionPage> {
                     ),
                     boxShadow: [
                       BoxShadow(
+                        // ignore: deprecated_member_use
                         color: Colors.white.withOpacity(0.2),
                         blurRadius: 20,
                         spreadRadius: -4,

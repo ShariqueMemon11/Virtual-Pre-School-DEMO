@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../Model/student_registration_data.dart';
 import 'StudentApplicationDetailView.dart';
 import '../../../../controller/DesktopControllers/admin_student_application_controller.dart';
