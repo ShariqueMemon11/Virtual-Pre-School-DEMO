@@ -1,92 +1,123 @@
-import 'dart:io';
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../Model/notification_modal.dart';
 
 class CreateNotificationController {
   final TextEditingController titleController;
   final TextEditingController bodyController;
   final BuildContext context;
-  final bool isTest;
 
-  String? audience = "Select Audience";
-  File? attachedFile;
-  Uint8List? attachedFileBytes;
-  String? fileName;
-
+  String? audience;
+  String? uploadedDocumentBase64;
+  String? uploadedDocumentName;
   bool isSubmitting = false;
 
   CreateNotificationController({
     required this.titleController,
     required this.bodyController,
     required this.context,
-    this.isTest = false,
   });
 
-  Future<void> handleFileUpload() async {
-    final result = await FilePicker.platform.pickFiles(withData: kIsWeb);
-
-    if (result != null && result.files.isNotEmpty) {
-      fileName = result.files.single.name;
-
-      if (kIsWeb) {
-        attachedFileBytes = result.files.single.bytes;
-      } else {
-        attachedFile = File(result.files.single.path!);
-      }
-    }
-  }
-
-  Future<void> submitNotification(VoidCallback onStateChanged) async {
+  Future<void> submitNotification(VoidCallback refreshUI) async {
     if (titleController.text.trim().isEmpty ||
         bodyController.text.trim().isEmpty ||
         audience == null ||
-        audience == "Select Audience") {
+        audience == 'Select Audience') {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please complete all fields')),
+        const SnackBar(content: Text('Please fill all required fields')),
       );
       return;
     }
 
-    isSubmitting = true;
-    onStateChanged(); // notify UI
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Sending notification...')));
+    try {
+      isSubmitting = true;
+      refreshUI();
 
-    if (isTest) {
-      await Future.delayed(const Duration(milliseconds: 100));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Notification sent successfully! (test mode)'),
-        ),
+      final docRef =
+          FirebaseFirestore.instance.collection('notifications').doc();
+
+      final notification = NotificationModel(
+        id: docRef.id,
+        title: titleController.text.trim(),
+        body: bodyController.text.trim(),
+        audience: audience!,
+        uploadedDocument: uploadedDocumentBase64,
+        documentName: uploadedDocumentName,
       );
+
+      await docRef.set(notification.toMap());
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Notification Created Successfully!')),
+      );
+
+      // clear fields
+      titleController.clear();
+      bodyController.clear();
+      audience = "Select Audience";
+      uploadedDocumentBase64 = null;
+      uploadedDocumentName = null;
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    } finally {
       isSubmitting = false;
-      onStateChanged();
-      return;
+      refreshUI();
     }
+  }
+}
 
-    await FirebaseFirestore.instance.collection('notifications').add({
-      'title': titleController.text.trim(),
-      'body': bodyController.text.trim(),
-      'audience': audience,
-      'fileName': fileName ?? '',
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+class NotificationController {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Notification sent successfully!')),
-    );
+  Stream<QuerySnapshot> getNotificationsStream() {
+    return _firestore
+        .collection('notifications')
+        .orderBy('createdAt', descending: true)
+        .snapshots();
+  }
 
-    titleController.clear();
-    bodyController.clear();
-    fileName = null;
-    attachedFile = null;
-    attachedFileBytes = null;
-    audience = "Select Audience";
+  Future<void> deleteNotification(String id, BuildContext context) async {
+    try {
+      await _firestore.collection('notifications').doc(id).delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Notification deleted successfully")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error deleting notification: $e")),
+      );
+    }
+  }
 
-    isSubmitting = false;
-    onStateChanged(); // notify UI again to re-enable submit button
+  Future<void> updateNotification(
+    NotificationModel notification,
+    BuildContext context,
+  ) async {
+    try {
+      await _firestore
+          .collection('notifications')
+          .doc(notification.id)
+          .update(notification.toMap());
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Notification updated successfully")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error updating notification: $e")),
+      );
+    }
+  }
+
+  Future<NotificationModel?> getNotificationById(String id) async {
+    final doc = await _firestore.collection('notifications').doc(id).get();
+    if (doc.exists) {
+      return NotificationModel.fromMap(doc.data()!);
+    }
+    return null;
   }
 }

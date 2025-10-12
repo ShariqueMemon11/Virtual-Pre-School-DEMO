@@ -1,4 +1,6 @@
 // lib/controller/DesktopControllers/teacher_admission_controller.dart
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';

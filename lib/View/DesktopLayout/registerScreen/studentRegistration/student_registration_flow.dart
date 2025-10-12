@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import '../../../../controller/DesktopControllers/student_application_controller.dart';
 import '../../customwidgets/uploadfilewidget.dart';

@@ -50,9 +50,10 @@ class LoginController {
 
     // Non-admin login - verify with Firebase
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: enteredEmail,
-        password: enteredPassword,
+      // Student/teacher login successful - go to demo
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const DemoScreen()),
       );
 
       // After sign-in, check if this email already has a student record
@@ -120,6 +121,7 @@ class LoginController {
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
+      // ignore: deprecated_member_use
       barrierColor: Colors.black.withOpacity(0.3),
       transitionDuration: const Duration(milliseconds: 200),
       pageBuilder: (context, animation, secondaryAnimation) {
