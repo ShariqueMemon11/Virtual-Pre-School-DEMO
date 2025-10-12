@@ -66,6 +66,7 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
                       156,
                       129,
                       219,
+                      // ignore: deprecated_member_use
                     ).withOpacity(0.3),
                     child:
                         photo == null
@@ -116,6 +117,7 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
                         decoration: BoxDecoration(
                           color: _controller
                               .getStatusColor(status)
+                              // ignore: deprecated_member_use
                               .withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20.r),
                           border: Border.all(
@@ -135,6 +137,7 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () async {
                           await _controller.deleteApplication(app.id ?? "");
+                          // ignore: use_build_context_synchronously
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(

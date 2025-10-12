@@ -1,6 +1,11 @@
+// ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import "createnotificationscreen.dart";
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../../controller/DesktopControllers/create_notification_controller.dart';
+import './createnotificationscreen.dart';
+import 'edit_notification_view.dart';
+import 'view_notification_view.dart';
 
 /// ------------------ HEADER ------------------
 class HeaderWidget extends StatelessWidget {
@@ -34,7 +39,7 @@ class HeaderWidget extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const CreateNotificationScreen(),
+                  builder: (_) => const CreateNotificationWebView(),
                 ),
               );
             },
@@ -51,81 +56,98 @@ class HeaderWidget extends StatelessWidget {
   }
 }
 
-/// ------------------ LIST OF ISSUED NOTIFICATIONS ------------------
+/// ------------------ LIST OF NOTIFICATIONS ------------------
 class NotificationIssuedList extends StatelessWidget {
-  const NotificationIssuedList({super.key});
+  final NotificationController controller = NotificationController();
+  NotificationIssuedList({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Dummy data
-    final notifications = [
-      {
-        "title": "Exam Schedule Released",
-        "body": "The exam timetable for midterms is now available.",
-        "audience": "Students/Parents",
-        "date": "2025-08-19",
-      },
-      {
-        "title": "Staff Meeting",
-        "body":
-            "All teachers are required to attend the staff meeting tomorrow.",
-        "audience": "Teachers",
-        "date": "2025-08-18",
-      },
-      {
-        "title": "System Maintenance",
-        "body": "Admin portal will be under maintenance this weekend.",
-        "audience": "Admins",
-        "date": "2025-08-17",
-      },
-    ];
+    return StreamBuilder<QuerySnapshot>(
+      stream: controller.getNotificationsStream(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(
+            child: Text(
+              "No notifications found.",
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+          );
+        }
 
-    return ListView.builder(
-      padding: EdgeInsets.all(16.w),
-      itemCount: notifications.length,
-      itemBuilder: (context, index) {
-        final notif = notifications[index];
-        return Card(
-          margin: EdgeInsets.only(bottom: 12.h),
-          child: ListTile(
-            leading: Icon(Icons.notifications, color: Colors.deepPurple),
-            title: Text(
-              notif["title"]!,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 4.h),
-                Text(notif["body"]!, style: TextStyle(fontSize: 14.sp)),
-                SizedBox(height: 4.h),
-                Text("Audience: ${notif["audience"]}"),
-                Text("Date: ${notif["date"]}"),
-              ],
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.blue),
-                  onPressed: () {
-                    // Navigate to CreateNotificationScreen in "edit" mode
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Edit ${notif["title"]}")),
-                    );
-                  },
+        final notifications = snapshot.data!.docs;
+
+        return ListView.builder(
+          padding: EdgeInsets.all(16.w),
+          itemCount: notifications.length,
+          itemBuilder: (context, index) {
+            final doc = notifications[index];
+            final data = doc.data() as Map<String, dynamic>;
+
+            return Card(
+              margin: EdgeInsets.only(bottom: 12.h),
+              child: ListTile(
+                leading: const Icon(
+                  Icons.notifications,
+                  color: Colors.deepPurple,
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Deleted ${notif["title"]}")),
-                    );
-                  },
+                title: Text(
+                  data["title"] ?? "Untitled",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.sp,
+                  ),
                 ),
-              ],
-            ),
-          ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 4.h),
+                    Text(data["body"] ?? "", style: TextStyle(fontSize: 14.sp)),
+                    SizedBox(height: 4.h),
+                    Text("Audience: ${data["audience"] ?? 'N/A'}"),
+                    Text(
+                      "Date: ${data["createdAt"] != null ? (data["createdAt"].toDate().toString().split(' ')[0]) : 'Unknown'}",
+                    ),
+                  ],
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ViewNotificationView(id: doc.id),
+                    ),
+                  );
+                },
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => EditNotificationView(id: doc.id),
+                          ),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed:
+                          () => controller.deleteNotification(doc.id, context),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );

@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../../controller/DesktopControllers/teacher_admission_controller.dart';
@@ -81,7 +83,8 @@ class _TeacherAdmissionPageState extends State<TeacherAdmissionPage> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        // ignore: deprecated_member_use
+                        // ignore: duplicate_ignore
+                        // ignore:
                         color: Colors.white.withOpacity(0.2),
                         blurRadius: 20,
                         spreadRadius: -4,
