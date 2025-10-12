@@ -2,10 +2,13 @@ import 'package:demo_vps/Model/user_model.dart';
 import 'package:demo_vps/View/DesktopLayout/registerScreen/teacherAdmissionRegistration/teacheradmission.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 import '../../View/DesktopLayout/admin/adminDashboardScreen/dashboardscreen.dart';
 import '../../View/DesktopLayout/registerScreen/studentRegistration/student_registration_flow.dart';
 import '../../View/DesktopLayout/registerScreen/registration_modal_widget.dart';
-import '../../View/DesktopLayout/admin/adminDashboardScreen/demo_screen.dart';
+import '../../View/DesktopLayout/student/studentDashboard/student_dashboard.dart';
+import 'dashboard_controller.dart';
 
 class LoginController {
   final TextEditingController emailController;
@@ -53,6 +56,35 @@ class LoginController {
         MaterialPageRoute(builder: (context) => const DemoScreen()),
       );
 
+      // After sign-in, check if this email already has a student record
+      final hasStudentRecord = await _studentRecordExistsByEmail(enteredEmail);
+
+      if (hasStudentRecord) {
+        // Student profile exists -> go to dashboard with provider
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => ChangeNotifierProvider(
+                  create: (_) => DashboardController(),
+                  child: const StudentDashboard(),
+                ),
+          ),
+        );
+      } else {
+        // No profile yet -> go to registration flow with prefilled creds
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => StudentRegistrationForm(
+                  initialEmail: enteredEmail,
+                  initialPassword: enteredPassword,
+                ),
+          ),
+        );
+      }
+
       emailController.clear();
       passwordController.clear();
     } on FirebaseAuthException catch (e) {
@@ -60,6 +92,29 @@ class LoginController {
         context,
       ).showSnackBar(SnackBar(content: Text(e.message ?? 'An error occurred')));
     }
+  }
+
+  Future<bool> _studentRecordExistsByEmail(String email) async {
+    final firestore = FirebaseFirestore.instance;
+
+    // Check Students collection by email
+    final studentsQuery =
+        await firestore
+            .collection('Students')
+            .where('email', isEqualTo: email)
+            .limit(1)
+            .get();
+    if (studentsQuery.docs.isNotEmpty) return true;
+
+    // Check student applications collection (named with a space in this project)
+    final applicationsQuery =
+        await firestore
+            .collection('student applications')
+            .where('email', isEqualTo: email)
+            .limit(1)
+            .get();
+
+    return applicationsQuery.docs.isNotEmpty;
   }
 
   void navigateToRegister() {
