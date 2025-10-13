@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:typed_data';
+// ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html; // ✅ For download in Flutter Web
 import 'package:flutter/material.dart';
 import '../../../../controller/DesktopControllers/create_notification_controller.dart';
@@ -32,17 +32,6 @@ class _ViewNotificationViewState extends State<ViewNotificationView> {
     });
   }
 
-  /// ✅ Opens the attached document in a new browser tab
-  void _openDocument() {
-    if (_notification?.uploadedDocument == null) return;
-
-    final bytes = base64Decode(_notification!.uploadedDocument!);
-    final blob = html.Blob([bytes]);
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    html.window.open(url, "_blank");
-    html.Url.revokeObjectUrl(url);
-  }
-
   /// ✅ Downloads the attached document
   void _downloadDocument() {
     if (_notification?.uploadedDocument == null) return;
@@ -50,11 +39,6 @@ class _ViewNotificationViewState extends State<ViewNotificationView> {
     final bytes = base64Decode(_notification!.uploadedDocument!);
     final blob = html.Blob([bytes]);
     final url = html.Url.createObjectUrlFromBlob(blob);
-
-    final anchor =
-        html.AnchorElement(href: url)
-          ..download = _notification!.documentName ?? "document"
-          ..click();
 
     html.Url.revokeObjectUrl(url);
   }
