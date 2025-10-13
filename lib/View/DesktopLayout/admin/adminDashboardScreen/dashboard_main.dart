@@ -139,6 +139,7 @@ class _MainSide extends State<MainSide> {
   }
 }
 
+// ignore: camel_case_types
 class statscard extends StatelessWidget {
   const statscard({
     super.key,

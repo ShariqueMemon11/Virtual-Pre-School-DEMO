@@ -49,6 +49,7 @@ class _AssignTeacherWidgetState extends State<AssignTeacherWidget> {
           borderRadius: BorderRadius.circular(20.r),
           boxShadow: [
             BoxShadow(
+              // ignore: deprecated_member_use
               color: Colors.black.withOpacity(0.1),
               spreadRadius: 7,
               blurRadius: 7,

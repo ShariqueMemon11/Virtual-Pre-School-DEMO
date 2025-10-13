@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:demo_vps/View/DesktopLayout/admin/adminTeachersManagement/assignTeacher/assign_teacher_screen.dart';
 import 'package:demo_vps/View/DesktopLayout/admin/teacherRegisterManagement/TeacherApplicationDetailsScreen.dart';
 import 'package:demo_vps/View/DesktopLayout/admin/teacherRegisterManagement/TeacherRegisterManagement.dart';
