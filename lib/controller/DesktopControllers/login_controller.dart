@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:demo_vps/Model/user_model.dart';
 import 'package:demo_vps/View/DesktopLayout/registerScreen/teacherAdmissionRegistration/teacheradmission.dart';
 import 'package:flutter/material.dart';
@@ -57,12 +59,9 @@ class LoginController {
       );
 
       // After successful authentication, check if this email has a student record
-      print('Authentication successful for: $enteredEmail');
       final hasStudentRecord = await _studentRecordExistsByEmail(enteredEmail);
 
       if (hasStudentRecord) {
-        // Student profile exists -> go to student dashboard
-        print('Navigating to Student Dashboard');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -75,7 +74,6 @@ class LoginController {
         );
       } else {
         // No profile yet -> go to registration flow with prefilled creds
-        print('No student record found, navigating to registration');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -99,8 +97,6 @@ class LoginController {
 
   Future<bool> _studentRecordExistsByEmail(String email) async {
     final firestore = FirebaseFirestore.instance;
-
-    print('Checking student record for email: $email');
 
     // Check Students collection by email
     final studentsQuery =
