@@ -1,11 +1,16 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:demo_vps/Model/user_model.dart';
 import 'package:demo_vps/View/DesktopLayout/registerScreen/teacherAdmissionRegistration/teacheradmission.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
 import '../../View/DesktopLayout/admin/adminDashboardScreen/dashboardscreen.dart';
 import '../../View/DesktopLayout/registerScreen/studentRegistration/student_registration_flow.dart';
 import '../../View/DesktopLayout/registerScreen/registration_modal_widget.dart';
-import '../../View/DesktopLayout/admin/adminDashboardScreen/demo_screen.dart';
+import '../../View/DesktopLayout/student/studentDashboard/student_dashboard.dart';
+import 'dashboard_controller.dart';
 
 class LoginController {
   final TextEditingController emailController;
@@ -47,11 +52,39 @@ class LoginController {
 
     // Non-admin login - verify with Firebase
     try {
-      // Student/teacher login successful - go to demo
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const DemoScreen()),
+      // First, authenticate with Firebase
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: enteredEmail,
+        password: enteredPassword,
       );
+
+      // After successful authentication, check if this email has a student record
+      final hasStudentRecord = await _studentRecordExistsByEmail(enteredEmail);
+
+      if (hasStudentRecord) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => ChangeNotifierProvider(
+                  create: (_) => DashboardController(),
+                  child: const StudentDashboard(),
+                ),
+          ),
+        );
+      } else {
+        // No profile yet -> go to registration flow with prefilled creds
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => StudentRegistrationForm(
+                  initialEmail: enteredEmail,
+                  initialPassword: enteredPassword,
+                ),
+          ),
+        );
+      }
 
       emailController.clear();
       passwordController.clear();
@@ -60,6 +93,45 @@ class LoginController {
         context,
       ).showSnackBar(SnackBar(content: Text(e.message ?? 'An error occurred')));
     }
+  }
+
+  Future<bool> _studentRecordExistsByEmail(String email) async {
+    final firestore = FirebaseFirestore.instance;
+
+    // Check Students collection by email
+    final studentsQuery =
+        await firestore
+            .collection('Students')
+            .where('email', isEqualTo: email)
+            .limit(1)
+            .get();
+
+    print(
+      'Students collection query result: ${studentsQuery.docs.length} documents found',
+    );
+    if (studentsQuery.docs.isNotEmpty) {
+      print('Student found in Students collection');
+      return true;
+    }
+
+    // Check student applications collection (named with a space in this project)
+    final applicationsQuery =
+        await firestore
+            .collection('student applications')
+            .where('email', isEqualTo: email)
+            .limit(1)
+            .get();
+
+    print(
+      'Student applications collection query result: ${applicationsQuery.docs.length} documents found',
+    );
+    if (applicationsQuery.docs.isNotEmpty) {
+      print('Student found in student applications collection');
+      return true;
+    }
+
+    print('No student record found for email: $email');
+    return false;
   }
 
   void navigateToRegister() {

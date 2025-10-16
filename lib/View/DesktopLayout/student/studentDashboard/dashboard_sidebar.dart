@@ -1,5 +1,3 @@
-// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../loginscreen/loginscreen.dart';
@@ -135,38 +133,41 @@ class _SidebarItemState extends State<SidebarItem> {
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
-      child: InkWell(
-        onTap: widget.onTap,
-        splashColor: Colors.purple.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(8),
-        child: AnimatedOpacity(
-          duration: Duration(milliseconds: 200),
-          opacity: _isHovered ? 0.5 : 1.0, // Change opacity on hover
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 22.0,
-              horizontal: 16.0,
-            ),
-            child: Row(
-              children: [
-                Icon(widget.icon, size: 20, color: Colors.blueGrey),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    widget.label,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueGrey,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: widget.onTap,
+          splashColor: Colors.purple.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(8),
+          child: AnimatedOpacity(
+            duration: Duration(milliseconds: 200),
+            opacity: _isHovered ? 0.5 : 1.0, // Change opacity on hover
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 22.0,
+                horizontal: 16.0,
+              ),
+              child: Row(
+                children: [
+                  Icon(widget.icon, size: 20, color: Colors.blueGrey),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      widget.label,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueGrey,
+                      ),
                     ),
                   ),
-                ),
-                if (widget.hasArrow)
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                    color: Colors.blueGrey,
-                  ),
-              ],
+                  if (widget.hasArrow)
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 14,
+                      color: Colors.blueGrey,
+                    ),
+                ],
+              ),
             ),
           ),
         ),
