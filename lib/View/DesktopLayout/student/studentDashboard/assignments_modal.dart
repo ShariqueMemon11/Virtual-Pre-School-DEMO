@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:html' as html; // For Flutter Web download
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -92,6 +93,10 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
       return;
     }
 
+    print('Starting upload for assignment: $assignmentId');
+    print('Selected file: $selectedFileName');
+    print('File data length: ${selectedFileBase64!.length}');
+
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
@@ -101,7 +106,7 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
         return;
       }
 
-      // Show loading indicator
+      // Show persistent loading indicator (no duration = stays until cleared)
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Row(
@@ -115,47 +120,88 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
               Text('Uploading assignment...'),
             ],
           ),
-          duration: Duration(seconds: 3),
+          duration: Duration(
+            days: 1,
+          ), // Very long duration - will be cleared manually
         ),
       );
 
-      // Upload the completed assignment to a subcollection
+      // Use simple base64 approach like notifications (no Firebase Storage needed)
+      final fileBytes = base64Decode(selectedFileBase64!);
+      final fileSizeInMB = fileBytes.length / (1024 * 1024);
+
+      print('File size: ${fileSizeInMB.toStringAsFixed(2)} MB');
+      print('Using base64 storage approach (like notifications)');
+
+      // Use base64 for all files (like notifications) - new collection can handle large files
+      print('Using base64 storage for all files (like notifications)');
+      final fileBase64 = selectedFileBase64;
+
+      // Store submission in new collection with assignment connection
+      print('Uploading submission data to Firestore...');
+
+      // Create a unique submission ID that includes assignment ID for easy querying
+      final submissionId =
+          '${assignmentId}_${user.uid}_${DateTime.now().millisecondsSinceEpoch}';
+
       await FirebaseFirestore.instance
-          .collection('assignments')
-          .doc(assignmentId)
-          .collection('submissions')
-          .add({
+          .collection('student_submissions')
+          .doc(submissionId)
+          .set({
+            'submissionId': submissionId,
+            'assignmentId': assignmentId, // Connect to assignment
+            'assignmentTitle':
+                assignments.firstWhere((a) => a['id'] == assignmentId)['title'],
             'studentId': user.uid,
             'studentEmail': user.email,
+            'studentName': user.displayName ?? 'Student',
             'fileName': selectedFileName,
-            'fileBase64': selectedFileBase64,
+            'fileBase64':
+                fileBase64, // Store base64 for all files (like notifications)
+            'fileSize': fileBytes.length,
             'submittedAt': Timestamp.now(),
             'status': 'submitted',
+            'reviewStatus': 'pending', // For teacher review
+            'grade': null, // Will be set by teacher
+            'teacherFeedback': null, // Will be set by teacher
           });
+      print('Submission data uploaded to Firestore successfully');
 
-      // Success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Assignment "$selectedFileName" submitted successfully!',
-          ),
-          backgroundColor: Colors.green,
-        ),
-      );
+      // Store filename before clearing
+      final uploadedFileName = selectedFileName;
 
-      // Clear selected file
+      // Clear selected file first
       setState(() {
         selectedFileName = null;
         selectedFileBase64 = null;
       });
 
-      print('Assignment uploaded successfully: $selectedFileName');
+      // Clear any existing snackbars first
+      ScaffoldMessenger.of(context).clearSnackBars();
+
+      // Success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Assignment "$uploadedFileName" submitted successfully! (${fileSizeInMB.toStringAsFixed(2)} MB)',
+          ),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+
+      print('Assignment uploaded successfully: $uploadedFileName');
     } catch (e) {
       print('Error uploading assignment: $e');
+
+      // Clear any existing snackbars first
+      ScaffoldMessenger.of(context).clearSnackBars();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error uploading assignment: ${e.toString()}'),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
         ),
       );
     }
@@ -170,22 +216,24 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
         return;
       }
 
-      // Decode the base64 file
+      // Use the same download method as notifications
       final bytes = base64Decode(fileBase64);
+      final blob = html.Blob([bytes]);
+      final url = html.Url.createObjectUrlFromBlob(blob);
 
-      // For web platform, create a blob and trigger download
-      // This will work in web browsers
+      html.AnchorElement(href: url)
+        ..download = fileName
+        ..click();
+
+      html.Url.revokeObjectUrl(url);
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Downloading: $fileName'),
+          content: Text('Downloading $fileName (${bytes.length} bytes)...'),
+          backgroundColor: Colors.green,
           duration: const Duration(seconds: 2),
         ),
       );
-
-      // Note: For mobile platforms, you would need to add packages like:
-      // - path_provider: ^2.0.0
-      // - open_file: ^3.0.0
-      // And implement proper file saving logic
 
       print('File downloaded: $fileName (${bytes.length} bytes)');
     } catch (e) {

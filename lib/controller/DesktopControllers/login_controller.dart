@@ -1,6 +1,5 @@
 import 'package:demo_vps/Model/user_model.dart';
 import 'package:demo_vps/View/DesktopLayout/registerScreen/teacherAdmissionRegistration/teacheradmission.dart';
-import 'package:demo_vps/View/DesktopLayout/admin/adminDashboardScreen/demo_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -67,10 +66,11 @@ class LoginController {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => ChangeNotifierProvider(
-              create: (_) => DashboardController(),
-              child: const StudentDashboard(),
-            ),
+            builder:
+                (context) => ChangeNotifierProvider(
+                  create: (_) => DashboardController(),
+                  child: const StudentDashboard(),
+                ),
           ),
         );
       } else {
@@ -79,10 +79,11 @@ class LoginController {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => StudentRegistrationForm(
-              initialEmail: enteredEmail,
-              initialPassword: enteredPassword,
-            ),
+            builder:
+                (context) => StudentRegistrationForm(
+                  initialEmail: enteredEmail,
+                  initialPassword: enteredPassword,
+                ),
           ),
         );
       }
@@ -108,8 +109,10 @@ class LoginController {
             .where('email', isEqualTo: email)
             .limit(1)
             .get();
-    
-    print('Students collection query result: ${studentsQuery.docs.length} documents found');
+
+    print(
+      'Students collection query result: ${studentsQuery.docs.length} documents found',
+    );
     if (studentsQuery.docs.isNotEmpty) {
       print('Student found in Students collection');
       return true;
@@ -123,7 +126,9 @@ class LoginController {
             .limit(1)
             .get();
 
-    print('Student applications collection query result: ${applicationsQuery.docs.length} documents found');
+    print(
+      'Student applications collection query result: ${applicationsQuery.docs.length} documents found',
+    );
     if (applicationsQuery.docs.isNotEmpty) {
       print('Student found in student applications collection');
       return true;
