@@ -106,11 +106,7 @@ class LoginController {
             .limit(1)
             .get();
 
-    print(
-      'Students collection query result: ${studentsQuery.docs.length} documents found',
-    );
     if (studentsQuery.docs.isNotEmpty) {
-      print('Student found in Students collection');
       return true;
     }
 
@@ -122,15 +118,10 @@ class LoginController {
             .limit(1)
             .get();
 
-    print(
-      'Student applications collection query result: ${applicationsQuery.docs.length} documents found',
-    );
     if (applicationsQuery.docs.isNotEmpty) {
-      print('Student found in student applications collection');
       return true;
     }
 
-    print('No student record found for email: $email');
     return false;
   }
 

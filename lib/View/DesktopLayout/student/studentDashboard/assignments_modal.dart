@@ -34,32 +34,54 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
       final querySnapshot =
           await FirebaseFirestore.instance.collection('assignments').get();
 
+      if (!mounted) return;
+
+      final user = FirebaseAuth.instance.currentUser;
+      final String? currentUserId = user?.uid;
+
+      // Build assignment list and annotate with whether the current user already submitted
+      final List<Map<String, dynamic>> loaded = await Future.wait(
+        querySnapshot.docs.map((doc) async {
+          final data = doc.data();
+
+          bool hasSubmitted = false;
+          Timestamp? submittedAt;
+          String? submittedFileName;
+
+          if (currentUserId != null) {
+            final submissionSnap =
+                await FirebaseFirestore.instance
+                    .collection('student_submissions')
+                    .where('assignmentId', isEqualTo: doc.id)
+                    .where('studentId', isEqualTo: currentUserId)
+                    .limit(1)
+                    .get();
+            if (submissionSnap.docs.isNotEmpty) {
+              hasSubmitted = true;
+              final s = submissionSnap.docs.first.data();
+              submittedAt = s['submittedAt'] as Timestamp?;
+              submittedFileName = s['fileName'] as String?;
+            }
+          }
+
+          return {
+            'id': doc.id,
+            'title': data['title'] ?? 'Assignment ${doc.id.substring(0, 8)}',
+            'description': data['description'] ?? 'No description provided',
+            'fileBase64': data['assignment'] ?? data['fileBase64'] ?? '',
+            'fileName': data['fileName'] ?? 'assignment.pdf',
+            'createdAt': data['createdAt'] ?? Timestamp.now(),
+            'dueDate': data['dueDate'],
+            'status': data['status'] ?? 'pending',
+            'hasSubmitted': hasSubmitted,
+            'submittedAt': submittedAt,
+            'submittedFileName': submittedFileName,
+          };
+        }).toList(),
+      );
+
       setState(() {
-        assignments =
-            querySnapshot.docs.map((doc) {
-              final data = doc.data();
-              print('Assignment data: ${data.keys}');
-              print(
-                'Assignment field: ${data['assignment']?.toString().substring(0, 50)}...',
-              );
-              print(
-                'FileBase64 field: ${data['fileBase64']?.toString().substring(0, 50)}...',
-              );
-              return {
-                'id': doc.id,
-                'title':
-                    data['title'] ?? 'Assignment ${doc.id.substring(0, 8)}',
-                'description': data['description'] ?? 'No description provided',
-                'fileBase64':
-                    data['assignment'] ??
-                    data['fileBase64'] ??
-                    '', // Check both field names
-                'fileName': data['fileName'] ?? 'assignment.pdf',
-                'createdAt': data['createdAt'] ?? Timestamp.now(),
-                'dueDate': data['dueDate'],
-                'status': data['status'] ?? 'pending',
-              };
-            }).toList();
+        assignments = loaded;
 
         // Sort assignments by creation date if available, otherwise by document ID
         assignments.sort((a, b) {
@@ -70,18 +92,17 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
           }
           return b['id'].compareTo(a['id']); // Sort by document ID as fallback
         });
-
-        print('Total assignments loaded: ${assignments.length}');
         isLoading = false;
       });
     } catch (e) {
-      print('Error loading assignments: $e');
-      setState(() {
-        isLoading = false;
-      });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error loading assignments: $e')));
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading assignments: $e')),
+        );
+      }
     }
   }
 
@@ -93,10 +114,6 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
       return;
     }
 
-    print('Starting upload for assignment: $assignmentId');
-    print('Selected file: $selectedFileName');
-    print('File data length: ${selectedFileBase64!.length}');
-
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
@@ -105,6 +122,115 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
         );
         return;
       }
+
+      // Prevent duplicate submissions for this assignment by this student
+      final existing =
+          await FirebaseFirestore.instance
+              .collection('student_submissions')
+              .where('assignmentId', isEqualTo: assignmentId)
+              .where('studentId', isEqualTo: user.uid)
+              .limit(1)
+              .get();
+      if (existing.docs.isNotEmpty) {
+        showDialog(
+          context: context,
+          barrierDismissible: true,
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Already submitted'),
+                content: const Text(
+                  'You have already submitted this assignment. Resubmission is not allowed.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
+        );
+        return;
+      }
+
+      // Use simple base64 approach like notifications (no Firebase Storage needed)
+      final fileBytes = base64Decode(selectedFileBase64!);
+      final fileSizeInMB = fileBytes.length / (1024 * 1024);
+
+      // Enforce 1 MB max upload size
+      if (fileBytes.length > 1024 * 1024) {
+        setState(() {
+          selectedFileName = null;
+          selectedFileBase64 = null;
+        });
+
+        // Show alert dialog instead of snackbar
+        showDialog(
+          context: context,
+          barrierDismissible: true,
+          builder:
+              (context) => AlertDialog(
+                title: const Text('File too large'),
+                content: Text(
+                  'The selected file is ${fileSizeInMB.toStringAsFixed(2)} MB. The maximum allowed size is 1 MB.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
+        );
+        return;
+      }
+
+      // Resolve student name from Students collection, fallback to displayName
+      String studentName = user.displayName ?? 'Student';
+      try {
+        final studentsQuery =
+            await FirebaseFirestore.instance
+                .collection('Students')
+                .where('email', isEqualTo: user.email)
+                .limit(1)
+                .get();
+        if (studentsQuery.docs.isNotEmpty) {
+          final sdata = studentsQuery.docs.first.data();
+          final resolvedName =
+              (sdata['name'] ?? sdata['studentName'])?.toString();
+          if (resolvedName != null && resolvedName.trim().isNotEmpty) {
+            studentName = resolvedName.trim();
+          }
+        } else {
+          // Fallback to student applications collection (as used elsewhere in app)
+          final appsQuery =
+              await FirebaseFirestore.instance
+                  .collection('student applications')
+                  .where('email', isEqualTo: user.email)
+                  .limit(1)
+                  .get();
+          if (appsQuery.docs.isNotEmpty) {
+            final adata = appsQuery.docs.first.data();
+            final resolvedName =
+                (adata['name'] ?? adata['studentName'] ?? adata['fullName'])
+                    ?.toString();
+            if (resolvedName != null && resolvedName.trim().isNotEmpty) {
+              studentName = resolvedName.trim();
+            }
+          }
+        }
+      } catch (_) {
+        // Ignore lookup errors and keep fallback
+      }
+
+      // Last-resort fallback: derive from email prefix if still generic
+      if (studentName == 'Student' || studentName.trim().isEmpty) {
+        final emailPrefix = (user.email ?? '').split('@').first;
+        if (emailPrefix.isNotEmpty) {
+          studentName = emailPrefix;
+        }
+      }
+
+      if (!mounted) return;
 
       // Show persistent loading indicator (no duration = stays until cleared)
       ScaffoldMessenger.of(context).showSnackBar(
@@ -120,25 +246,11 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
               Text('Uploading assignment...'),
             ],
           ),
-          duration: Duration(
-            days: 1,
-          ), // Very long duration - will be cleared manually
+          duration: Duration(days: 1), // Will be cleared manually
         ),
       );
 
-      // Use simple base64 approach like notifications (no Firebase Storage needed)
-      final fileBytes = base64Decode(selectedFileBase64!);
-      final fileSizeInMB = fileBytes.length / (1024 * 1024);
-
-      print('File size: ${fileSizeInMB.toStringAsFixed(2)} MB');
-      print('Using base64 storage approach (like notifications)');
-
-      // Use base64 for all files (like notifications) - new collection can handle large files
-      print('Using base64 storage for all files (like notifications)');
       final fileBase64 = selectedFileBase64;
-
-      // Store submission in new collection with assignment connection
-      print('Uploading submission data to Firestore...');
 
       // Create a unique submission ID that includes assignment ID for easy querying
       final submissionId =
@@ -154,7 +266,7 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
                 assignments.firstWhere((a) => a['id'] == assignmentId)['title'],
             'studentId': user.uid,
             'studentEmail': user.email,
-            'studentName': user.displayName ?? 'Student',
+            'studentName': studentName,
             'fileName': selectedFileName,
             'fileBase64':
                 fileBase64, // Store base64 for all files (like notifications)
@@ -165,7 +277,8 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
             'grade': null, // Will be set by teacher
             'teacherFeedback': null, // Will be set by teacher
           });
-      print('Submission data uploaded to Firestore successfully');
+
+      if (!mounted) return;
 
       // Store filename before clearing
       final uploadedFileName = selectedFileName;
@@ -189,11 +302,8 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
           duration: const Duration(seconds: 4),
         ),
       );
-
-      print('Assignment uploaded successfully: $uploadedFileName');
     } catch (e) {
-      print('Error uploading assignment: $e');
-
+      if (!mounted) return;
       // Clear any existing snackbars first
       ScaffoldMessenger.of(context).clearSnackBars();
 
@@ -234,10 +344,7 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
           duration: const Duration(seconds: 2),
         ),
       );
-
-      print('File downloaded: $fileName (${bytes.length} bytes)');
     } catch (e) {
-      print('Error downloading file: $e');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Error downloading file: $e')));
@@ -419,85 +526,99 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
                   icon: Icon(Icons.download, size: 20.sp, color: Colors.blue),
                   tooltip: 'Download Assignment',
                 ),
-                // Debug button to check file data
-                IconButton(
-                  onPressed: () {
-                    print(
-                      'File data length: ${assignment['fileBase64']?.toString().length ?? 0}',
-                    );
-                    print('File name: ${assignment['fileName']}');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'File data: ${assignment['fileBase64']?.toString().substring(0, 50) ?? "No data"}...',
-                        ),
-                        duration: const Duration(seconds: 3),
-                      ),
-                    );
-                  },
-                  icon: Icon(Icons.info, size: 16.sp, color: Colors.grey),
-                  tooltip: 'Debug File Data',
-                ),
               ],
             ),
 
             SizedBox(height: 12.h),
 
             // Upload Section
-            Container(
-              padding: EdgeInsets.all(12.w),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(color: Colors.grey[300]!),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Submit Your Work:',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w500,
+            if (assignment['hasSubmitted'] == true)
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(12.w),
+                decoration: BoxDecoration(
+                  color: Colors.green[50],
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(color: Colors.green[200]!),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.green[700],
+                      size: 20.sp,
                     ),
-                  ),
-                  SizedBox(height: 8.h),
-                  UploadFileWidget(
-                    onFilePicked: (base64, fileName) {
-                      setState(() {
-                        selectedFileBase64 = base64;
-                        selectedFileName = fileName;
-                      });
-                    },
-                    fileName: selectedFileName,
-                    allowedExtensions: const [
-                      'pdf',
-                      'doc',
-                      'docx',
-                      'jpg',
-                      'jpeg',
-                      'png',
-                    ],
-                  ),
-                  SizedBox(height: 8.h),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed:
-                          selectedFileBase64 != null
-                              ? () => _uploadAssignment(assignment['id'])
-                              : null,
-                      icon: const Icon(Icons.upload),
-                      label: const Text('Submit Assignment'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text(
+                        assignment['submittedAt'] != null
+                            ? 'Submitted on ${_formatDate(assignment['submittedAt'])}'
+                            : 'Already submitted. Resubmission is disabled.',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: Colors.green[800],
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+              )
+            else
+              Container(
+                padding: EdgeInsets.all(12.w),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Submit Your Work:',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    UploadFileWidget(
+                      onFilePicked: (base64, fileName) {
+                        setState(() {
+                          selectedFileBase64 = base64;
+                          selectedFileName = fileName;
+                        });
+                      },
+                      fileName: selectedFileName,
+                      allowedExtensions: const [
+                        'pdf',
+                        'doc',
+                        'docx',
+                        'jpg',
+                        'jpeg',
+                        'png',
+                      ],
+                    ),
+                    SizedBox(height: 8.h),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed:
+                            selectedFileBase64 != null
+                                ? () => _uploadAssignment(assignment['id'])
+                                : null,
+                        icon: const Icon(Icons.upload),
+                        label: const Text('Submit Assignment'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),

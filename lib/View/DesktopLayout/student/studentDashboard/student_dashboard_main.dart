@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'assignments_modal.dart';
 import 'dart:convert';
+import 'messages_modal.dart';
 
 class StudentDashboardMain extends StatefulWidget {
   const StudentDashboardMain({super.key});
@@ -344,6 +345,8 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
       onTap: () {
         if (label == 'My Assignments') {
           _showAssignmentsModal();
+        } else if (label == 'Messages') {
+          _showMessagesModal();
         } else {
           ScaffoldMessenger.of(
             context,
@@ -393,6 +396,16 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return const AssignmentsModal();
+      },
+    );
+  }
+
+  void _showMessagesModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return const MessagesModal();
       },
     );
   }
