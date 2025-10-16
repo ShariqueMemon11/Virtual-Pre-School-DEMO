@@ -8,8 +8,7 @@ import 'package:flutter/rendering.dart';
 void main() async {
   //main
   WidgetsFlutterBinding.ensureInitialized();
-  debugPaintBaselinesEnabled = false; // make sure this is off
-  // Initialize Firebase with the default options
+  debugPaintBaselinesEnabled = false;
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
