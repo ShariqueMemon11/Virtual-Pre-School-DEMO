@@ -287,6 +287,16 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
       setState(() {
         selectedFileName = null;
         selectedFileBase64 = null;
+        // Mark this assignment as completed in UI and store submission time
+        final idx = assignments.indexWhere((a) => a['id'] == assignmentId);
+        if (idx != -1) {
+          final updated = Map<String, dynamic>.from(assignments[idx]);
+          updated['hasSubmitted'] = true;
+          updated['submittedAt'] = Timestamp.now();
+          updated['submittedFileName'] = uploadedFileName;
+          updated['status'] = 'completed';
+          assignments[idx] = updated;
+        }
       });
 
       // Clear any existing snackbars first
@@ -456,26 +466,36 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
                     ),
                   ),
                 ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color:
-                        assignment['status'] == 'completed'
-                            ? Colors.green[100]
-                            : Colors.orange[100],
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                  child: Text(
-                    assignment['status'].toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.bold,
-                      color:
-                          assignment['status'] == 'completed'
-                              ? Colors.green[800]
-                              : Colors.orange[800],
-                    ),
-                  ),
+                // Display completed if submitted
+                Builder(
+                  builder: (_) {
+                    final bool isCompleted =
+                        assignment['hasSubmitted'] == true ||
+                        assignment['status'] == 'completed';
+                    final Color? bg =
+                        isCompleted ? Colors.green[100] : Colors.orange[100];
+                    final Color? fg =
+                        isCompleted ? Colors.green[800] : Colors.orange[800];
+                    final String label = isCompleted ? 'COMPLETED' : 'PENDING';
+                    return Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8.w,
+                        vertical: 4.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: bg,
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.bold,
+                          color: fg,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

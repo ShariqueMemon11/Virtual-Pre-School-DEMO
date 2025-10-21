@@ -3,15 +3,16 @@ import 'dart:html' as html;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class MessagesModal extends StatefulWidget {
-  const MessagesModal({super.key});
+class NotificationsModal extends StatefulWidget {
+  const NotificationsModal({super.key});
 
   @override
-  State<MessagesModal> createState() => _MessagesModalState();
+  State<NotificationsModal> createState() => _NotificationsModalState();
 }
 
-class _MessagesModalState extends State<MessagesModal> {
+class _NotificationsModalState extends State<NotificationsModal> {
   bool isLoading = true;
   List<Map<String, dynamic>> notifications = [];
 
@@ -27,32 +28,43 @@ class _MessagesModalState extends State<MessagesModal> {
         isLoading = true;
       });
 
+      final user = FirebaseAuth.instance.currentUser;
       final snapshot =
           await FirebaseFirestore.instance.collection('notifications').get();
 
       if (!mounted) return;
 
-      final items =
-          snapshot.docs
-              .map((doc) {
-                final data = doc.data();
-                final String audience = (data['audience'] ?? '').toString();
-                final bool isForStudents = audience.toLowerCase().contains(
-                  'student',
-                );
-                return {
-                  'id': doc.id,
-                  'title': data['title'] ?? 'Notification',
-                  'body': data['body'] ?? '',
-                  'uploadedDocument':
-                      data['uploadedDocument'], // base64 (optional)
-                  'documentName': data['documentName'] ?? 'document',
-                  'createdAt': data['createdAt'] ?? Timestamp.now(),
-                  'isForStudents': isForStudents,
-                };
-              })
-              .where((n) => n['isForStudents'] == true)
-              .toList();
+      final items = <Map<String, dynamic>>[];
+      final List<String> unreadIds = [];
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final String audience = (data['audience'] ?? '').toString();
+        final bool isForStudents = audience.toLowerCase().contains('student');
+        if (!isForStudents) continue;
+
+        bool isRead = false;
+        if (user != null) {
+          final readDocId = '${doc.id}_${user.uid}';
+          final readDoc =
+              await FirebaseFirestore.instance
+                  .collection('notification_reads')
+                  .doc(readDocId)
+                  .get();
+          isRead = readDoc.exists;
+          if (!isRead) unreadIds.add(doc.id);
+        }
+
+        items.add({
+          'id': doc.id,
+          'title': data['title'] ?? 'Notification',
+          'body': data['body'] ?? '',
+          'uploadedDocument': data['uploadedDocument'], // base64 (optional)
+          'documentName': data['documentName'] ?? 'document',
+          'createdAt': data['createdAt'] ?? Timestamp.now(),
+          'isRead': isRead,
+        });
+      }
 
       items.sort((a, b) {
         final ta = a['createdAt'] as Timestamp? ?? Timestamp.now();
@@ -64,6 +76,21 @@ class _MessagesModalState extends State<MessagesModal> {
         notifications = items;
         isLoading = false;
       });
+
+      // Mark unread as read AFTER showing highlight the first time
+      if (user != null && unreadIds.isNotEmpty) {
+        for (final nid in unreadIds) {
+          final docId = '${nid}_${user.uid}';
+          await FirebaseFirestore.instance
+              .collection('notification_reads')
+              .doc(docId)
+              .set({
+                'notificationId': nid,
+                'userId': user.uid,
+                'readAt': Timestamp.now(),
+              }, SetOptions(merge: true));
+        }
+      }
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -120,10 +147,14 @@ class _MessagesModalState extends State<MessagesModal> {
           children: [
             Row(
               children: [
-                Icon(Icons.mail_outline, size: 28.sp, color: Colors.purple),
+                Icon(
+                  Icons.notifications_none,
+                  size: 28.sp,
+                  color: Colors.purple,
+                ),
                 SizedBox(width: 10.w),
                 Text(
-                  'Messages',
+                  'Notifications',
                   style: TextStyle(
                     fontSize: 24.sp,
                     fontWeight: FontWeight.bold,
@@ -165,7 +196,7 @@ class _MessagesModalState extends State<MessagesModal> {
           Icon(Icons.outgoing_mail, size: 64.sp, color: Colors.grey[400]),
           SizedBox(height: 12.h),
           Text(
-            'No messages yet',
+            'No notifications yet',
             style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
           ),
         ],
@@ -176,7 +207,9 @@ class _MessagesModalState extends State<MessagesModal> {
   Widget _notificationCard(Map<String, dynamic> n) {
     final String? base64Doc = n['uploadedDocument'] as String?;
     final String fileName = (n['documentName'] as String?) ?? 'document';
+    final bool isRead = n['isRead'] == true;
     return Card(
+      color: isRead ? null : Colors.purple[50],
       margin: EdgeInsets.only(bottom: 12.h),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
@@ -198,6 +231,16 @@ class _MessagesModalState extends State<MessagesModal> {
                 ),
                 Row(
                   children: [
+                    if (!isRead)
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    SizedBox(width: 8.w),
                     Icon(
                       Icons.access_time,
                       size: 16.sp,
