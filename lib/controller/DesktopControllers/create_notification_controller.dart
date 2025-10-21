@@ -8,6 +8,7 @@ class CreateNotificationController {
   final TextEditingController titleController;
   final TextEditingController bodyController;
   final BuildContext context;
+  final bool skipFirestore; // 👈 add this
 
   String? audience;
   String? uploadedDocumentBase64;
@@ -18,6 +19,7 @@ class CreateNotificationController {
     required this.titleController,
     required this.bodyController,
     required this.context,
+    this.skipFirestore = false, // 👈 default false (normal app)
   });
 
   Future<void> submitNotification(VoidCallback refreshUI) async {
@@ -35,19 +37,22 @@ class CreateNotificationController {
       isSubmitting = true;
       refreshUI();
 
-      final docRef =
-          FirebaseFirestore.instance.collection('notifications').doc();
+      if (!skipFirestore) {
+        // 🔥 only run when not testing
+        final docRef =
+            FirebaseFirestore.instance.collection('notifications').doc();
 
-      final notification = NotificationModel(
-        id: docRef.id,
-        title: titleController.text.trim(),
-        body: bodyController.text.trim(),
-        audience: audience!,
-        uploadedDocument: uploadedDocumentBase64,
-        documentName: uploadedDocumentName,
-      );
+        final notification = NotificationModel(
+          id: docRef.id,
+          title: titleController.text.trim(),
+          body: bodyController.text.trim(),
+          audience: audience!,
+          uploadedDocument: uploadedDocumentBase64,
+          documentName: uploadedDocumentName,
+        );
 
-      await docRef.set(notification.toMap());
+        await docRef.set(notification.toMap());
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Notification Created Successfully!')),
@@ -71,10 +76,21 @@ class CreateNotificationController {
 }
 
 class NotificationController {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final bool skipFirestore;
+  FirebaseFirestore? _firestore; // make it nullable, lazy-loaded
+
+  NotificationController({this.skipFirestore = false}) {
+    if (!skipFirestore) {
+      _firestore = FirebaseFirestore.instance;
+    }
+  }
 
   Stream<QuerySnapshot> getNotificationsStream() {
-    return _firestore
+    if (skipFirestore) {
+      // return empty stream for tests
+      return const Stream.empty();
+    }
+    return _firestore!
         .collection('notifications')
         .orderBy('createdAt', descending: true)
         .snapshots();
@@ -82,7 +98,10 @@ class NotificationController {
 
   Future<void> deleteNotification(String id, BuildContext context) async {
     try {
-      await _firestore.collection('notifications').doc(id).delete();
+      if (!skipFirestore) {
+        await _firestore!.collection('notifications').doc(id).delete();
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Notification deleted successfully")),
       );
@@ -98,10 +117,12 @@ class NotificationController {
     BuildContext context,
   ) async {
     try {
-      await _firestore
-          .collection('notifications')
-          .doc(notification.id)
-          .update(notification.toMap());
+      if (!skipFirestore) {
+        await _firestore!
+            .collection('notifications')
+            .doc(notification.id)
+            .update(notification.toMap());
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Notification updated successfully")),
@@ -114,7 +135,8 @@ class NotificationController {
   }
 
   Future<NotificationModel?> getNotificationById(String id) async {
-    final doc = await _firestore.collection('notifications').doc(id).get();
+    if (skipFirestore) return null;
+    final doc = await _firestore!.collection('notifications').doc(id).get();
     if (doc.exists) {
       return NotificationModel.fromMap(doc.data()!);
     }
