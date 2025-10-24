@@ -1,10 +1,10 @@
 import 'package:demo_vps/View/DesktopLayout/admin/ComplainManagement/ComplainManagementScreen.dart';
-
 import 'package:demo_vps/View/DesktopLayout/admin/adminClassManagement/ClassManagement.dart';
-import 'package:demo_vps/View/DesktopLayout/admin/adminTeachersManagement/TeacherManagementScreen.dart';
+
 import 'package:demo_vps/View/DesktopLayout/admin/notificationscreens/NotificationManagamentScreen.dart';
 import 'package:demo_vps/View/DesktopLayout/admin/studentRegisterManagement/student_application_view.dart'
     show StudentApplicationView;
+import 'package:demo_vps/View/DesktopLayout/admin/teacherRegisterManagement/teacher_admission_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -97,7 +97,7 @@ class _MainSide extends State<MainSide> {
                     DashboardCard(
                       icon: Icons.school,
                       label: "Teacher Management",
-                      destination: TeacherManagementScreen(),
+                      destination: TeacherAdmissionListScreen(),
                     ),
                     SizedBox(width: 50.w),
                     DashboardCard(

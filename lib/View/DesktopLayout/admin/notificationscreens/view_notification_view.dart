@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:html' as html; // ✅ For download in Flutter Web
 import 'package:flutter/material.dart';
 import '../../../../controller/DesktopControllers/create_notification_controller.dart';
-import '../../../../Model/notification_modal.dart';
+import '../../../../Model/notification_model.dart';
 
 class ViewNotificationView extends StatefulWidget {
   final String id;

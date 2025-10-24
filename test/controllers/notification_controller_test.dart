@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:demo_vps/controller/DesktopControllers/create_notification_controller.dart';
-import 'package:demo_vps/Model/notification_modal.dart';
+import 'package:demo_vps/Model/notification_model.dart';
 
 //Test for Notification Controls
 void main() {

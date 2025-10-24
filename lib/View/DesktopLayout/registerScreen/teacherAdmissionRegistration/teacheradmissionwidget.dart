@@ -2,7 +2,7 @@
 
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../../../controller/DesktopControllers/teacher_admission_controller.dart';
+import '../../../../controller/DesktopControllers/teacher_register_controller.dart';
 import '../../customwidgets/primarybuttonwidget.dart';
 
 class TeacherAdmissionPage extends StatefulWidget {
