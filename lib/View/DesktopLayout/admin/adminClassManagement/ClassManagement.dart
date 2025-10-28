@@ -1,5 +1,6 @@
 // ignore_for_file: file_names
 
+import 'package:demo_vps/Model/teacher_model.dart';
 import 'package:flutter/material.dart';
 import '../../../../controller/DesktopControllers/class_controller.dart';
 import '../../../../Model/class_model.dart';
@@ -41,6 +42,41 @@ class ClassManagementScreen extends StatelessWidget {
                     _openCreateModal(context, existingClass: c);
                   },
                 ),
+
+                // ✅ ASSIGN / CHANGE
+                ListTile(
+                  leading: const Icon(Icons.person, color: Colors.blue),
+                  title: Text(
+                    c.teacher == null ? 'Assign Teacher' : 'Change Teacher',
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _openAssignTeacher(context, controller, c);
+                  },
+                ),
+
+                // ✅ UNASSIGN
+                if (c.teacher != null)
+                  ListTile(
+                    leading: const Icon(
+                      Icons.remove_circle,
+                      color: Colors.orange,
+                    ),
+                    title: const Text('Unassign Teacher'),
+                    onTap: () async {
+                      Navigator.pop(context);
+                      await controller.unassignTeacher(c.id);
+
+                      if (!context.mounted) return;
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Teacher removed from ${c.gradeName}'),
+                        ),
+                      );
+                    },
+                  ),
+
                 ListTile(
                   leading: const Icon(Icons.delete, color: Colors.red),
                   title: const Text('Delete Class'),
@@ -52,6 +88,83 @@ class ClassManagementScreen extends StatelessWidget {
               ],
             ),
           ),
+    );
+  }
+
+  // ✅ TEACHER PICKER MODAL
+  void _openAssignTeacher(
+    BuildContext context,
+    ClassController controller,
+    ClassModel c,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return SizedBox(
+          height: MediaQuery.of(context).size.height * 0.6,
+          child: StreamBuilder<List<String>>(
+            stream: controller.getAssignedTeacherIds(),
+            builder: (context, assignedSnap) {
+              if (!assignedSnap.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final assignedIds = assignedSnap.data!;
+
+              return StreamBuilder<List<TeacherModel>>(
+                stream: controller.getTeachers(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  // ✅ Filter here
+                  final teachers =
+                      snapshot.data!
+                          .where(
+                            (t) =>
+                                !assignedIds.contains(t.id) ||
+                                c.teacherid == t.id, // allow current
+                          )
+                          .toList();
+
+                  if (teachers.isEmpty) {
+                    return const Center(child: Text("No available teachers"));
+                  }
+
+                  return ListView(
+                    children:
+                        teachers.map((t) {
+                          return ListTile(
+                            leading: const Icon(Icons.person),
+                            title: Text(t.name),
+                            subtitle: Text(t.email),
+                            onTap: () async {
+                              await controller.assignTeacher(
+                                c.id,
+                                t.id,
+                                t.name,
+                              );
+
+                              if (!context.mounted) return;
+                              Navigator.pop(context);
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('${t.name} assigned')),
+                              );
+                            },
+                          );
+                        }).toList(),
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -74,14 +187,11 @@ class ClassManagementScreen extends StatelessWidget {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 onPressed: () async {
-                  await controller.deleteClass(
-                    c.id,
-                  ); // wait until deletion is done
-                  if (!context.mounted) return; // safety check after await
+                  await controller.deleteClass(c.id);
 
-                  Navigator.pop(
-                    context,
-                  ); // close modal only after delete finishes
+                  if (!context.mounted) return;
+
+                  Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Deleted ${c.gradeName}')),
                   );
@@ -126,7 +236,8 @@ class ClassManagementScreen extends StatelessWidget {
                 child: ListTile(
                   title: Text(c.gradeName),
                   subtitle: Text(
-                    'Capacity: ${c.capacity} | Students: ${c.studentCount}',
+                    'Capacity: ${c.capacity} | Students: ${c.studentCount}'
+                    '${c.teacher != null ? " | Teacher: ${c.teacher}" : ""}',
                   ),
                   trailing: IconButton(
                     icon: const Icon(Icons.more_vert),

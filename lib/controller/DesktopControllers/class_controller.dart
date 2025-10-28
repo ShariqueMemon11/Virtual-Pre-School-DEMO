@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../Model/class_model.dart';
+import '../../Model/teacher_model.dart';
 
 class ClassController {
   // Reference to the Firestore "classes" collection
@@ -58,5 +59,45 @@ class ClassController {
     } catch (e) {
       throw Exception('Failed to delete class: $e');
     }
+  }
+
+  Stream<List<String>> getAssignedTeacherIds() {
+    return _classCollection.snapshots().map((snapshot) {
+      return snapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .map((data) => data['teacherid'])
+          .whereType<String>()
+          .toList();
+    });
+  }
+
+  Stream<List<TeacherModel>> getTeachers() {
+    return FirebaseFirestore.instance.collection('Teachers').snapshots().map((
+      snapshot,
+    ) {
+      return snapshot.docs
+          .map((doc) => TeacherModel.fromFirestore(doc))
+          .toList();
+    });
+  }
+
+  Future<void> assignTeacher(
+    String classId,
+    String teacherId,
+    String teacherName,
+  ) async {
+    await _classCollection.doc(classId).update({
+      'teacher': teacherName,
+      'teacherid': teacherId,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> unassignTeacher(String classId) async {
+    await _classCollection.doc(classId).update({
+      'teacher': null,
+      'teacherid': null,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 }
