@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../../../../controller/DesktopControllers/create_notification_controller.dart';
-import '../../../../Model/notification_modal.dart';
+import '../../../../Model/notification_model.dart';
 import '../../../DesktopLayout/customwidgets/dropdownselectorwidget.dart';
 import '../../../DesktopLayout/customwidgets/inputfieldareawidget.dart';
 import '../../../DesktopLayout/customwidgets/inputfieldwidget.dart';
