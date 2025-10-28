@@ -3,10 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:demo_vps/controller/DesktopControllers/dashboard_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dashboard_sidebar.dart';
+import '../sidebar/dashboard_sidebar.dart';
 import 'student_dashboard_main.dart';
-import 'student_dashboard_agenda.dart';
-import 'notifications_modal.dart';
+import '../agenda/student_dashboard_agenda.dart';
+import '../notifications/notifications_modal.dart';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});

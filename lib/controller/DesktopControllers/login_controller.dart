@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import '../../View/DesktopLayout/admin/adminDashboardScreen/dashboardscreen.dart';
 import '../../View/DesktopLayout/registerScreen/studentRegistration/student_registration_flow.dart';
 import '../../View/DesktopLayout/registerScreen/registration_modal_widget.dart';
-import '../../View/DesktopLayout/student/studentDashboard/student_dashboard.dart';
+import '../../View/DesktopLayout/student/studentDashboard/main/student_dashboard.dart';
 import 'dashboard_controller.dart';
 
 class LoginController {

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'assignments_modal.dart';
-import 'grades_modal.dart';
+import '../assignments/assignments_modal.dart';
+import '../grades/grades_modal.dart';
 import 'dart:convert';
+import '../../../../../data/grades_repository.dart';
 
 class StudentDashboardMain extends StatefulWidget {
   const StudentDashboardMain({super.key});
@@ -130,7 +131,13 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
               // Student Profile Card
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-                child: _buildStudentProfileCard(),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildStudentProfileCard(),
+                    _buildStudentProgressCard(),
+                  ],
+                ),
               ),
 
               Padding(
@@ -336,6 +343,8 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
     );
   }
 
+  // (Removed unused helper _buildProgressCircleWithRemark)
+
   Widget _buildQuickAccessCard({
     required IconData icon,
     required String label,
@@ -406,6 +415,116 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return const GradesModal();
+      },
+    );
+  }
+
+  Widget _buildStudentProgressCard() {
+    return FutureBuilder<List<SubjectGrade>>(
+      future: GradesRepository.fetchGrades(),
+      builder: (context, snapshot) {
+        final grades = snapshot.data ?? const <SubjectGrade>[];
+        final avg =
+            grades.isNotEmpty
+                ? grades.map((g) => g.averageGrade).reduce((a, b) => a + b) /
+                    grades.length
+                : 0.0;
+        String remark;
+        String advice;
+        Color color;
+        if (avg >= 85) {
+          remark = 'Excellent';
+          advice = 'Outstanding work. Keep it up!';
+          color = Colors.green;
+        } else if (avg >= 70) {
+          remark = 'Good';
+          advice = 'You are doing good but you can improve.';
+          color = Colors.orange[700]!;
+        } else {
+          remark = 'Needs Improvement';
+          advice = 'Let’s focus on raising your grades!';
+          color = Colors.redAccent;
+        }
+        return Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.r),
+          ),
+          elevation: 3,
+          margin: EdgeInsets.only(left: 36.w),
+          child: Container(
+            height: 160.h,
+            width: 320.w,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.15),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            padding: EdgeInsets.symmetric(vertical: 22.h, horizontal: 18.w),
+            child: Row(
+              children: [
+                // Progress Circle ONLY percentage
+                SizedBox(
+                  width: 90.w,
+                  height: 95.h,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      CircularProgressIndicator(
+                        value: avg / 100.0,
+                        strokeWidth: 10,
+                        backgroundColor: Colors.grey[200],
+                        valueColor: AlwaysStoppedAnimation<Color>(color),
+                      ),
+                      Center(
+                        child: Text(
+                          '${avg.toStringAsFixed(1)}%',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.sp,
+                            color: color,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 22.w),
+                // Remark and message
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        remark,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.sp,
+                          color: color,
+                        ),
+                      ),
+                      SizedBox(height: 10.h),
+                      Text(
+                        advice,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
       },
     );
   }

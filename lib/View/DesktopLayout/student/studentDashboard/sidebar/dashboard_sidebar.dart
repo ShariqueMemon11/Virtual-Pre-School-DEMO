@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../loginscreen/loginscreen.dart';
+import '../../../loginscreen/loginscreen.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
