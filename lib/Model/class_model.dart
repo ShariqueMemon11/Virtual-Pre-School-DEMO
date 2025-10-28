@@ -1,4 +1,3 @@
-// lib/Model/class_model.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ClassModel {
@@ -7,6 +6,7 @@ class ClassModel {
   final int capacity;
   final int studentCount;
   final String? teacher;
+  final String? teacherid;
   final Timestamp? createdAt;
   final Timestamp? updatedAt;
 
@@ -16,50 +16,45 @@ class ClassModel {
     required this.capacity,
     required this.studentCount,
     this.teacher,
+    this.teacherid,
     this.createdAt,
     this.updatedAt,
   });
 
-  /// Factory to create ClassModel from a Firestore DocumentSnapshot
   factory ClassModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>? ?? <String, dynamic>{};
+    final data = doc.data() as Map<String, dynamic>? ?? {};
 
     return ClassModel(
       id: doc.id,
-      gradeName: data['gradeName'] as String? ?? '',
-      capacity:
-          (data['capacity'] is int)
-              ? data['capacity'] as int
-              : int.tryParse('${data['capacity']}') ?? 0,
-      studentCount:
-          (data['studentCount'] is int)
-              ? data['studentCount'] as int
-              : int.tryParse('${data['studentCount']}') ?? 0,
-      teacher: data['teacher'] as String?,
-      createdAt: data['createdAt'] as Timestamp?,
-      updatedAt: data['updatedAt'] as Timestamp?,
+      gradeName: data['gradeName'] ?? '',
+      capacity: data['capacity'] ?? 0,
+      studentCount: data['studentCount'] ?? 0,
+      teacher: data['teacher'],
+      teacherid: data['teacherid'],
+      createdAt: data['createdAt'],
+      updatedAt: data['updatedAt'],
     );
   }
 
-  /// Convert the model to a map for saving to Firestore
   Map<String, dynamic> toMap() {
     return {
       'gradeName': gradeName,
       'capacity': capacity,
       'studentCount': studentCount,
       'teacher': teacher,
+      'teacherid': teacherid,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };
   }
 
-  /// Helpful copyWith for updates
   ClassModel copyWith({
     String? id,
     String? gradeName,
     int? capacity,
     int? studentCount,
     String? teacher,
+    String? teacherid,
     Timestamp? createdAt,
     Timestamp? updatedAt,
   }) {
@@ -69,6 +64,7 @@ class ClassModel {
       capacity: capacity ?? this.capacity,
       studentCount: studentCount ?? this.studentCount,
       teacher: teacher ?? this.teacher,
+      teacherid: teacherid ?? this.teacherid,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

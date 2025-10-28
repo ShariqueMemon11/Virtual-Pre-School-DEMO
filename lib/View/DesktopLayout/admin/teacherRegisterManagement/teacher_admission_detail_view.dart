@@ -91,7 +91,7 @@ class TeacherAdmissionDetailView extends StatelessWidget {
                   if (cvBytes != null)
                     _primaryButton(
                       icon: Icons.download,
-                      label: "Download CV (PDF)",
+                      label: "Download CV",
                       color: deepPurple,
                       onPressed: () => controller.downloadFile(context),
                     ),
@@ -201,7 +201,7 @@ class TeacherAdmissionDetailView extends StatelessWidget {
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         elevation: 3,
       ),
