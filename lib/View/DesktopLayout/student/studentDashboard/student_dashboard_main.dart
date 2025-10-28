@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'assignments_modal.dart';
+import 'grades_modal.dart';
 import 'dart:convert';
 
 class StudentDashboardMain extends StatefulWidget {
@@ -344,6 +345,8 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
       onTap: () {
         if (label == 'My Assignments') {
           _showAssignmentsModal();
+        } else if (label == 'My Grades') {
+          _showGradesModal();
         } else {
           ScaffoldMessenger.of(
             context,
@@ -393,6 +396,16 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return const AssignmentsModal();
+      },
+    );
+  }
+
+  void _showGradesModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return const GradesModal();
       },
     );
   }
