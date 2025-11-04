@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
-import '../../Model/teacher_admission_model.dart';
+import '../Model/teacher_admission_model.dart';
 
 class TeacherAdmissionController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

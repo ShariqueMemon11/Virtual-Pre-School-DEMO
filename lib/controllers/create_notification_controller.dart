@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../../Model/notification_model.dart';
+import '../Model/notification_model.dart';
 
 class CreateNotificationController {
   final TextEditingController titleController;

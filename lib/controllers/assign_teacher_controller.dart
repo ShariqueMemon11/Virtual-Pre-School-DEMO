@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import '../../../../Model/teacher_admission_model.dart';
+import '../../../Model/teacher_admission_model.dart';
 
 class TeacherAdmissionDetailView extends StatelessWidget {
   final TeacherAdmissionModel application;

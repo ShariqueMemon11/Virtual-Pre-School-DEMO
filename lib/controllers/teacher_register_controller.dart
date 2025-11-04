@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../Model/teacher_admission_model.dart';
+import '../Model/teacher_admission_model.dart';
 
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;

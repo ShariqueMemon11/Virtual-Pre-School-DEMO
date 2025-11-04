@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../Model/class_model.dart';
-import '../../Model/teacher_model.dart';
+import '../Model/class_model.dart';
+import '../Model/teacher_model.dart';
 
 class ClassController {
   // Reference to the Firestore "classes" collection
