@@ -40,13 +40,7 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
 
         if (studentsQuery.docs.isNotEmpty) {
           final studentData = studentsQuery.docs.first.data();
-          print('Student data found: ${studentData.keys}');
-          print(
-            'Image data type: ${studentData['childPhotoFile']?.runtimeType}',
-          );
-          print(
-            'Image data length: ${studentData['childPhotoFile']?.toString().length}',
-          );
+       
           setState(() {
             studentName = studentData['childName'] ?? 'Student';
             studentEmail = studentData['email'] ?? user.email;
@@ -66,13 +60,7 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
 
         if (applicationsQuery.docs.isNotEmpty) {
           final studentData = applicationsQuery.docs.first.data();
-          print('Student application data found: ${studentData.keys}');
-          print(
-            'Image data type: ${studentData['childPhotoFile']?.runtimeType}',
-          );
-          print(
-            'Image data length: ${studentData['childPhotoFile']?.toString().length}',
-          );
+         
           setState(() {
             studentName = studentData['childName'] ?? 'Student';
             studentEmail = studentData['email'] ?? user.email;
@@ -92,7 +80,6 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
         });
       }
     } catch (e) {
-      print('Error loading student data: $e');
       setState(() {
         studentName = 'Student';
         studentEmail = 'No email';
@@ -205,9 +192,6 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
 
   ImageProvider? _getImageProvider() {
     if (studentImageBase64 != null && studentImageBase64!.isNotEmpty) {
-      print(
-        'Processing image data: ${studentImageBase64!.substring(0, 50)}...',
-      );
 
       // Check if it's a base64 string
       if (studentImageBase64!.startsWith('data:image/') ||
@@ -220,25 +204,19 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
               studentImageBase64!.contains(',')
                   ? studentImageBase64!.split(',')[1]
                   : studentImageBase64!;
-          print('Decoding base64 string of length: ${base64String.length}');
           final bytes = base64Decode(base64String);
-          print('Successfully decoded ${bytes.length} bytes');
           return MemoryImage(bytes);
         } catch (e) {
-          print('Error decoding base64 image: $e');
           return null;
         }
       } else if (studentImageBase64!.startsWith('http')) {
         // Handle network URL
-        print('Using network image: $studentImageBase64');
+     
         return NetworkImage(studentImageBase64!);
       } else {
-        print(
-          'Unknown image format: ${studentImageBase64!.substring(0, 20)}...',
-        );
+      
       }
     } else {
-      print('No image data available');
     }
     return null;
   }

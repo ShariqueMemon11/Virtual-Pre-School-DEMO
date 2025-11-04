@@ -1,7 +1,7 @@
+import 'package:demo_vps/View/DesktopLayout/admin/student_register_management/student_application_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../Model/student_registration_data.dart';
-import 'StudentApplicationDetailView.dart';
 import '../../../../controller/DesktopControllers/admin_student_application_controller.dart';
 
 class StudentApplicationView extends StatefulWidget {
