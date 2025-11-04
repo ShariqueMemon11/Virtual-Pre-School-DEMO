@@ -1,4 +1,4 @@
-import 'package:demo_vps/controller/firebase_options.dart';
+import 'package:demo_vps/firebase_options.dart';
 import 'package:demo_vps/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
