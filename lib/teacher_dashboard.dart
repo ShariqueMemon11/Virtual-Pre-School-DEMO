@@ -369,7 +369,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
-  // 🧩 Quick Access Card Widget
+  //  Quick Access Card Widget
   static Widget _quickAccessCard(
     BuildContext context,
     IconData icon,
@@ -422,7 +422,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
-  // 🟣 Add Agenda Dialog
+  //  Add Agenda Dialog
   void _showAddAgendaDialog(BuildContext context) {
     _taskController.clear();
     _timeController.clear();
@@ -473,3 +473,4 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 }
+
