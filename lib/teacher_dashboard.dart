@@ -1,12 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'assign_activity.dart';
-import 'start_end_class.dart';
 import 'upload_material.dart';
 import 'update_grades.dart';
-import 'student_records.dart';
-import 'view_notifications.dart';
-import 'messages_page.dart';
+
 
 class TeacherDashboard extends StatefulWidget {
   const TeacherDashboard({super.key});
@@ -159,34 +158,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                     spacing: 16,
                     runSpacing: 16,
                     children: [
-                      _quickAccessCard(
-                        context,
-                        Icons.video_call,
-                        'Start / End Class',
-                        const Color(0xFFD9C3F7),
-                        const StartEndClassPage(),
-                      ),
-                      _quickAccessCard(
-                        context,
-                        Icons.assignment,
-                        'Assign Activities',
-                        const Color(0xFFF7EBC3),
-                        const AssignActivityPage(),
-                      ),
-                      _quickAccessCard(
-                        context,
-                        Icons.upload_file,
-                        'Upload Class Material',
-                        const Color(0xFFB7E4C7),
-                        const UploadMaterialPage(),
-                      ),
-                      _quickAccessCard(
-                        context,
-                        Icons.grade,
-                        'Update Grades',
-                        const Color(0xFFFFC8DD),
-                        const UpdateGradesPage(),
-                      ),
+                      /*
                       _quickAccessCard(
                         context,
                         Icons.person_search,
@@ -208,6 +180,57 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                         const Color(0xFFCDB4DB),
                         MessagesPage(teacherEmail: "areeba@previrtual.edu.pk"),
                       ),
+                      _quickAccessCard(
+                        context,
+                        Icons.video_call,
+                        'Start / End Class',
+                        const Color(0xFFD9C3F7),
+                        const StartEndClassPage(),
+                      ),
+                       _quickAccessCard(
+                        context,
+                        Icons.person_search,
+                        'Student Records',
+                        const Color(0xFFA7C7E7),
+                        const StudentRecordsPage(),
+                      ),
+                      _quickAccessCard(
+                        context,
+                        Icons.notifications,
+                        'View Notifications',
+                        const Color(0xFFFFE5A5),
+                        const ViewNotificationsPage(),
+                      ),
+                      _quickAccessCard(
+                        context,
+                        Icons.message,
+                        'Messages',
+                        const Color(0xFFCDB4DB),
+                        MessagesPage(teacherEmail: "areeba@previrtual.edu.pk"),
+                      ),
+                      */
+                      _quickAccessCard(
+                        context,
+                        Icons.assignment,
+                        'Assign Activities',
+                        const Color(0xFFF7EBC3),
+                        const AssignActivityPage(),
+                      ),
+                      _quickAccessCard(
+                        context,
+                        Icons.upload_file,
+                        'Upload Class Material',
+                        const Color(0xFFB7E4C7),
+                        const UploadMaterialPage(),
+                      ),
+                      _quickAccessCard(
+                        context,
+                        Icons.grade,
+                        'Update Grades',
+                        const Color(0xFFFFC8DD),
+                        const UpdateGradesPage(),
+                      ),
+                  
                     ],
                   ),
                 ],

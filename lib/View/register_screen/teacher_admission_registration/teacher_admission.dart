@@ -1,4 +1,4 @@
-import 'teacheradmissionwidget.dart';
+import 'teacher_admission_widget.dart';
 import 'package:flutter/material.dart';
 
 class TeacherAdmission extends StatelessWidget {

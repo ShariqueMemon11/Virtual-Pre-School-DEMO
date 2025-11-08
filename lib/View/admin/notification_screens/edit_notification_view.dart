@@ -6,10 +6,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../../../controllers/create_notification_controller.dart';
 import '../../../Model/notification_model.dart';
-import '../../custom_widgets/dropdownselectorwidget.dart';
-import '../../custom_widgets/inputfieldareawidget.dart';
-import '../../custom_widgets/inputfieldwidget.dart';
-import '../../custom_widgets/primarybuttonwidget.dart';
+import '../../custom_widgets/dropdown_selector_widget.dart';
+import '../../custom_widgets/input_field_area_widget.dart';
+import '../../custom_widgets/input_field_widget.dart';
+import '../../custom_widgets/primary_button_widget.dart';
 
 class EditNotificationView extends StatefulWidget {
   final String id;

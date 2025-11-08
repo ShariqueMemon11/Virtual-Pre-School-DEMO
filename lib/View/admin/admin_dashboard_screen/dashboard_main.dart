@@ -4,7 +4,7 @@ import 'package:demo_vps/View/admin/notification_screens/notification_managament
 
 
 import 'package:demo_vps/View/admin/student_register_management/student_application_view.dart';
-import 'package:demo_vps/View/admin/teacherRegisterManagement/teacher_admission_list_screen.dart';
+import 'package:demo_vps/View/admin/teacher_register_management/teacher_admission_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -89,13 +89,13 @@ class _MainSide extends State<MainSide> {
 
                   children: [
                     DashboardCard(
-                      icon: Icons.report_problem,
+                      icon: Icons.class_outlined,
                       label: "Classroom Management",
                       destination: ClassManagementScreen(),
                     ),
                     SizedBox(width: 50.w),
                     DashboardCard(
-                      icon: Icons.school,
+                      icon: Icons.assignment_add,
                       label: "Teacher Management",
                       destination: TeacherAdmissionListScreen(),
                     ),
@@ -115,6 +115,13 @@ class _MainSide extends State<MainSide> {
                   mainAxisAlignment: MainAxisAlignment.start,
 
                   children: [
+                    DashboardCard(
+                      icon: Icons.school,
+                      label: "Student Class Assignment Management",
+                      //changing Destination to management Screen
+                      destination: null,
+                    ),
+                    SizedBox(width: 50.w),
                     DashboardCard(
                       icon: Icons.notifications,
                       label: "Notification Management",

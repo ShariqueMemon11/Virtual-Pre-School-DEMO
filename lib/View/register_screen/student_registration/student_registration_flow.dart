@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import '../../../controllers/student_application_controller.dart';
-import '../../custom_widgets/uploadfilewidget.dart';
+import '../../custom_widgets/upload_file_widget.dart';
 
 class StudentRegistrationForm extends StatefulWidget {
   final String initialEmail;

@@ -3,12 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:demo_vps/controllers/create_notification_controller.dart';
-import '../../custom_widgets/dropdownselectorwidget.dart';
-import '../../custom_widgets/inputfieldareawidget.dart';
-import '../../custom_widgets/inputfieldwidget.dart';
-import '../../custom_widgets/primarybuttonwidget.dart';
-import '../../custom_widgets/secondarybuttonwidget.dart';
-import '../../custom_widgets/uploadfilewidget.dart';
+import '../../custom_widgets/dropdown_selector_widget.dart';
+import '../../custom_widgets/input_field_area_widget.dart';
+import '../../custom_widgets/input_field_widget.dart';
+import '../../custom_widgets/primary_button_widget.dart';
+import '../../custom_widgets/secondary_button_widget.dart';
+import '../../custom_widgets/upload_file_widget.dart';
 
 class CreateNotificationWebView extends StatefulWidget {
   const CreateNotificationWebView({super.key});

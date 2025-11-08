@@ -1,12 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:demo_vps/Model/user_model.dart';
-import 'package:demo_vps/View/register_screen/teacher_admission_registration/teacheradmission.dart';
+import 'package:demo_vps/View/register_screen/teacher_admission_registration/teacher_admission.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
-import '../View/admin/admin_dashboard_screen/dashboardscreen.dart';
+import '../View/admin/admin_dashboard_screen/dashboard_screen.dart';
 import '../View/register_screen/student_registration/student_registration_flow.dart';
 import '../View/register_screen/registration_modal_widget.dart';
 import '../View/student/student_dashboard/main/student_dashboard.dart';
