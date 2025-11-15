@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -68,7 +70,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
     if (result != null && result.files.single.path != null) {
       final file = result.files.single;
       final ref = _storage.ref().child('activities/${file.name}');
-      final uploadTask = await ref.putData(file.bytes!);
+      await ref.putData(file.bytes!);
       final url = await ref.getDownloadURL();
 
       setState(() {

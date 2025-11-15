@@ -5,6 +5,7 @@ class ClassModel {
   final String gradeName;
   final int capacity;
   final int studentCount;
+  final String? studentEnrolled;
   final String? teacher;
   final String? teacherid;
   final Timestamp? createdAt;
@@ -19,6 +20,7 @@ class ClassModel {
     this.teacherid,
     this.createdAt,
     this.updatedAt,
+    this.studentEnrolled,
   });
 
   factory ClassModel.fromFirestore(DocumentSnapshot doc) {
@@ -33,6 +35,7 @@ class ClassModel {
       teacherid: data['teacherid'],
       createdAt: data['createdAt'],
       updatedAt: data['updatedAt'],
+      studentEnrolled: data['studentEnrolled'],
     );
   }
 
@@ -45,6 +48,7 @@ class ClassModel {
       'teacherid': teacherid,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      'studentEnrolled': studentEnrolled,
     };
   }
 
@@ -57,6 +61,7 @@ class ClassModel {
     String? teacherid,
     Timestamp? createdAt,
     Timestamp? updatedAt,
+    String? studentEnrolled,
   }) {
     return ClassModel(
       id: id ?? this.id,
