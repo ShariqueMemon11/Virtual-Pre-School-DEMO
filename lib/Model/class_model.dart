@@ -5,7 +5,7 @@ class ClassModel {
   final String gradeName;
   final int capacity;
   final int studentCount;
-  final String? studentEnrolled;
+  final List<String>? studentEnrolled;
   final String? teacher;
   final String? teacherid;
   final Timestamp? createdAt;

@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../Model/student_registration_data.dart';
+import '../Model/student_data.dart';
 import 'package:flutter/material.dart';
 
 class StudentApplicationController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   /// 📡 Stream all student applications from Firestore
-  Stream<List<StudentRegistrationData>> getApplications() {
+  Stream<List<StudentData>> getApplications() {
     return _firestore
         .collection('student applications')
         .orderBy('childName', descending: true)
@@ -17,7 +17,7 @@ class StudentApplicationController {
           (snapshot) =>
               snapshot.docs.map((doc) {
                 final data = doc.data();
-                final model = StudentRegistrationData.fromMap(data);
+                final model = StudentData.fromMap(data);
                 // store documentId as well if needed
                 model.id = doc.id;
                 return model;
