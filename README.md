@@ -1,72 +1,35 @@
+# Virtual School App (Prototype)
 
-# 📱 Flutter App
+A lightweight prototype of a virtual school platform built using **Flutter** and **Firebase**.  
+This prototype demonstrates core functionality such as user login, class listings, basic messaging, and assignment previews.
 
-A cross-platform mobile application built with Flutter.
+## 🚀 Features (Prototype)
 
-## 🚀 Features
+- **Firebase Authentication**  
+  - Email & password login  
+  - Basic user role handling (student/teacher)
 
-- Cross-platform support: Android & iOS
-- Built with Dart and Flutter
-- Configurable via `analysis_options.yaml` for linting and best practices
+- **Class List View**  
+  - Fetch class data from Firestore  
+  - Display class schedules and descriptions
 
-## 🛠️ Getting Started
+- **Assignments Preview**  
+  - Simple list of assignments per class  
+  - Stored in Firestore
 
-### Prerequisites
+- **Messaging (Prototype)**  
+  - Basic real-time chat using Firestore collections
 
-- Flutter SDK (latest stable version)
-- Dart SDK (comes with Flutter)
-- Android Studio or VS Code
-- An emulator or physical device for testing
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/your-repo.git
-   cd your-repo
-   ```
-
-2. Install dependencies:
-   ```bash
-   flutter pub get
-   ```
-
-3. Run the app:
-   ```bash
-   flutter run
-   ```
-
-## 🧪 Testing
-
-To run all tests:
-```bash
-flutter test
-```
-
-## 📦 Build
-
-To build the app for release:
-
-- Android:
-  ```bash
-  flutter build apk --release
-  ```
-
-- iOS:
-  ```bash
-  flutter build ios --release
-  ```
-
-## 📁 Project Structure
-
-- `lib/`: Main source code
-- `test/`: Unit and widget tests
-- `.dart_tool/`, `build/`, etc. are ignored in version control as per `.gitignore`
-
-## 📄 License
-
-[MIT](LICENSE)
+- **Responsive UI**  
+  - Works on Android, iOS, and Web (if enabled)
 
 ---
 
-*Note: Replace placeholders (like repo URL or license type) with your actual project details.*
+## 🛠️ Tech Stack
+
+- **Flutter** (Dart)
+- **Firebase**
+  - Authentication
+  - Firestore Database
+  - Firebase Storage (optional for file uploads)
+  - Firebase Hosting (optional for web build)
