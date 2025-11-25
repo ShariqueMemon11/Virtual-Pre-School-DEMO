@@ -19,6 +19,8 @@ class _LoginScreenState extends State<LoginScreen>
   late LoginController _controller;
   final _formKey = GlobalKey<FormState>();
 
+  bool _obscurePassword = true; // 👈 For password eye toggle
+
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
@@ -69,7 +71,6 @@ class _LoginScreenState extends State<LoginScreen>
         width: double.infinity,
         height: double.infinity,
 
-        /// Background gradient
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -81,7 +82,6 @@ class _LoginScreenState extends State<LoginScreen>
           ),
         ),
 
-        /// Centered glass card
         child: Center(
           child: FadeTransition(
             opacity: _fadeAnimation,
@@ -113,7 +113,6 @@ class _LoginScreenState extends State<LoginScreen>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          /// Title
                           Text(
                             "Login",
                             style: TextStyle(
@@ -125,11 +124,12 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                           SizedBox(height: 40.h),
 
-                          /// Email Field
+                          /// EMAIL FIELD
                           _buildInputField(
                             label: "Email",
                             icon: Icons.email_outlined,
                             controller: _emailController,
+                            obscureText: false,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Required';
@@ -145,12 +145,12 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                           SizedBox(height: 25.h),
 
-                          /// Password Field
+                          /// PASSWORD FIELD (with eye icon)
                           _buildInputField(
                             label: "Password",
                             icon: Icons.lock_outline,
                             controller: _passwordController,
-                            obscureText: true,
+                            obscureText: _obscurePassword,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Required';
@@ -160,18 +160,20 @@ class _LoginScreenState extends State<LoginScreen>
                               }
                               return null;
                             },
+                            onEyeTap: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
                           ),
 
-                          /// Forgot Password Text
                           SizedBox(height: 15.h),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 4.w),
                               child: TextButton(
-                                onPressed: () {
-                                  // add forgot password navigation here if needed
-                                },
+                                onPressed: () {},
                                 style: TextButton.styleFrom(
                                   padding: EdgeInsets.zero,
                                   minimumSize: const Size(0, 0),
@@ -179,12 +181,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 child: Text(
                                   "Forgot Password?",
                                   style: TextStyle(
-                                    color: const Color.fromARGB(
-                                      255,
-                                      255,
-                                      255,
-                                      255,
-                                    ),
+                                    color: Colors.white,
                                     fontSize: 15.sp,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -195,7 +192,6 @@ class _LoginScreenState extends State<LoginScreen>
 
                           SizedBox(height: 30.h),
 
-                          /// Buttons Row
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -227,16 +223,16 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  /// ---------------------------------
-  /// 🧩 Helper Widgets
-  /// ---------------------------------
-
+  // ------------------------------------------------------------------
+  // 🔹 UNIVERSAL INPUT FIELD (EMAIL + PASSWORD)
+  // ------------------------------------------------------------------
   Widget _buildInputField({
     required String label,
     required IconData icon,
     required TextEditingController controller,
-    bool obscureText = false,
+    required bool obscureText,
     String? Function(String?)? validator,
+    VoidCallback? onEyeTap, // 👈 Password toggle (ONLY for password)
   }) {
     return TextFormField(
       controller: controller,
@@ -250,6 +246,18 @@ class _LoginScreenState extends State<LoginScreen>
         labelStyle: const TextStyle(color: Colors.white70),
         filled: true,
         fillColor: Colors.white.withOpacity(0.1),
+
+        // 👇 Show eye icon only if onEyeTap is provided (password field)
+        suffixIcon: onEyeTap != null
+            ? IconButton(
+                icon: Icon(
+                  obscureText ? Icons.visibility_off : Icons.visibility,
+                  color: Colors.white,
+                ),
+                onPressed: onEyeTap,
+              )
+            : null,
+
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),
           borderSide: BorderSide(color: Colors.white.withOpacity(0.4)),
@@ -265,6 +273,8 @@ class _LoginScreenState extends State<LoginScreen>
       ),
     );
   }
+
+  // ------------------------------------------------------------------
 
   Widget _buildPrimaryButton({
     required String label,
