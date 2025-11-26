@@ -1,6 +1,7 @@
 import 'package:demo_vps/View/admin/complain_management/complain_management_screen.dart';
 import 'package:demo_vps/View/admin/admin_class_management/Class_management.dart';
 import 'package:demo_vps/View/admin/notification_screens/notification_managament_screen.dart';
+import 'package:demo_vps/View/admin/student_assign_to_class/student_class_assign.dart';
 
 
 import 'package:demo_vps/View/admin/student_register_management/student_application_view.dart';
@@ -119,7 +120,7 @@ class _MainSide extends State<MainSide> {
                       icon: Icons.school,
                       label: "Student Class Assignment Management",
                       //changing Destination to management Screen
-                      destination: null,
+                      destination: StudentAssignScreen(),
                     ),
                     SizedBox(width: 50.w),
                     DashboardCard(
