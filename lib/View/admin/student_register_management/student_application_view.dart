@@ -1,7 +1,7 @@
 import 'package:demo_vps/View/admin/student_register_management/student_application_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../Model/student_registration_data.dart';
+import '../../../Model/student_data.dart';
 import '../../../controllers/admin_student_application_controller.dart';
 
 class StudentApplicationView extends StatefulWidget {
@@ -26,7 +26,7 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
         backgroundColor: const Color.fromARGB(255, 156, 129, 219),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: StreamBuilder<List<StudentRegistrationData>>(
+      body: StreamBuilder<List<StudentData>>(
         stream: _controller.getApplications(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {

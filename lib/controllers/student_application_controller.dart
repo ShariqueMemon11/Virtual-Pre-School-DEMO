@@ -3,7 +3,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../Model/student_registration_data.dart';
+import '../Model/student_data.dart';
 
 class StudentRegistrationController {
   final formKey = GlobalKey<FormState>();
@@ -40,7 +40,7 @@ class StudentRegistrationController {
       birthCertificateFileName,
       childPhotoFileName;
 
-  final StudentRegistrationData _data = StudentRegistrationData();
+  final StudentData _data = StudentData();
 
   /// Initialize with email + password (from signup)
   void init(String email, String password) {

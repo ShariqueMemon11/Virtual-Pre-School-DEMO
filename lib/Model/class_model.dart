@@ -5,7 +5,7 @@ class ClassModel {
   final String gradeName;
   final int capacity;
   final int studentCount;
-  final String? studentEnrolled;
+  final List<String>? studentEnrolled;
   final String? teacher;
   final String? teacherid;
   final Timestamp? createdAt;
@@ -23,21 +23,24 @@ class ClassModel {
     this.studentEnrolled,
   });
 
-  factory ClassModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>? ?? {};
+factory ClassModel.fromFirestore(DocumentSnapshot doc) {
+  final data = doc.data() as Map<String, dynamic>? ?? {};
 
-    return ClassModel(
-      id: doc.id,
-      gradeName: data['gradeName'] ?? '',
-      capacity: data['capacity'] ?? 0,
-      studentCount: data['studentCount'] ?? 0,
-      teacher: data['teacher'],
-      teacherid: data['teacherid'],
-      createdAt: data['createdAt'],
-      updatedAt: data['updatedAt'],
-      studentEnrolled: data['studentEnrolled'],
-    );
-  }
+  return ClassModel(
+    id: doc.id,
+    gradeName: data['gradeName'] ?? '',
+    capacity: data['capacity'] ?? 0,
+    studentCount: data['studentCount'] ?? 0,
+    teacher: data['teacher'],
+    teacherid: data['teacherid'],
+    createdAt: data['createdAt'],
+    updatedAt: data['updatedAt'],
+    studentEnrolled: data['studentEnrolled'] != null
+        ? List<String>.from(data['studentEnrolled'])
+        : [],
+  );
+}
+
 
   Map<String, dynamic> toMap() {
     return {

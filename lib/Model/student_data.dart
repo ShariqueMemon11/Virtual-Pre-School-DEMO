@@ -1,4 +1,4 @@
-class StudentRegistrationData {
+class StudentData {
   String? id;
   String? childName;
   String? age;
@@ -28,8 +28,8 @@ class StudentRegistrationData {
   String? fatherCnicFile;
   String? birthCertificateFile;
   String? childPhotoFile;
-
-  StudentRegistrationData({
+  String? assignedClass;
+  StudentData({
     this.id,
     this.childName,
     this.age,
@@ -54,6 +54,7 @@ class StudentRegistrationData {
     this.fatherCnicFile,
     this.birthCertificateFile,
     this.childPhotoFile,
+    this.assignedClass
   });
 
   /// ✅ Convert model → Firestore Map
@@ -82,12 +83,13 @@ class StudentRegistrationData {
       'fatherCnicFile': fatherCnicFile,
       'birthCertificateFile': birthCertificateFile,
       'childPhotoFile': childPhotoFile,
+      'assignedClass':assignedClass
     };
   }
 
   /// ✅ Convert Firestore Document → Model
-  factory StudentRegistrationData.fromMap(Map<String, dynamic> map) {
-    return StudentRegistrationData(
+  factory StudentData.fromMap(Map<String, dynamic> map) {
+    return StudentData(
       childName: map['childName'],
       age: map['age']?.toString(),
       dateOfBirth:
@@ -117,6 +119,7 @@ class StudentRegistrationData {
       fatherCnicFile: map['fatherCnicFile'],
       birthCertificateFile: map['birthCertificateFile'],
       childPhotoFile: map['childPhotoFile'],
+      assignedClass:map['assignedClass']
     );
   }
 }
