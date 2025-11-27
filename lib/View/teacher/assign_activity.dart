@@ -220,7 +220,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
             TextFormField(
               controller: _titleController,
               decoration: InputDecoration(
-                labelText: 'Activity Title',
+                hintText: 'Activity Title',
                 prefixIcon: const Icon(Icons.title, color: Colors.deepPurple),
                 filled: true,
                 fillColor: lavender.withOpacity(0.15),
@@ -236,7 +236,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
               controller: _descController,
               maxLines: 3,
               decoration: InputDecoration(
-                labelText: 'Description',
+                hintText: 'Description',
                 prefixIcon: const Icon(
                   Icons.description,
                   color: Colors.deepPurple,
@@ -254,7 +254,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
             TextFormField(
               controller: _classController,
               decoration: InputDecoration(
-                labelText: 'Class (e.g., Grade KG-A)',
+                hintText: 'Class (e.g., Grade KG-A)',
                 prefixIcon: const Icon(Icons.class_, color: Colors.deepPurple),
                 filled: true,
                 fillColor: mintGreen.withOpacity(0.4),

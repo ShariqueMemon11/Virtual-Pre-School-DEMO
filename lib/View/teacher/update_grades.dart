@@ -22,15 +22,106 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
 
   bool _isSaving = false;
   String? _selectedClass;
+  bool _isClassListLoading = true;
+  List<String> _availableClasses = [];
+  String? _teacherDisplayName;
+  String? _teacherEmail;
 
-  final List<String> _classes = [
-    'Grade KG-A',
-    'Grade KG-B',
-    'Grade PG-A',
-    'Grade PG-B',
-    'Grade 1-A',
-    'Grade 1-B',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadAssignedClasses();
+  }
+
+  Future<void> _loadAssignedClasses() async {
+    setState(() {
+      _isClassListLoading = true;
+    });
+
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        setState(() {
+          _availableClasses = [];
+          _selectedClass = null;
+          _teacherDisplayName = null;
+          _teacherEmail = null;
+          _isClassListLoading = false;
+        });
+        return;
+      }
+
+      final email = user.email ?? '';
+      String displayName =
+          (user.displayName?.trim().isNotEmpty == true)
+              ? user.displayName!.trim()
+              : (email.isNotEmpty ? email.split('@').first : 'Teacher');
+      String? docId;
+
+      final teacherSnapshot =
+          await _firestore
+              .collection('Teachers')
+              .where('email', isEqualTo: email)
+              .limit(1)
+              .get();
+
+      if (teacherSnapshot.docs.isNotEmpty) {
+        final doc = teacherSnapshot.docs.first;
+        final data = doc.data();
+        docId = doc.id;
+        displayName =
+            (data['name'] as String?)?.trim().isNotEmpty == true
+                ? data['name']
+                : displayName;
+      }
+
+      QuerySnapshot<Map<String, dynamic>> classSnapshot;
+      if (docId != null) {
+        classSnapshot =
+            await _firestore
+                .collection('classes')
+                .where('teacherid', isEqualTo: docId)
+                .get();
+      } else if (displayName.isNotEmpty) {
+        classSnapshot =
+            await _firestore
+                .collection('classes')
+                .where('teacher', isEqualTo: displayName)
+                .get();
+      } else {
+        classSnapshot =
+            await _firestore
+                .collection('classes')
+                .where('teacherEmail', isEqualTo: email)
+                .get();
+      }
+
+      final classes =
+          classSnapshot.docs
+              .map((doc) => doc.data()['gradeName'] as String? ?? '')
+              .where((name) => name.isNotEmpty)
+              .toList();
+
+      if (!mounted) return;
+      setState(() {
+        _availableClasses = classes;
+        _selectedClass = classes.isNotEmpty ? classes.first : null;
+        _teacherDisplayName = displayName;
+        _teacherEmail = email;
+        _isClassListLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _availableClasses = [];
+        _selectedClass = null;
+        _isClassListLoading = false;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to load classes: $e')));
+    }
+  }
 
   Future<void> _saveGrade() async {
     if (_selectedClass == null) {
@@ -46,8 +137,11 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
 
     try {
       final teacher = _auth.currentUser;
-      final teacherName = teacher?.displayName ?? 'Unknown Teacher';
-      final teacherEmail = teacher?.email ?? 'Unknown Email';
+      final teacherName =
+          _teacherDisplayName ??
+          teacher?.displayName ??
+          (teacher?.email?.split('@').first ?? 'Unknown Teacher');
+      final teacherEmail = _teacherEmail ?? teacher?.email ?? 'Unknown Email';
 
       await _firestore.collection('grades').add({
         'studentName': _studentNameController.text.trim(),
@@ -90,7 +184,7 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
     const pink = Color(0xFFFFC8DD);
     const bgColor = Color(0xFFF7F5F2);
 
-    final teacherEmail = _auth.currentUser?.email;
+    final teacherEmail = _teacherEmail ?? _auth.currentUser?.email;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -128,38 +222,51 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
                     ),
                   ],
                 ),
-                child: Column(
-                  children: [
-                    DropdownButtonFormField<String>(
-                      value: _selectedClass,
-                      decoration: InputDecoration(
-                        labelText: 'Select Class',
-                        prefixIcon: const Icon(
-                          Icons.class_,
-                          color: Colors.deepPurple,
-                        ),
-                        filled: true,
-                        fillColor: mintGreen.withOpacity(0.3),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      items: _classes
-                          .map(
-                            (c) => DropdownMenuItem(value: c, child: Text(c)),
+                child: _isClassListLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _availableClasses.isEmpty
+                        ? Column(
+                            children: const [
+                              Icon(Icons.info_outline, color: Colors.deepPurple),
+                              SizedBox(height: 8),
+                              Text(
+                                'No classes assigned yet. Please contact admin.',
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
                           )
-                          .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedClass = value;
-                        });
-                      },
-                      validator: (value) =>
-                          value == null ? 'Please select a class' : null,
-                    ),
-                  ],
-                ),
+                        : DropdownButtonFormField<String>(
+                            value: _selectedClass,
+                            decoration: InputDecoration(
+                              labelText: 'Select Class',
+                              prefixIcon: const Icon(
+                                Icons.class_,
+                                color: Colors.deepPurple,
+                              ),
+                              filled: true,
+                              fillColor: mintGreen.withOpacity(0.3),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            items:
+                                _availableClasses
+                                    .map(
+                                      (c) => DropdownMenuItem(
+                                        value: c,
+                                        child: Text(c),
+                                      ),
+                                    )
+                                    .toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedClass = value;
+                              });
+                            },
+                            validator: (value) =>
+                                value == null ? 'Please select a class' : null,
+                          ),
               ),
 
               const SizedBox(height: 20),
@@ -330,7 +437,7 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
-        labelText: label,
+        hintText: label,
         prefixIcon: Icon(icon, color: Colors.deepPurple),
         filled: true,
         fillColor: color.withOpacity(0.3),

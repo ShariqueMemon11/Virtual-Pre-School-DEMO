@@ -29,6 +29,8 @@ class TeacherAdmissionController {
   // File Data
   String? cvFileName;
   String? cvBase64;
+  String? profilePhotoFileName;
+  String? profilePhotoBase64;
 
   // Auth Info
   // ignore: unused_field
@@ -107,6 +109,15 @@ class TeacherAdmissionController {
       return;
     }
 
+    if (profilePhotoBase64 == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(
+        const SnackBar(content: Text("Please upload your profile photo.")),
+      );
+      return;
+    }
+
     try {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Submitting application...')),
@@ -127,6 +138,7 @@ class TeacherAdmissionController {
         subjects: subjectsController.text.trim(),
         address: addressController.text.trim(),
         cvBase64: cvBase64!,
+        photoBase64: profilePhotoBase64!,
         createdAt: Timestamp.now(),
       );
 
@@ -187,6 +199,8 @@ class TeacherAdmissionController {
     addressController.clear();
     cvFileName = null;
     cvBase64 = null;
+    profilePhotoFileName = null;
+    profilePhotoBase64 = null;
   }
 
   // ---------------- Dispose ---------------- //

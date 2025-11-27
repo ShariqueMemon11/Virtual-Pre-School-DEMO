@@ -10,6 +10,7 @@ class TeacherAdmissionModel {
   final String subjects;
   final String address;
   final String cvBase64;
+  final String photoBase64;
   final Timestamp createdAt;
 
   TeacherAdmissionModel({
@@ -21,6 +22,7 @@ class TeacherAdmissionModel {
     required this.subjects,
     required this.address,
     required this.cvBase64,
+    required this.photoBase64,
     required this.createdAt,
   });
 
@@ -34,6 +36,7 @@ class TeacherAdmissionModel {
       'subjects': subjects,
       'address': address,
       'cvBase64': cvBase64,
+      'photoBase64': photoBase64,
       'createdAt': createdAt,
     };
   }
@@ -48,6 +51,7 @@ class TeacherAdmissionModel {
       subjects: data['subjects'] ?? '',
       address: data['address'] ?? '',
       cvBase64: data['cvBase64'] ?? '',
+      photoBase64: data['photoBase64'] ?? '',
       createdAt: data['createdAt'] ?? Timestamp.now(),
     );
   }

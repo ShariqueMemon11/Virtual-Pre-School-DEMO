@@ -10,6 +10,7 @@ import '../View/admin/admin_dashboard_screen/dashboard_screen.dart';
 import '../View/register_screen/student_registration/student_registration_flow.dart';
 import '../View/register_screen/registration_modal_widget.dart';
 import '../View/student/student_dashboard/main/student_dashboard.dart';
+import '../View/teacher/teacher_dashboard.dart';
 import 'dashboard_controller.dart';
 
 class LoginController {
@@ -58,6 +59,17 @@ class LoginController {
         password: enteredPassword,
       );
 
+      final hasTeacherRecord = await _teacherRecordExistsByEmail(enteredEmail);
+      if (hasTeacherRecord) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const TeacherDashboard()),
+        );
+        emailController.clear();
+        passwordController.clear();
+        return;
+      }
+
       // After successful authentication, check if this email has a student record
       final hasStudentRecord = await _studentRecordExistsByEmail(enteredEmail);
 
@@ -73,17 +85,7 @@ class LoginController {
           ),
         );
       } else {
-        // No profile yet -> go to registration flow with prefilled creds
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder:
-                (context) => StudentRegistrationForm(
-                  initialEmail: enteredEmail,
-                  initialPassword: enteredPassword,
-                ),
-          ),
-        );
+        _showRegistrationChoice(enteredEmail, enteredPassword);
       }
 
       emailController.clear();
@@ -123,6 +125,71 @@ class LoginController {
     }
 
     return false;
+  }
+
+  Future<bool> _teacherRecordExistsByEmail(String email) async {
+    final firestore = FirebaseFirestore.instance;
+
+    final teachersQuery =
+        await firestore
+            .collection('Teachers')
+            .where('email', isEqualTo: email)
+            .limit(1)
+            .get();
+
+    if (teachersQuery.docs.isNotEmpty) {
+      return true;
+    }
+
+    return false;
+  }
+
+  void _showRegistrationChoice(String email, String password) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (dialogContext) => AlertDialog(
+            title: const Text('Complete Registration'),
+            content: const Text(
+              'No profile found. Please complete Student or Teacher registration.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => StudentRegistrationForm(
+                            initialEmail: email,
+                            initialPassword: password,
+                          ),
+                    ),
+                  );
+                },
+                child: const Text('Student Registration'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => TeacherAdmission(
+                            initialEmail: email,
+                            initialPassword: password,
+                          ),
+                    ),
+                  );
+                },
+                child: const Text('Teacher Registration'),
+              ),
+            ],
+          ),
+    );
   }
 
   void navigateToRegister() {

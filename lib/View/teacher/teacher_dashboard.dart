@@ -2,10 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
 import 'assign_activity.dart';
 import 'upload_material.dart';
 import 'update_grades.dart';
-
 
 class TeacherDashboard extends StatefulWidget {
   const TeacherDashboard({super.key});
@@ -16,16 +17,364 @@ class TeacherDashboard extends StatefulWidget {
 
 class _TeacherDashboardState extends State<TeacherDashboard> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  final String teacherName = "Areeba Andleeb";
-  final String teacherEmail = "areeba@previrtual.edu.pk";
+  String? teacherName;
+  String? teacherEmail;
+  bool _isProfileLoading = true;
+  bool _isClassLoading = true;
+  String? _assignedClassName;
+  int? _assignedClassCapacity;
+  int? _assignedStudentCount;
+  String? _teacherPhotoBase64;
 
   final TextEditingController _taskController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    _loadTeacherProfile();
+  }
+
+  Future<void> _loadTeacherProfile() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        setState(() {
+          teacherName = 'Unknown';
+          teacherEmail = 'Unknown';
+          _isProfileLoading = false;
+        });
+        setState(() => _isClassLoading = false);
+        return;
+      }
+
+      final email = user.email ?? '';
+      final fallbackName =
+          (user.displayName?.trim().isNotEmpty == true)
+              ? user.displayName!.trim()
+              : (email.isNotEmpty ? email.split('@').first : 'Teacher');
+
+      String resolvedName = fallbackName;
+      String resolvedEmail = email.isNotEmpty ? email : 'Unknown';
+      String? resolvedPhoto;
+      String? teacherDocId;
+
+      final teachersSnapshot =
+          await _firestore
+              .collection('Teachers')
+              .where('email', isEqualTo: email)
+              .limit(1)
+              .get();
+
+      if (teachersSnapshot.docs.isNotEmpty) {
+        final doc = teachersSnapshot.docs.first;
+        final data = doc.data();
+        resolvedName =
+            (data['name'] as String?)?.trim().isNotEmpty == true
+                ? data['name']
+                : fallbackName;
+        resolvedEmail = data['email'] ?? resolvedEmail;
+        resolvedPhoto = data['photoBase64'] ?? resolvedPhoto;
+        teacherDocId = doc.id;
+      } else {
+        final applicationsSnapshot =
+            await _firestore
+                .collection('teacher_applications')
+                .where('email', isEqualTo: email)
+                .limit(1)
+                .get();
+
+        if (applicationsSnapshot.docs.isNotEmpty) {
+          final data = applicationsSnapshot.docs.first.data();
+          resolvedName =
+              (data['name'] ?? data['teacherName'] ?? data['fullName'] ?? '')
+                      .toString()
+                      .trim()
+                      .isNotEmpty
+                  ? (data['name'] ?? data['teacherName'] ?? data['fullName'])
+                  : fallbackName;
+          resolvedEmail = data['email'] ?? resolvedEmail;
+          resolvedPhoto = data['photoBase64'] ?? resolvedPhoto;
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        teacherName = resolvedName;
+        teacherEmail = resolvedEmail;
+        _teacherPhotoBase64 = resolvedPhoto;
+        _isProfileLoading = false;
+      });
+
+      await _loadAssignedClass(teacherDocId, resolvedName);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        teacherName = 'Unknown';
+        teacherEmail = 'Unknown';
+        _teacherPhotoBase64 = null;
+        _isProfileLoading = false;
+        _isClassLoading = false;
+        _assignedClassName = null;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to load profile: $e')));
+    }
+  }
+
+  Future<void> _loadAssignedClass(String? teacherId, String? name) async {
+    setState(() {
+      _isClassLoading = true;
+    });
+
+    try {
+      Query<Map<String, dynamic>> query = _firestore.collection('classes');
+
+      if (teacherId != null) {
+        query = query.where('teacherid', isEqualTo: teacherId);
+      } else if (name != null && name.trim().isNotEmpty) {
+        query = query.where('teacher', isEqualTo: name.trim());
+      } else {
+        setState(() {
+          _assignedClassName = null;
+          _assignedClassCapacity = null;
+          _assignedStudentCount = null;
+          _isClassLoading = false;
+        });
+        return;
+      }
+
+      final snapshot = await query.limit(1).get();
+
+      if (!mounted) return;
+
+      if (snapshot.docs.isEmpty) {
+        setState(() {
+          _assignedClassName = null;
+          _assignedClassCapacity = null;
+          _assignedStudentCount = null;
+          _isClassLoading = false;
+        });
+        return;
+      }
+
+      final data = snapshot.docs.first.data();
+      setState(() {
+        _assignedClassName = data['gradeName'] ?? 'Assigned Class';
+        _assignedClassCapacity = data['capacity'] ?? 0;
+        _assignedStudentCount = data['studentCount'] ?? 0;
+        _isClassLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _assignedClassName = null;
+        _assignedClassCapacity = null;
+        _assignedStudentCount = null;
+        _isClassLoading = false;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to load class data: $e')));
+    }
+  }
+
+  ImageProvider? _getTeacherImage() {
+    if (_teacherPhotoBase64 != null && _teacherPhotoBase64!.isNotEmpty) {
+      try {
+        final base64String =
+            _teacherPhotoBase64!.contains(',')
+                ? _teacherPhotoBase64!.split(',')[1]
+                : _teacherPhotoBase64!;
+        final bytes = base64Decode(base64String);
+        return MemoryImage(bytes);
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  Widget _buildTeacherProfileCard() {
+    final imageProvider = _getTeacherImage();
+    return Container(
+      height: 160,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 50,
+            backgroundColor: const Color.fromARGB(255, 151, 123, 218),
+            backgroundImage: imageProvider,
+            child:
+                imageProvider == null
+                    ? const Icon(Icons.person, size: 50, color: Colors.white)
+                    : null,
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child:
+                _isProfileLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          teacherName ?? 'Teacher',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          teacherEmail ?? 'No email',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Teacher',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color.fromARGB(255, 151, 123, 218),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClassInfoCard() {
+    return Container(
+      height: 160,
+      padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.15),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child:
+          _isClassLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _assignedClassName == null
+              ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(Icons.info_outline, color: Colors.deepPurple),
+                  SizedBox(height: 8),
+                  Text('No class assigned yet.', textAlign: TextAlign.center),
+                ],
+              )
+              : Row(
+                children: [
+                  SizedBox(
+                    width: 90,
+                    height: 95,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CircularProgressIndicator(
+                          value:
+                              (_assignedClassCapacity ?? 0) > 0
+                                  ? (_assignedStudentCount ?? 0) /
+                                      _assignedClassCapacity!
+                                  : 0,
+                          strokeWidth: 10,
+                          backgroundColor: Colors.grey[200],
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.orange[700] ?? Colors.orange,
+                          ),
+                        ),
+                        Center(
+                          child: Text(
+                            '${_assignedStudentCount ?? 0}/${_assignedClassCapacity ?? 0}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: Colors.orange[700],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 22),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Assigned Class',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Colors.orange[700],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          _assignedClassName!,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Students enrolled: ${_assignedStudentCount ?? 0}',
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+    );
+  }
+
   // Add agenda item
   Future<void> _addAgendaItem() async {
     if (_taskController.text.isEmpty || _timeController.text.isEmpty) return;
+    if (teacherEmail == null || teacherEmail!.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Profile not loaded yet')));
+      }
+      return;
+    }
 
     await _firestore.collection('agenda').add({
       'teacherEmail': teacherEmail,
@@ -67,13 +416,23 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
-        backgroundColor: lavender,
-        title: const Text('Teacher Dashboard'),
+        backgroundColor: const Color.fromARGB(255, 151, 123, 218),
+        elevation: 0,
+        titleSpacing: 0,
+        title: const SizedBox.shrink(),
+        leading: Builder(
+          builder:
+              (context) => IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none, color: Colors.white),
             onPressed: () {},
           ),
+          const SizedBox(width: 8),
         ],
       ),
       drawer: Drawer(
@@ -104,134 +463,78 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Teacher Profile Section
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          blurRadius: 6,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
+                  const Padding(
+                    padding: EdgeInsets.only(top: 10.0, left: 4.0),
+                    child: Text(
+                      'Teacher Profile',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                        color: Colors.black,
+                      ),
                     ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4.0, right: 20.0),
+                    child: Divider(thickness: 0.5, color: Colors.blueGrey),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const CircleAvatar(
-                          radius: 40,
-                          backgroundImage: AssetImage('assets/teacher.png'),
-                        ),
-                        const SizedBox(width: 16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              teacherName,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Email: $teacherEmail',
-                              style: const TextStyle(color: Colors.black54),
-                            ),
-                          ],
-                        ),
+                        Expanded(child: _buildTeacherProfileCard()),
+                        const SizedBox(width: 20),
+                        Expanded(child: _buildClassInfoCard()),
                       ],
                     ),
                   ),
                   const SizedBox(height: 24),
-
-                  const Text(
-                    'Quick Access',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4.0),
+                    child: Text(
+                      'Quick Access',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 12),
-
-                  // Quick Access Buttons
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    children: [
-                      /*
-                      _quickAccessCard(
-                        context,
-                        Icons.person_search,
-                        'Student Records',
-                        const Color(0xFFA7C7E7),
-                        const StudentRecordsPage(),
-                      ),
-                      _quickAccessCard(
-                        context,
-                        Icons.notifications,
-                        'View Notifications',
-                        const Color(0xFFFFE5A5),
-                        const ViewNotificationsPage(),
-                      ),
-                      _quickAccessCard(
-                        context,
-                        Icons.message,
-                        'Messages',
-                        const Color(0xFFCDB4DB),
-                        MessagesPage(teacherEmail: "areeba@previrtual.edu.pk"),
-                      ),
-                      _quickAccessCard(
-                        context,
-                        Icons.video_call,
-                        'Start / End Class',
-                        const Color(0xFFD9C3F7),
-                        const StartEndClassPage(),
-                      ),
-                       _quickAccessCard(
-                        context,
-                        Icons.person_search,
-                        'Student Records',
-                        const Color(0xFFA7C7E7),
-                        const StudentRecordsPage(),
-                      ),
-                      _quickAccessCard(
-                        context,
-                        Icons.notifications,
-                        'View Notifications',
-                        const Color(0xFFFFE5A5),
-                        const ViewNotificationsPage(),
-                      ),
-                      _quickAccessCard(
-                        context,
-                        Icons.message,
-                        'Messages',
-                        const Color(0xFFCDB4DB),
-                        MessagesPage(teacherEmail: "areeba@previrtual.edu.pk"),
-                      ),
-                      */
-                      _quickAccessCard(
-                        context,
-                        Icons.assignment,
-                        'Assign Activities',
-                        const Color(0xFFF7EBC3),
-                        const AssignActivityPage(),
-                      ),
-                      _quickAccessCard(
-                        context,
-                        Icons.upload_file,
-                        'Upload Class Material',
-                        const Color(0xFFB7E4C7),
-                        const UploadMaterialPage(),
-                      ),
-                      _quickAccessCard(
-                        context,
-                        Icons.grade,
-                        'Update Grades',
-                        const Color(0xFFFFC8DD),
-                        const UpdateGradesPage(),
-                      ),
-                  
-                    ],
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4.0, right: 20.0, top: 4.0),
+                    child: Divider(thickness: 0.5, color: Colors.blueGrey),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _quickAccessCard(
+                          context,
+                          Icons.assignment,
+                          'Assign Activities',
+                          const Color.fromARGB(255, 238, 212, 248),
+                          const AssignActivityPage(),
+                        ),
+                        const SizedBox(width: 30),
+                        _quickAccessCard(
+                          context,
+                          Icons.upload_file,
+                          'Upload Class Material',
+                          const Color.fromARGB(255, 249, 236, 184),
+                          const UploadMaterialPage(),
+                        ),
+                        const SizedBox(width: 30),
+                        _quickAccessCard(
+                          context,
+                          Icons.grade,
+                          'Update Grades',
+                          const Color.fromARGB(255, 212, 248, 238),
+                          const UpdateGradesPage(),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -280,106 +583,122 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
                       //  StreamBuilder showing Firestore agendas
                       Expanded(
-                        child: StreamBuilder<QuerySnapshot>(
-                          stream: _firestore
-                              .collection('agenda')
-                              .where(
-                                'teacherEmail',
-                                isEqualTo: 'areeba@previrtual.edu.pk',
-                              )
-                              .snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                            if (!snapshot.hasData ||
-                                snapshot.data!.docs.isEmpty) {
-                              return const Center(
-                                child: Text("No agenda items yet."),
-                              );
-                            }
+                        child:
+                            teacherEmail == null
+                                ? const Center(
+                                  child: Text('Load profile to see agenda.'),
+                                )
+                                : StreamBuilder<QuerySnapshot>(
+                                  stream:
+                                      _firestore
+                                          .collection('agenda')
+                                          .where(
+                                            'teacherEmail',
+                                            isEqualTo: teacherEmail,
+                                          )
+                                          .snapshots(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }
+                                    if (!snapshot.hasData ||
+                                        snapshot.data!.docs.isEmpty) {
+                                      return const Center(
+                                        child: Text("No agenda items yet."),
+                                      );
+                                    }
 
-                            final items = snapshot.data!.docs;
+                                    final items = snapshot.data!.docs;
 
-                            return ListView.builder(
-                              itemCount: items.length,
-                              itemBuilder: (context, index) {
-                                final data =
-                                    items[index].data() as Map<String, dynamic>;
-                                final color = index.isEven
-                                    ? lavender
-                                    : lightYellow;
+                                    return ListView.builder(
+                                      itemCount: items.length,
+                                      itemBuilder: (context, index) {
+                                        final data =
+                                            items[index].data()
+                                                as Map<String, dynamic>;
+                                        final color =
+                                            index.isEven
+                                                ? lavender
+                                                : lightYellow;
 
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color: color,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 10,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              data['time'] ?? '',
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Text(
-                                              data['task'] ?? '',
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.delete_outline,
-                                            color: Colors.redAccent,
+                                        return Container(
+                                          margin: const EdgeInsets.only(
+                                            bottom: 12,
                                           ),
-                                          onPressed: () async {
-                                            await _deleteAgenda(
-                                              items[index].id,
-                                            );
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                  'Agenda deleted successfully',
+                                          height: 80,
+                                          decoration: BoxDecoration(
+                                            color: color,
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 10,
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      data['time'] ?? '',
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 5),
+                                                    Text(
+                                                      data['task'] ?? '',
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                duration: Duration(seconds: 1),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
+                                                IconButton(
+                                                  icon: const Icon(
+                                                    Icons.delete_outline,
+                                                    color: Colors.redAccent,
+                                                  ),
+                                                  onPressed: () async {
+                                                    await _deleteAgenda(
+                                                      items[index].id,
+                                                    );
+                                                    ScaffoldMessenger.of(
+                                                      context,
+                                                    ).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text(
+                                                          'Agenda deleted successfully',
+                                                        ),
+                                                        duration: Duration(
+                                                          seconds: 1,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
                       ),
                     ],
                   ),
@@ -400,44 +719,38 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     Color color,
     Widget page,
   ) {
-    return Container(
-      width: 220,
-      height: 90,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+      },
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          height: 160,
+          width: 230,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(12),
           ),
-        ],
-      ),
-      child: InkWell(
-        onTap: () =>
-            Navigator.push(context, MaterialPageRoute(builder: (_) => page)),
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 22,
-                backgroundColor: color.withOpacity(0.1),
-                child: Icon(icon, color: color, size: 24),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
+              Icon(icon, size: 28, color: Colors.black87),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              const Align(
+                alignment: Alignment.bottomRight,
+                child: Icon(Icons.arrow_circle_right, size: 20),
+              ),
             ],
           ),
         ),
@@ -452,48 +765,50 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text('Add New Agenda'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _timeController,
-              decoration: const InputDecoration(
-                labelText: 'Time (e.g. 9:00 - 9:30)',
-                prefixIcon: Icon(Icons.access_time),
-              ),
+      builder:
+          (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _taskController,
-              decoration: const InputDecoration(
-                labelText: 'Task (e.g. Review Homework)',
-                prefixIcon: Icon(Icons.edit_note),
-              ),
+            title: const Text('Add New Agenda'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _timeController,
+                  decoration: const InputDecoration(
+                    labelText: 'Time (e.g. 9:00 - 9:30)',
+                    prefixIcon: Icon(Icons.access_time),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _taskController,
+                  decoration: const InputDecoration(
+                    labelText: 'Task (e.g. Review Homework)',
+                    prefixIcon: Icon(Icons.edit_note),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFD9C3F7),
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: _addAgendaItem,
+                child: const Text('Add'),
+              ),
+            ],
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFD9C3F7),
-              foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            onPressed: _addAgendaItem,
-            child: const Text('Add'),
-          ),
-        ],
-      ),
     );
   }
 }
-

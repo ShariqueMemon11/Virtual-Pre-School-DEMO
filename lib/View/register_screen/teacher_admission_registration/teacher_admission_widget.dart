@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../controllers/teacher_register_controller.dart';
 import '../../custom_widgets/primary_button_widget.dart';
+import '../../custom_widgets/uploadfilewidget.dart';
 
 class TeacherAdmissionPage extends StatefulWidget {
   final String initialEmail;
@@ -232,6 +233,31 @@ class _TeacherAdmissionPageState extends State<TeacherAdmissionPage> {
                           ],
                         ),
                         const SizedBox(height: 40),
+
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Upload Profile Photo",
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        UploadFileWidget(
+                          fileName: _controller.profilePhotoFileName,
+                          allowedExtensions: const ['jpg', 'jpeg', 'png'],
+                          onFilePicked: (base64, fileName) {
+                            setState(() {
+                              _controller.profilePhotoBase64 = base64;
+                              _controller.profilePhotoFileName = fileName;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 24),
 
                         // Submit Button
                         Center(
