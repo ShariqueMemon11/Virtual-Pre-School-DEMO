@@ -512,6 +512,14 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                       children: [
                         _quickAccessCard(
                           context,
+                          Icons.video_camera_back_rounded,
+                          'Start Class',
+                          const Color.fromARGB(255, 248, 222, 212),
+                          const AssignActivityPage(),
+                        ),
+                        const SizedBox(width: 30),
+                        _quickAccessCard(
+                          context,
                           Icons.assignment,
                           'Assign Activities',
                           const Color.fromARGB(255, 238, 212, 248),
