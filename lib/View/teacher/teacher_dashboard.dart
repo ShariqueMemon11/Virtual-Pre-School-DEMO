@@ -806,17 +806,42 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
   }
 
   Future<void> _startClass() async {
-    final roomId = const Uuid().v4(); // generate unique UUID
-    final teacher = teacherName ?? "Teacher";
+    try {
+      // 🔹 Generate new Zego room
+      final roomId = const Uuid().v4();
+      final teacher = "$teacherName Teacher";
 
-    final url = Uri.parse("https://cr-puce.vercel.app/$roomId?name=$teacher");
+      final url = Uri.parse("https://cr-puce.vercel.app/$roomId?name=$teacher");
 
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Could not open class link")),
-      );
+      // 🔥 Update only the class assigned to logged-in teacher
+      final query =
+          await FirebaseFirestore.instance
+              .collection("classes")
+              .where("teacher", isEqualTo: teacherName)
+              .limit(1)
+              .get();
+
+      if (query.docs.isNotEmpty) {
+        final classDocId = query.docs.first.id;
+
+        await FirebaseFirestore.instance
+            .collection("classes")
+            .doc(classDocId)
+            .update({"classroomId": roomId, "updatedAt": Timestamp.now()});
+      }
+
+      // Open the class link
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Could not open class link")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
     }
   }
 

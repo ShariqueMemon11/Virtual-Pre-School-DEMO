@@ -10,6 +10,7 @@ class ClassModel {
   final String? teacherid;
   final Timestamp? createdAt;
   final Timestamp? updatedAt;
+  final String? classroomId;
 
   ClassModel({
     required this.id,
@@ -21,26 +22,28 @@ class ClassModel {
     this.createdAt,
     this.updatedAt,
     this.studentEnrolled,
+    this.classroomId,
   });
 
-factory ClassModel.fromFirestore(DocumentSnapshot doc) {
-  final data = doc.data() as Map<String, dynamic>? ?? {};
+  factory ClassModel.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>? ?? {};
 
-  return ClassModel(
-    id: doc.id,
-    gradeName: data['gradeName'] ?? '',
-    capacity: data['capacity'] ?? 0,
-    studentCount: data['studentCount'] ?? 0,
-    teacher: data['teacher'],
-    teacherid: data['teacherid'],
-    createdAt: data['createdAt'],
-    updatedAt: data['updatedAt'],
-    studentEnrolled: data['studentEnrolled'] != null
-        ? List<String>.from(data['studentEnrolled'])
-        : [],
-  );
-}
-
+    return ClassModel(
+      id: doc.id,
+      gradeName: data['gradeName'] ?? '',
+      capacity: data['capacity'] ?? 0,
+      studentCount: data['studentCount'] ?? 0,
+      teacher: data['teacher'],
+      teacherid: data['teacherid'],
+      createdAt: data['createdAt'],
+      updatedAt: data['updatedAt'],
+      studentEnrolled:
+          data['studentEnrolled'] != null
+              ? List<String>.from(data['studentEnrolled'])
+              : [],
+      classroomId: data['classroomId'],
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -52,6 +55,7 @@ factory ClassModel.fromFirestore(DocumentSnapshot doc) {
       'createdAt': createdAt,
       'updatedAt': updatedAt,
       'studentEnrolled': studentEnrolled,
+      'classroomId': classroomId,
     };
   }
 
@@ -64,7 +68,8 @@ factory ClassModel.fromFirestore(DocumentSnapshot doc) {
     String? teacherid,
     Timestamp? createdAt,
     Timestamp? updatedAt,
-    String? studentEnrolled,
+    List<String>? studentEnrolled,
+    String? classroomId,
   }) {
     return ClassModel(
       id: id ?? this.id,
@@ -75,6 +80,8 @@ factory ClassModel.fromFirestore(DocumentSnapshot doc) {
       teacherid: teacherid ?? this.teacherid,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      studentEnrolled: studentEnrolled ?? this.studentEnrolled,
+      classroomId: classroomId ?? this.classroomId,
     );
   }
 }

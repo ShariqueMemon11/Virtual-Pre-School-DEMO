@@ -1,7 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../assignments/assignments_modal.dart';
 import '../grades/grades_modal.dart';
 import '../materials/materials_modal.dart';
@@ -44,15 +47,15 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
 
         if (studentsQuery.docs.isNotEmpty) {
           final studentData = studentsQuery.docs.first.data();
-       
+
           setState(() {
             studentName = studentData['childName'] ?? 'Student';
             studentEmail = studentData['email'] ?? user.email;
             studentImageBase64 = studentData['childPhotoFile'];
             studentClassName =
                 studentData['assignedClass'] ??
-                    studentData['className'] ??
-                    studentData['class'];
+                studentData['className'] ??
+                studentData['class'];
             studentClassId =
                 studentData['assignedClassId'] ??
                 studentData['assignedClass'] ??
@@ -72,15 +75,15 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
 
         if (applicationsQuery.docs.isNotEmpty) {
           final studentData = applicationsQuery.docs.first.data();
-         
+
           setState(() {
             studentName = studentData['childName'] ?? 'Student';
             studentEmail = studentData['email'] ?? user.email;
             studentImageBase64 = studentData['childPhotoFile'];
             studentClassName =
                 studentData['assignedClass'] ??
-                    studentData['className'] ??
-                    studentData['class'];
+                studentData['className'] ??
+                studentData['class'];
             studentClassId =
                 studentData['assignedClassId'] ??
                 studentData['assignedClass'] ??
@@ -171,29 +174,28 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     _buildQuickAccessCard(
-                      icon: Icons.assignment,
-                      label: "My Assignments",
-                      color: const Color.fromARGB(255, 238, 212, 248),
-                      onTap: _showAssignmentsModal,
-                    ),
-                    SizedBox(width: 50.w),
-                    _buildQuickAccessCard(
                       icon: Icons.schedule,
                       label: "Join Class",
                       color: const Color.fromARGB(255, 249, 236, 184),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Join Class - Coming soon!')),
-                        );
-                      },
+                      onTap: _joinLiveClass, // ✅ ADD THIS
                     ),
                     SizedBox(width: 50.w),
+
                     _buildQuickAccessCard(
                       icon: Icons.grade,
                       label: "My Grades",
                       color: const Color.fromARGB(255, 212, 248, 238),
                       onTap: _showGradesModal,
                     ),
+                    SizedBox(width: 50.w),
+
+                    _buildQuickAccessCard(
+                      icon: Icons.assignment,
+                      label: "My Assignments",
+                      color: const Color.fromARGB(255, 238, 212, 248),
+                      onTap: _showAssignmentsModal,
+                    ),
+                    SizedBox(width: 50.w),
                   ],
                 ),
               ),
@@ -222,7 +224,6 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
 
   ImageProvider? _getImageProvider() {
     if (studentImageBase64 != null && studentImageBase64!.isNotEmpty) {
-
       // Check if it's a base64 string
       if (studentImageBase64!.startsWith('data:image/') ||
           studentImageBase64!.startsWith('/9j/') ||
@@ -241,13 +242,10 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
         }
       } else if (studentImageBase64!.startsWith('http')) {
         // Handle network URL
-     
+
         return NetworkImage(studentImageBase64!);
-      } else {
-      
-      }
-    } else {
-    }
+      } else {}
+    } else {}
     return null;
   }
 
@@ -360,7 +358,8 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
     VoidCallback? onTap,
   }) {
     return GestureDetector(
-      onTap: onTap ??
+      onTap:
+          onTap ??
           () {
             ScaffoldMessenger.of(
               context,
@@ -455,10 +454,13 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
         final grades = snapshot.data ?? <Map<String, dynamic>>[];
         double avg = 0.0;
         if (grades.isNotEmpty) {
-          final percentGrades = grades.map((g) => _gradeToPercent(g['grade'] ?? 0));
-          avg = percentGrades.isNotEmpty
-              ? percentGrades.reduce((a, b) => a + b) / percentGrades.length
-              : 0.0;
+          final percentGrades = grades.map(
+            (g) => _gradeToPercent(g['grade'] ?? 0),
+          );
+          avg =
+              percentGrades.isNotEmpty
+                  ? percentGrades.reduce((a, b) => a + b) / percentGrades.length
+                  : 0.0;
         }
         String remark;
         String advice;
@@ -561,30 +563,98 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
   Future<List<Map<String, dynamic>>> _fetchStudentGrades() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return [];
-    final gradesSnap = await FirebaseFirestore.instance
-        .collection('grades')
-        .where('studentUid', isEqualTo: user.uid)
-        .get();
+    final gradesSnap =
+        await FirebaseFirestore.instance
+            .collection('grades')
+            .where('studentUid', isEqualTo: user.uid)
+            .get();
     return gradesSnap.docs.map((d) => d.data()).toList();
   }
 
   double _gradeToPercent(dynamic grade) {
     if (grade is num) return grade.toDouble();
-    if (grade is String && double.tryParse(grade) != null) return double.parse(grade);
+    if (grade is String && double.tryParse(grade) != null)
+      return double.parse(grade);
     switch (grade.toString().trim().toUpperCase()) {
-      case 'A+': return 97;
-      case 'A': return 94;
-      case 'A-': return 90;
-      case 'B+': return 87;
-      case 'B': return 83;
-      case 'B-': return 80;
-      case 'C+': return 77;
-      case 'C': return 73;
-      case 'C-': return 70;
-      case 'D+': return 67;
-      case 'D': return 63;
-      case 'D-': return 60;
-      default: return 0;
+      case 'A+':
+        return 97;
+      case 'A':
+        return 94;
+      case 'A-':
+        return 90;
+      case 'B+':
+        return 87;
+      case 'B':
+        return 83;
+      case 'B-':
+        return 80;
+      case 'C+':
+        return 77;
+      case 'C':
+        return 73;
+      case 'C-':
+        return 70;
+      case 'D+':
+        return 67;
+      case 'D':
+        return 63;
+      case 'D-':
+        return 60;
+      default:
+        return 0;
+    }
+  }
+
+  Future<void> _joinLiveClass() async {
+    if (studentClassId == null || studentClassId!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("You are not assigned to any class.")),
+      );
+      return;
+    }
+
+    try {
+      // Fetch class document
+      final classDoc =
+          await FirebaseFirestore.instance
+              .collection("classes")
+              .doc(studentClassId)
+              .get();
+
+      if (!classDoc.exists) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Class not found.")));
+        return;
+      }
+
+      final data = classDoc.data();
+      final classroomId = data?["classroomId"];
+
+      if (classroomId == null || classroomId.toString().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("No live class right now.")),
+        );
+        return;
+      }
+
+      final student = studentName ?? "Student";
+
+      final url = Uri.parse(
+        "https://cr-puce.vercel.app/$classroomId?name=$student",
+      );
+
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Could not open class link")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
     }
   }
 }
