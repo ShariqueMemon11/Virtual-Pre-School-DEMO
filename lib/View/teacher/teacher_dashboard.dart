@@ -510,8 +510,10 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 10.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Wrap(
+                      spacing: 30,
+                      runSpacing: 20,
+                      crossAxisAlignment: WrapCrossAlignment.start,
                       children: [
                         _quickAccessCard(
                           context,
@@ -520,8 +522,6 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                           const Color.fromARGB(255, 238, 212, 248),
                           _startClass,
                         ),
-
-                        const SizedBox(width: 30),
 
                         _quickAccessCard(
                           context,
@@ -538,8 +538,6 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                           },
                         ),
 
-                        const SizedBox(width: 30),
-
                         _quickAccessCard(
                           context,
                           Icons.upload_file,
@@ -555,8 +553,6 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                           },
                         ),
 
-                        const SizedBox(width: 30),
-
                         _quickAccessCard(
                           context,
                           Icons.grade,
@@ -571,8 +567,6 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                             );
                           },
                         ),
-
-                        const SizedBox(width: 30),
 
                         _quickAccessCard(
                           context,

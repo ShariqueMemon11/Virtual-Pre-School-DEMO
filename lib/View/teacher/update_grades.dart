@@ -16,7 +16,8 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
   final _formKey = GlobalKey<FormState>();
   final _subjectController = TextEditingController();
   final _gradeController = TextEditingController();
-  String? _selectedStudentUid; // <-- Add this
+  String? _selectedStudentUid;
+  String? _editingGradeDocId; // Track which grade is being edited
   List<Map<String, dynamic>> _studentsInClass = []; // [{uid, name, email}]
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -173,38 +174,89 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
         (x) => x['uid'] == _selectedStudentUid,
         orElse: () => {},
       );
-      await _firestore.collection('grades').add({
+
+      final subject = _subjectController.text.trim();
+      final grade = _gradeController.text.trim();
+
+      final gradeData = {
         'studentUid': _selectedStudentUid,
         'studentName': selectedStudent['childName'] ?? '',
         'class': _selectedClass!.gradeName,
         'classId': _selectedClass!.id,
-        'subject': _subjectController.text.trim(),
-        'grade': _gradeController.text.trim(),
+        'subject': subject,
+        'grade': grade,
         'teacherName': teacherName,
         'teacherEmail': teacherEmail,
-        'updatedAt': DateTime.now(),
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(' Grade Added Successfully!')),
-      );
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      if (_editingGradeDocId != null) {
+        // Update existing grade being edited
+        await _firestore
+            .collection('grades')
+            .doc(_editingGradeDocId)
+            .update(gradeData);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(' Grade Updated Successfully!')),
+        );
+        _editingGradeDocId = null;
+      } else {
+        // Check if grade already exists for this student+subject combination
+        final existingGradeQuery =
+            await _firestore
+                .collection('grades')
+                .where('studentUid', isEqualTo: _selectedStudentUid)
+                .where('classId', isEqualTo: _selectedClass!.id)
+                .where('subject', isEqualTo: subject)
+                .limit(1)
+                .get();
+
+        if (existingGradeQuery.docs.isNotEmpty) {
+          // Update existing grade
+          await _firestore
+              .collection('grades')
+              .doc(existingGradeQuery.docs.first.id)
+              .update(gradeData);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text(' Grade Updated Successfully!')),
+          );
+        } else {
+          // Add new grade
+          await _firestore.collection('grades').add(gradeData);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text(' Grade Added Successfully!')),
+          );
+        }
+      }
+
       _subjectController.clear();
       _gradeController.clear();
       _selectedStudentUid = null;
-      await _loadStudentsForSelectedClass();
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(' Failed to add grade: $e')));
+      ).showSnackBar(SnackBar(content: Text(' Failed to save grade: $e')));
     } finally {
       setState(() => _isSaving = false);
     }
   }
 
-  Future<void> _deleteGrade(String docId) async {
-    await _firestore.collection('grades').doc(docId).delete();
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text(' Grade deleted')));
+  Future<void> _editGrade(
+    String docId,
+    String currentSubject,
+    String currentGrade,
+  ) async {
+    // Find the student UID from the grade document
+    final gradeDoc = await _firestore.collection('grades').doc(docId).get();
+    if (gradeDoc.exists) {
+      final data = gradeDoc.data();
+      setState(() {
+        _editingGradeDocId = docId;
+        _selectedStudentUid = data?['studentUid'];
+        _subjectController.text = currentSubject;
+        _gradeController.text = currentGrade;
+      });
+    }
   }
 
   @override
@@ -214,8 +266,6 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
     const lightYellow = Color(0xFFF7EBC3);
     const pink = Color(0xFFFFC8DD);
     const bgColor = Color(0xFFF7F5F2);
-
-    final teacherEmail = _teacherEmail ?? _auth.currentUser?.email;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -341,7 +391,10 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
                           onChanged: (val) {
                             setState(() {
                               _selectedStudentUid = val;
-                              // no _studentNameController
+                              _editingGradeDocId =
+                                  null; // Clear editing state when student changes
+                              _subjectController.clear();
+                              _gradeController.clear();
                             });
                           },
                           decoration: InputDecoration(
@@ -386,8 +439,18 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                  : const Icon(Icons.save),
-                          label: Text(_isSaving ? 'Saving...' : 'Save Grade'),
+                                  : Icon(
+                                    _editingGradeDocId != null
+                                        ? Icons.update
+                                        : Icons.save,
+                                  ),
+                          label: Text(
+                            _isSaving
+                                ? 'Saving...'
+                                : (_editingGradeDocId != null
+                                    ? 'Update Grade'
+                                    : 'Save Grade'),
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: lavender,
                             foregroundColor: Colors.black,
@@ -414,40 +477,139 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
                 const SizedBox(height: 10),
 
                 StreamBuilder<QuerySnapshot>(
-                  stream:
-                      _firestore
-                          .collection('grades')
-                          .where('classId', isEqualTo: _selectedClass!.id)
-                          .snapshots(),
+                  stream: _firestore.collection('grades').snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     }
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Center(
-                        child: Text('No grades found for this class.'),
+
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              color: Colors.red,
+                              size: 48,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Error loading grades: ${snapshot.error}',
+                              style: const TextStyle(color: Colors.red),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Class ID: ${_selectedClass!.id}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
                       );
+                    }
+
+                    if (!snapshot.hasData) {
+                      return const Center(child: Text('No data available.'));
                     }
 
                     final grades = snapshot.data!.docs;
 
+                    // Filter by classId or className as fallback
+                    final filteredGrades =
+                        grades.where((doc) {
+                          final data = doc.data() as Map<String, dynamic>;
+                          final docClassId = data['classId'] ?? '';
+                          final docClassName = data['class'] ?? '';
+                          return docClassId == _selectedClass!.id ||
+                              docClassName == _selectedClass!.gradeName;
+                        }).toList();
+
+                    if (filteredGrades.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.grade_outlined,
+                              size: 48,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'No grades found for this class.',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Total grades in database: ${grades.length}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            if (grades.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                'Class ID: ${_selectedClass!.id}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      );
+                    }
+
+                    // Sort by student name client-side
+                    filteredGrades.sort((a, b) {
+                      final nameA =
+                          (a.data() as Map<String, dynamic>)['studentName'] ??
+                          '';
+                      final nameB =
+                          (b.data() as Map<String, dynamic>)['studentName'] ??
+                          '';
+                      return nameA.compareTo(nameB);
+                    });
+
+                    // Group grades by studentUid
+                    final Map<String, List<Map<String, dynamic>>>
+                    groupedGrades = {};
+                    for (var doc in filteredGrades) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      final studentUid = data['studentUid'] ?? '';
+                      if (!groupedGrades.containsKey(studentUid)) {
+                        groupedGrades[studentUid] = [];
+                      }
+                      groupedGrades[studentUid]!.add({
+                        'docId': doc.id,
+                        ...data,
+                      });
+                    }
+
                     return ListView.builder(
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
-                      itemCount: grades.length,
-                      itemBuilder: (context, i) {
-                        final data = grades[i].data() as Map<String, dynamic>;
-                        final docId = grades[i].id;
-                        final bgColor =
-                            i.isEven
-                                ? mintGreen.withOpacity(0.4)
-                                : lightYellow.withOpacity(0.5);
+                      itemCount: groupedGrades.length,
+                      itemBuilder: (context, studentIndex) {
+                        final studentUid = groupedGrades.keys.elementAt(
+                          studentIndex,
+                        );
+                        final studentGrades = groupedGrades[studentUid]!;
+                        final studentName =
+                            studentGrades.first['studentName'] ?? 'Student';
 
                         return Container(
-                          margin: const EdgeInsets.symmetric(vertical: 6),
+                          margin: const EdgeInsets.only(bottom: 16),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: bgColor,
-                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.grey.withOpacity(0.15),
@@ -456,27 +618,115 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
                               ),
                             ],
                           ),
-                          child: ListTile(
-                            leading: const Icon(
-                              Icons.school,
-                              color: Colors.deepPurple,
-                            ),
-                            title: Text(
-                              data['studentName'] ?? 'Student',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Student Name Header
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.person,
+                                      color: Colors.deepPurple,
+                                      size: 24,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      studentName,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            subtitle: Text(
-                              'Subject: ${data['subject'] ?? ''} | Grade: ${data['grade'] ?? ''}',
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(
-                                Icons.delete_outline,
-                                color: Colors.redAccent,
+                              // Subject Cards in a Wrap
+                              Wrap(
+                                spacing: 12,
+                                runSpacing: 12,
+                                children:
+                                    studentGrades.map((gradeData) {
+                                      final docId = gradeData['docId'];
+                                      final subject =
+                                          gradeData['subject'] ?? '';
+                                      final grade = gradeData['grade'] ?? '';
+                                      final cardIndex = studentGrades.indexOf(
+                                        gradeData,
+                                      );
+                                      final cardColor =
+                                          cardIndex.isEven
+                                              ? mintGreen.withOpacity(0.4)
+                                              : lightYellow.withOpacity(0.5);
+
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 12,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: cardColor,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.deepPurple
+                                                .withOpacity(0.2),
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(
+                                              Icons.school,
+                                              color: Colors.deepPurple,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  subject,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  'Grade: $grade',
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.black54,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(width: 8),
+                                            IconButton(
+                                              icon: const Icon(
+                                                Icons.edit_outlined,
+                                                color: Colors.deepPurple,
+                                                size: 20,
+                                              ),
+                                              onPressed:
+                                                  () => _editGrade(
+                                                    docId,
+                                                    subject,
+                                                    grade,
+                                                  ),
+                                              tooltip: 'Edit Grade',
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
                               ),
-                              onPressed: () => _deleteGrade(docId),
-                            ),
+                            ],
                           ),
                         );
                       },

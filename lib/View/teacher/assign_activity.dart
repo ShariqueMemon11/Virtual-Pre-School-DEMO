@@ -108,26 +108,40 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
     });
 
     try {
-      Query<Map<String, dynamic>> query = _firestore.collection('classes');
+      QuerySnapshot<Map<String, dynamic>>? snapshot;
 
-      if (teacherId != null) {
-        query = query.where('teacherid', isEqualTo: teacherId);
-      } else if (name != null && name.trim().isNotEmpty) {
-        query = query.where('teacher', isEqualTo: name.trim());
-      } else {
-        setState(() {
-          _className = null;
-          _classId = null;
-          _isClassLoading = false;
-        });
-        return;
+      // First try: Query by teacherId (most reliable)
+      if (teacherId != null && teacherId.isNotEmpty) {
+        snapshot = await _firestore
+            .collection('classes')
+            .where('teacherid', isEqualTo: teacherId)
+            .limit(1)
+            .get();
       }
 
-      final snapshot = await query.limit(1).get();
+      // Second try: Query by teacher name (exact match)
+      if ((snapshot == null || snapshot.docs.isEmpty) && 
+          name != null && name.trim().isNotEmpty) {
+        snapshot = await _firestore
+            .collection('classes')
+            .where('teacher', isEqualTo: name.trim())
+            .limit(1)
+            .get();
+      }
+
+      // Third try: Query by teacher email if available
+      if ((snapshot == null || snapshot.docs.isEmpty) && 
+          teacherEmail != null && teacherEmail!.isNotEmpty) {
+        snapshot = await _firestore
+            .collection('classes')
+            .where('teacherEmail', isEqualTo: teacherEmail)
+            .limit(1)
+            .get();
+      }
 
       if (!mounted) return;
 
-      if (snapshot.docs.isEmpty) {
+      if (snapshot == null || snapshot.docs.isEmpty) {
         setState(() {
           _className = null;
           _classId = null;
@@ -138,8 +152,11 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
 
       final data = snapshot.docs.first.data();
       setState(() {
-        _classId = snapshot.docs.first.id;
-        _className = data['gradeName'] ?? data['className'] ?? 'Class';
+        _classId = snapshot!.docs.first.id;
+        _className = data['gradeName'] ?? 
+                     data['className'] ?? 
+                     data['name'] ?? 
+                     'Class';
         _isClassLoading = false;
       });
     } catch (e) {
@@ -308,9 +325,11 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              teacherEmail != null
+              teacherEmail != null && teacherName != null
                   ? 'Logged in as: $teacherName ($teacherEmail)'
-                  : 'Loading teacher info...',
+                  : teacherEmail != null
+                      ? 'Logged in as: $teacherEmail'
+                      : 'Loading teacher info...',
               style: const TextStyle(color: Colors.black54, fontSize: 14),
             ),
             const SizedBox(height: 16),
