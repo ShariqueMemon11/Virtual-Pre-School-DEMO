@@ -28,7 +28,7 @@ class _GradesModalState extends State<GradesModal> {
             .where('studentUid', isEqualTo: user.uid)
             .get();
     return gradesSnap.docs.map((d) {
-      final data = d.data() as Map<String, dynamic>;
+      final data = d.data();
       return {
         'subjectName': data['subject'] ?? '',
         'teacherName': data['teacherName'] ?? '',
@@ -41,8 +41,9 @@ class _GradesModalState extends State<GradesModal> {
   double _convertGradeToPercent(dynamic grade) {
     // If teachers enter a number (75), use that.
     if (grade is num) return grade.toDouble();
-    if (grade is String && double.tryParse(grade) != null)
+    if (grade is String && double.tryParse(grade) != null) {
       return double.parse(grade);
+    }
     // If teachers enter letters (A, B+ etc), set mapping here:
     switch (grade.toString().trim().toUpperCase()) {
       case 'A+':

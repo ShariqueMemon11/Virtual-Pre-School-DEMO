@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/rendering.dart';
 
-void main() async { 
+void main() async {
   //main
   WidgetsFlutterBinding.ensureInitialized();
   debugPaintBaselinesEnabled = false;
@@ -17,8 +17,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Helper method to build circlesimport 'teacheradmissionwidget.dart';
-
     return Responsive();
   }
 }

@@ -8,6 +8,8 @@ import 'assign_activity.dart';
 import 'upload_material.dart';
 import 'update_grades.dart';
 import 'student_activities_page.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
 
 class TeacherDashboard extends StatefulWidget {
   const TeacherDashboard({super.key});
@@ -513,34 +515,78 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                       children: [
                         _quickAccessCard(
                           context,
+                          Icons.videocam,
+                          'Start Class',
+                          const Color.fromARGB(255, 238, 212, 248),
+                          _startClass,
+                        ),
+
+                        const SizedBox(width: 30),
+
+                        _quickAccessCard(
+                          context,
                           Icons.assignment,
                           'Assign Activities',
                           const Color.fromARGB(255, 238, 212, 248),
-                          const AssignActivityPage(),
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const AssignActivityPage(),
+                              ),
+                            );
+                          },
                         ),
+
                         const SizedBox(width: 30),
+
                         _quickAccessCard(
                           context,
                           Icons.upload_file,
                           'Upload Class Material',
                           const Color.fromARGB(255, 249, 236, 184),
-                          const UploadMaterialPage(),
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const UploadMaterialPage(),
+                              ),
+                            );
+                          },
                         ),
+
                         const SizedBox(width: 30),
+
                         _quickAccessCard(
                           context,
                           Icons.grade,
                           'Update Grades',
                           const Color.fromARGB(255, 212, 248, 238),
-                          const UpdateGradesPage(),
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const UpdateGradesPage(),
+                              ),
+                            );
+                          },
                         ),
+
                         const SizedBox(width: 30),
+
                         _quickAccessCard(
                           context,
                           Icons.list_alt,
                           'Student Submissions',
                           const Color.fromARGB(255, 238, 212, 248),
-                          const StudentActivitiesPage(),
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const StudentActivitiesPage(),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -584,7 +630,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                           ),
                           IconButton(
                             icon: const Icon(Icons.add_circle_outline),
-                            onPressed: () => _showAddAgendaDialog(context),
+                            onPressed: () => showAddAgendaDialog(context),
                           ),
                         ],
                       ),
@@ -726,12 +772,10 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     IconData icon,
     String title,
     Color color,
-    Widget page,
+    VoidCallback onTap,
   ) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => page));
-      },
+      onTap: onTap,
       child: Card(
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -767,8 +811,23 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  Future<void> _startClass() async {
+    final roomId = const Uuid().v4(); // generate unique UUID
+    final teacher = teacherName ?? "Teacher";
+
+    final url = Uri.parse("https://cr-puce.vercel.app/$roomId?name=$teacher");
+
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Could not open class link")),
+      );
+    }
+  }
+
   //  Add Agenda Dialog
-  void _showAddAgendaDialog(BuildContext context) {
+  void showAddAgendaDialog(BuildContext context) {
     _taskController.clear();
     _timeController.clear();
 

@@ -563,10 +563,10 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
                 style: TextStyle(fontSize: 14.sp, color: Colors.grey[600]),
               ),
 
-            SizedBox(height: 8.h),
+             SizedBox(height: 8.h),
 
-            // Created Date + Due Date
-            Row(
+             // Created Date + Due Date
+             Row(
               children: [
                 Icon(Icons.access_time, size: 16.sp, color: Colors.grey[500]),
                 SizedBox(width: 4.w),
@@ -695,8 +695,8 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
                     SizedBox(height: 8.h),
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed:
+                        child: ElevatedButton.icon(
+                          onPressed:
                             _selectedFileBase64s[assignment['id']] != null
                                 ? () => _uploadAssignment(assignment['id'])
                                 : null,

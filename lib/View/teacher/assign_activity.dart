@@ -153,7 +153,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
   }
 
   // Pick a date
-  Future<void> _pickDate() async {
+  Future<void> pickDate() async {
     final picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -164,7 +164,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
   }
 
   // Pick a time
-  Future<void> _pickTime() async {
+  Future<void> pickTime() async {
     final picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -173,7 +173,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
   }
 
   // Save Activity to Firestore
-  Future<void> _saveActivity() async {
+  Future<void> saveActivity() async {
     if (_classId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No class assigned to this teacher')),
@@ -245,40 +245,41 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: isWideScreen
-            ? Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: _buildActivityForm(lavender, lightYellow, mintGreen),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    flex: 1,
-                    child: _buildActivityList(lavender, pink, lightYellow),
-                  ),
-                ],
-              )
-            : SingleChildScrollView(
-                child: Column(
+        child:
+            isWideScreen
+                ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildActivityForm(lavender, lightYellow, mintGreen),
-                    const SizedBox(height: 20),
-                    _buildActivityList(lavender, pink, lightYellow),
+                    Expanded(
+                      flex: 1,
+                      child: buildActivityForm(
+                        lavender,
+                        lightYellow,
+                        mintGreen,
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      flex: 1,
+                      child: buildActivityList(lavender, pink, lightYellow),
+                    ),
                   ],
+                )
+                : SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      buildActivityForm(lavender, lightYellow, mintGreen),
+                      const SizedBox(height: 20),
+                      buildActivityList(lavender, pink, lightYellow),
+                    ],
+                  ),
                 ),
-              ),
       ),
     );
   }
 
   // Activity Form
-  Widget _buildActivityForm(
-    Color lavender,
-    Color lightYellow,
-    Color mintGreen,
-  ) {
+  Widget buildActivityForm(Color lavender, Color lightYellow, Color mintGreen) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -350,28 +351,31 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
             _isClassLoading
                 ? const Center(child: CircularProgressIndicator())
                 : Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: mintGreen.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.class_, color: Colors.deepPurple),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            _className ?? 'No class assigned',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: _className == null ? Colors.grey : Colors.black87,
-                            ),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: mintGreen.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.class_, color: Colors.deepPurple),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _className ?? 'No class assigned',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color:
+                                _className == null
+                                    ? Colors.grey
+                                    : Colors.black87,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
+                ),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -380,7 +384,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
                     _dueDate == null
                         ? 'No due date selected'
                         : 'Due: ${_dueDate!.toLocal().toString().split(' ')[0]}'
-                              '${_dueTime != null ? ' at ${_dueTime!.format(context)}' : ''}',
+                            '${_dueTime != null ? ' at ${_dueTime!.format(context)}' : ''}',
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -389,11 +393,11 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
                     Icons.calendar_month,
                     color: Colors.deepPurple,
                   ),
-                  onPressed: _pickDate,
+                  onPressed: pickDate,
                 ),
                 IconButton(
                   icon: const Icon(Icons.access_time, color: Colors.deepPurple),
-                  onPressed: _pickTime,
+                  onPressed: pickTime,
                 ),
               ],
             ),
@@ -417,7 +421,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
-              onPressed: _saveActivity,
+              onPressed: saveActivity,
               icon: const Icon(Icons.send),
               label: const Text('Assign Activity'),
               style: ElevatedButton.styleFrom(
@@ -436,7 +440,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
   }
 
   // Assigned Activity List
-  Widget _buildActivityList(Color lavender, Color pink, Color lightYellow) {
+  Widget buildActivityList(Color lavender, Color pink, Color lightYellow) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -487,14 +491,16 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
               itemCount: docs.length,
               itemBuilder: (context, i) {
                 final data = docs[i].data() as Map<String, dynamic>;
-                final color = i.isEven
-                    ? pink.withOpacity(0.4)
-                    : lightYellow.withOpacity(0.5);
+                final color =
+                    i.isEven
+                        ? pink.withOpacity(0.4)
+                        : lightYellow.withOpacity(0.5);
 
                 final due = data['dueDate']?.toDate();
-                final dueText = due != null
-                    ? '${due.toString().split(' ')[0]} at ${TimeOfDay.fromDateTime(due).format(context)}'
-                    : 'No due date';
+                final dueText =
+                    due != null
+                        ? '${due.toString().split(' ')[0]} at ${TimeOfDay.fromDateTime(due).format(context)}'
+                        : 'No due date';
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),

@@ -14,7 +14,6 @@ class UpdateGradesPage extends StatefulWidget {
 
 class _UpdateGradesPageState extends State<UpdateGradesPage> {
   final _formKey = GlobalKey<FormState>();
-  final _studentNameController = TextEditingController();
   final _subjectController = TextEditingController();
   final _gradeController = TextEditingController();
   String? _selectedStudentUid; // <-- Add this
@@ -138,7 +137,7 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
             .get();
     _studentsInClass =
         studentsSnap.docs.map((s) {
-          final data = s.data() as Map<String, dynamic>;
+          final data = s.data();
           return {
             'uid': s.id,
             'childName': data['childName'] ?? 'Student',
@@ -159,8 +158,9 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
       );
       return;
     }
-    if (!_formKey.currentState!.validate() || _selectedStudentUid == null)
+    if (!_formKey.currentState!.validate() || _selectedStudentUid == null) {
       return;
+    }
     setState(() => _isSaving = true);
     try {
       final teacher = _auth.currentUser;
@@ -296,6 +296,7 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
                               _selectedClass = _availableClasses.firstWhere(
                                 (c) => c.id == value,
                               );
+                              _loadStudentsForSelectedClass();
                             });
                           },
                           validator:
@@ -427,81 +428,55 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
                         child: Text('No grades found for this class.'),
                       );
                     }
-                    final docs = snapshot.data!.docs;
-                    // Map uid -> {name, grades: [{subject, grade}]}
-                    final Map<String, Map<String, dynamic>> studentToGrades =
-                        {};
-                    for (var doc in docs) {
-                      final d = doc.data() as Map<String, dynamic>;
-                      final uid = d['studentUid'] ?? '';
-                      if (uid.isEmpty) continue;
-                      studentToGrades.putIfAbsent(
-                        uid,
-                        () => {
-                          'name': d['studentName'] ?? 'Student',
-                          'grades': <Map<String, String>>[],
-                        },
-                      );
-                      (studentToGrades[uid]!['grades']
-                              as List<Map<String, String>>)
-                          .add({
-                            'subject': (d['subject'] ?? '').toString(),
-                            'grade': (d['grade'] ?? '').toString(),
-                          });
-                    }
+
+                    final grades = snapshot.data!.docs;
+
                     return ListView.builder(
-                      shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: studentToGrades.length,
-                      itemBuilder: (context, idx) {
-                        final entry = studentToGrades.entries.elementAt(idx);
-                        final name = entry.value['name'];
-                        final grades =
-                            entry.value['grades'] as List<Map<String, String>>;
+                      shrinkWrap: true,
+                      itemCount: grades.length,
+                      itemBuilder: (context, i) {
+                        final data = grades[i].data() as Map<String, dynamic>;
+                        final docId = grades[i].id;
+                        final bgColor =
+                            i.isEven
+                                ? mintGreen.withOpacity(0.4)
+                                : lightYellow.withOpacity(0.5);
+
                         return Container(
                           margin: const EdgeInsets.symmetric(vertical: 6),
-                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color:
-                                idx.isEven
-                                    ? mintGreen.withOpacity(0.4)
-                                    : lightYellow.withOpacity(0.5),
+                            color: bgColor,
                             borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(Icons.school, color: Colors.deepPurple),
-                              SizedBox(width: 12),
-                              Text(
-                                name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              SizedBox(width: 14),
-                              Expanded(
-                                child: Wrap(
-                                  spacing: 8,
-                                  children:
-                                      grades
-                                          .map(
-                                            (g) => Chip(
-                                              label: Text(
-                                                "${g['subject']}: ${g['grade']}",
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              backgroundColor: Colors.deepPurple
-                                                  .withOpacity(0.12),
-                                            ),
-                                          )
-                                          .toList(),
-                                ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.15),
+                                blurRadius: 6,
+                                offset: const Offset(0, 3),
                               ),
                             ],
+                          ),
+                          child: ListTile(
+                            leading: const Icon(
+                              Icons.school,
+                              color: Colors.deepPurple,
+                            ),
+                            title: Text(
+                              data['studentName'] ?? 'Student',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              'Subject: ${data['subject'] ?? ''} | Grade: ${data['grade'] ?? ''}',
+                            ),
+                            trailing: IconButton(
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.redAccent,
+                              ),
+                              onPressed: () => _deleteGrade(docId),
+                            ),
                           ),
                         );
                       },
@@ -512,70 +487,6 @@ class _UpdateGradesPageState extends State<UpdateGradesPage> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildAssignedStudentsList(Color mintGreen, Color lightYellow) {
-    if (_selectedClass == null) return const SizedBox.shrink();
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: StreamBuilder<QuerySnapshot>(
-        stream:
-            _firestore
-                .collection('Students')
-                .where('assignedClass', isEqualTo: _selectedClass!.id)
-                .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(
-              child: Text('No students assigned to this class yet.'),
-            );
-          }
-
-          final students = snapshot.data!.docs;
-
-          return ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: students.length,
-            itemBuilder: (context, index) {
-              final data = students[index].data() as Map<String, dynamic>;
-              final bgColor =
-                  index.isEven
-                      ? mintGreen.withOpacity(0.3)
-                      : lightYellow.withOpacity(0.3);
-
-              return Container(
-                margin: const EdgeInsets.symmetric(vertical: 6),
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ListTile(
-                  leading: const Icon(Icons.person, color: Colors.deepPurple),
-                  title: Text(data['childName'] ?? 'Student'),
-                  subtitle: Text(data['email'] ?? ''),
-                ),
-              );
-            },
-          );
-        },
       ),
     );
   }
