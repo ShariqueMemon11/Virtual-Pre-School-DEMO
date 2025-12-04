@@ -573,8 +573,9 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
 
   double _gradeToPercent(dynamic grade) {
     if (grade is num) return grade.toDouble();
-    if (grade is String && double.tryParse(grade) != null)
+    if (grade is String && double.tryParse(grade) != null) {
       return double.parse(grade);
+    }
     switch (grade.toString().trim().toUpperCase()) {
       case 'A+':
         return 97;
