@@ -472,20 +472,30 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
           ),
         ),
         const SizedBox(height: 12),
-        StreamBuilder<QuerySnapshot>(
+        StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
           stream:
               teacherEmail == null
-                  ? const Stream<QuerySnapshot>.empty()
+                  ? const Stream<QuerySnapshot<Map<String, dynamic>>>.empty()
                   : _firestore
                       .collection('assignments')
                       .where('teacherEmail', isEqualTo: teacherEmail)
-                      .orderBy('dueDate', descending: false)
+                      // Order by creation time so previous assignments stay visible.
+                      .orderBy('createdAt', descending: true)
                       .snapshots(),
           builder: (context, snapshot) {
             if (teacherEmail == null) {
               return const Padding(
                 padding: EdgeInsets.all(16.0),
                 child: Center(child: Text('Loading teacher info...')),
+              );
+            }
+            if (snapshot.hasError) {
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Could not load activities: ${snapshot.error}',
+                  style: const TextStyle(color: Colors.red),
+                ),
               );
             }
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -496,7 +506,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
                 padding: EdgeInsets.all(16.0),
                 child: Center(
                   child: Text(
-                    'No upcoming activities yet.',
+                    'No activities yet.',
                     style: TextStyle(color: Colors.black54),
                   ),
                 ),
@@ -509,13 +519,14 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
               shrinkWrap: true,
               itemCount: docs.length,
               itemBuilder: (context, i) {
-                final data = docs[i].data() as Map<String, dynamic>;
+                final data = docs[i].data();
                 final color =
                     i.isEven
                         ? pink.withOpacity(0.4)
                         : lightYellow.withOpacity(0.5);
 
-                final due = data['dueDate']?.toDate();
+                final dueTimestamp = data['dueDate'];
+                final due = dueTimestamp is Timestamp ? dueTimestamp.toDate() : null;
                 final dueText =
                     due != null
                         ? '${due.toString().split(' ')[0]} at ${TimeOfDay.fromDateTime(due).format(context)}'

@@ -22,11 +22,25 @@ class _GradesModalState extends State<GradesModal> {
   Future<List<Map<String, dynamic>>> _fetchStudentGrades() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return [];
-    final gradesSnap =
-        await FirebaseFirestore.instance
-            .collection('grades')
-            .where('studentUid', isEqualTo: user.uid)
-            .get();
+
+    // Try to determine the student's current class so we only show grades
+    // for the class the student is in right now.
+    final classInfo = await _fetchStudentClassInfo(user.email);
+    final classId = classInfo['classId'];
+    final className = classInfo['className'];
+
+    Query<Map<String, dynamic>> query = FirebaseFirestore.instance
+        .collection('grades')
+        .where('studentUid', isEqualTo: user.uid);
+
+    if (classId != null && classId.isNotEmpty) {
+      query = query.where('classId', isEqualTo: classId);
+    } else if (className != null && className.isNotEmpty) {
+      // Fallback: filter by class name if classId not available.
+      query = query.where('class', isEqualTo: className);
+    }
+
+    final gradesSnap = await query.get();
     return gradesSnap.docs.map((d) {
       final data = d.data();
       return {
@@ -36,6 +50,53 @@ class _GradesModalState extends State<GradesModal> {
         'percentage': _convertGradeToPercent(data['grade']),
       };
     }).toList();
+  }
+
+  /// Fetch the student's current class info (classId / className) so we can
+  /// filter grades to the active class only.
+  Future<Map<String, String?>> _fetchStudentClassInfo(String? email) async {
+    if (email == null || email.isEmpty)
+      return {'classId': null, 'className': null};
+
+    // First, look in Students collection.
+    final studentsQuery =
+        await FirebaseFirestore.instance
+            .collection('Students')
+            .where('email', isEqualTo: email)
+            .limit(1)
+            .get();
+
+    if (studentsQuery.docs.isNotEmpty) {
+      final data = studentsQuery.docs.first.data();
+      return {
+        'classId':
+            (data['assignedClassId'] ?? data['assignedClass'])?.toString(),
+        'className':
+            (data['assignedClass'] ?? data['className'] ?? data['class'])
+                ?.toString(),
+      };
+    }
+
+    // Fallback: check student applications collection.
+    final applicationsQuery =
+        await FirebaseFirestore.instance
+            .collection('student applications')
+            .where('email', isEqualTo: email)
+            .limit(1)
+            .get();
+
+    if (applicationsQuery.docs.isNotEmpty) {
+      final data = applicationsQuery.docs.first.data();
+      return {
+        'classId':
+            (data['assignedClassId'] ?? data['assignedClass'])?.toString(),
+        'className':
+            (data['assignedClass'] ?? data['className'] ?? data['class'])
+                ?.toString(),
+      };
+    }
+
+    return {'classId': null, 'className': null};
   }
 
   double _convertGradeToPercent(dynamic grade) {
