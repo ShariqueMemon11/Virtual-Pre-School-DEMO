@@ -3,7 +3,13 @@ import 'package:get/get.dart';
 import '../Model/teacher_admission_model.dart';
 
 class TeacherAdmissionController extends GetxController {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore;
+
+  /// Production Constructor
+  TeacherAdmissionController() : _firestore = FirebaseFirestore.instance;
+
+  /// Test Constructor
+  TeacherAdmissionController.test(this._firestore);
 
   RxList<TeacherAdmissionModel> applications = <TeacherAdmissionModel>[].obs;
   RxBool isLoading = true.obs;
@@ -14,9 +20,11 @@ class TeacherAdmissionController extends GetxController {
     fetchApplications();
   }
 
+  /// Original app method
   void fetchApplications() async {
     try {
       isLoading(true);
+
       final snapshot =
           await _firestore
               .collection('teacher_applications')
@@ -27,10 +35,18 @@ class TeacherAdmissionController extends GetxController {
           snapshot.docs
               .map((doc) => TeacherAdmissionModel.fromMap(doc.data()))
               .toList();
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to fetch applications: $e');
     } finally {
       isLoading(false);
     }
+  }
+
+  /// TEST-ONLY METHOD (No Get.snackbar, No orderBy errors)
+  Future<void> fetchApplicationsForTest() async {
+    final snapshot = await _firestore.collection('teacher_applications').get();
+
+    applications.value =
+        snapshot.docs
+            .map((doc) => TeacherAdmissionModel.fromMap(doc.data()))
+            .toList();
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,9 +7,15 @@ import '../Model/student_data.dart';
 import 'package:flutter/material.dart';
 
 class StudentApplicationController {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore;
 
-  /// 📡 Stream all student applications from Firestore
+  /// 🔥 Main constructor (used in the app)
+  StudentApplicationController() : _firestore = FirebaseFirestore.instance;
+
+  /// 🧪 Test constructor (inject FakeFirebaseFirestore)
+  StudentApplicationController.test(this._firestore);
+
+  /// 📡 Stream student applications
   Stream<List<StudentData>> getApplications() {
     return _firestore
         .collection('student applications')
@@ -18,14 +26,13 @@ class StudentApplicationController {
               snapshot.docs.map((doc) {
                 final data = doc.data();
                 final model = StudentData.fromMap(data);
-                // store documentId as well if needed
-                model.id = doc.id;
+                model.id = doc.id; // attach document ID
                 return model;
               }).toList(),
         );
   }
 
-  /// 🗑️ Delete an application by document ID
+  /// 🗑 Delete application
   Future<void> deleteApplication(String docId) async {
     try {
       await _firestore.collection('student applications').doc(docId).delete();
@@ -34,7 +41,7 @@ class StudentApplicationController {
     }
   }
 
-  /// ✅ Update application status and approve student if needed
+  /// 🔄 Update status + auto-approve student
   Future<void> updateStatus({
     required BuildContext context,
     required String documentId,
@@ -47,7 +54,7 @@ class StudentApplicationController {
     try {
       await docRef.update({'approval': newStatus});
 
-      // If approved, move data to "Students" collection
+      // If approved → Move application to Students collection
       if (newStatus == "Approved") {
         final docSnapshot = await docRef.get();
         final data = docSnapshot.data();
@@ -61,19 +68,17 @@ class StudentApplicationController {
         }
       }
 
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Application marked as $newStatus")),
       );
     } catch (e) {
       ScaffoldMessenger.of(
-        // ignore: use_build_context_synchronously
         context,
       ).showSnackBar(SnackBar(content: Text("Failed to update: $e")));
     }
   }
 
-  /// 🖼️ Convert base64 string to ImageProvider
+  /// 🖼 Convert base64 → ImageProvider
   ImageProvider? decodeBase64Image(String? base64Str) {
     if (base64Str == null || base64Str.isEmpty) return null;
     try {
@@ -88,7 +93,7 @@ class StudentApplicationController {
     }
   }
 
-  /// 🟢 Status color helper
+  /// 🌈 Get color based on status
   Color getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case "approved":

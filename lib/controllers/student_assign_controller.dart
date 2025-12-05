@@ -3,7 +3,13 @@ import '../Model/student_data.dart';
 import '../Model/class_model.dart';
 
 class StudentController {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore;
+
+  /// Default constructor (real Firestore)
+  StudentController() : _firestore = FirebaseFirestore.instance;
+
+  /// Test constructor (fake Firestore)
+  StudentController.test(this._firestore);
 
   /// ─────────────────────────────────────────
   /// GET ALL STUDENTS
