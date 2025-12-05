@@ -2,7 +2,7 @@ import 'package:demo_vps/controllers/create_notification_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-//Test for Creating Notification Controller
+//Test for Creating Notification Controller (Admin side)
 void main() {
   group('CreateNotificationController Tests', () {
     late TextEditingController titleController;

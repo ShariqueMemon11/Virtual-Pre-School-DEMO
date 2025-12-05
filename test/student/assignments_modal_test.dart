@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:demo_vps/View/custom_widgets/uploadfilewidget.dart';
@@ -16,11 +18,18 @@ class _AssignmentsStub extends StatelessWidget {
 void main() {
   group('Assignments UI (stubbed)', () {
     testWidgets('renders header and loading', (tester) async {
+      print(
+        'Student assignments screen: checking that it opens and is loading.',
+      );
+
       await tester.pumpWidget(
         const MaterialApp(home: Scaffold(body: _AssignmentsStub())),
       );
+
       expect(find.text('My Assignments'), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      print('Student assignments screen looks OK.');
     });
   });
 
@@ -36,6 +45,7 @@ void main() {
           home: Scaffold(
             body: UploadFileWidget(
               onFilePicked: (b64, name) {
+                print('Student chose a file: $name.');
                 gotBase64 = b64;
                 gotName = name;
               },
@@ -50,6 +60,8 @@ void main() {
       expect(find.text('Stub file selected: dummy.txt'), findsOneWidget);
       expect(gotName, 'dummy.txt');
       expect(gotBase64, isNotNull);
+
+      print('Student sees that the file was selected successfully.');
     });
   });
 }
