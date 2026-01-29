@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:demo_vps/controllers/create_notification_controller.dart';
+
 import '../../custom_widgets/dropdown_selector_widget.dart';
 import '../../custom_widgets/input_field_area_widget.dart';
 import '../../custom_widgets/input_field_widget.dart';
@@ -49,119 +50,162 @@ class _CreateNotificationWebViewState extends State<CreateNotificationWebView> {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 186, 151, 234),
+      backgroundColor: const Color.fromARGB(255, 214, 216, 224),
       body: Center(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            vertical: screenSize.height * 0.05,
-            horizontal: screenSize.width * 0.08,
+            horizontal: screenWidth > 1200 ? 80.w : 20.w,
+            vertical: 40.h,
           ),
-          child: Container(
-            width:
-                screenSize.width > 1200
-                    ? screenSize.width * 0.5
-                    : screenSize.width * 0.9,
-            padding: EdgeInsets.all(30.w),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(111, 214, 214, 214),
-              borderRadius: BorderRadius.circular(20.r),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  "Create Notification",
-                  style: TextStyle(
-                    fontSize: 40.sp,
-                    color: const Color.fromARGB(221, 234, 234, 234),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(height: 40.h),
-
-                // ====== FORM START ======
-                InputFieldWidget(
-                  input: "Notification Title",
-                  controller: _titleController,
-                ),
-                SizedBox(height: 20.h),
-
-                InputFieldAreaWidget(
-                  input: "Notification Body",
-                  controller: _bodyController,
-                ),
-                SizedBox(height: 20.h),
-
-                DropdownSelectorWidget(
-                  options: _audienceOptions,
-                  selectedOption: _controller.audience ?? "Select Audience",
-                  onChanged: (value) {
-                    setState(() {
-                      _controller.audience = value;
-                    });
-                  },
-                ),
-                SizedBox(height: 30.h),
-
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Upload Document (Optional)",
-                    style: TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                ),
-                SizedBox(height: 10.h),
-
-                UploadFileWidget(
-                  fileName: _controller.uploadedDocumentName,
-                  onFilePicked: (base64, name) {
-                    setState(() {
-                      _controller.uploadedDocumentBase64 = base64;
-                      _controller.uploadedDocumentName = name;
-                    });
-                  },
-                ),
-                SizedBox(height: 50.h),
-
-                // ====== BUTTONS ======
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Primarybuttonwidget(
-                      input:
-                          _controller.isSubmitting
-                              ? "Creating..."
-                              : "Create Notification",
-                      run:
-                          _controller.isSubmitting
-                              ? null
-                              : () => _controller.submitNotification(
-                                () => setState(() {}),
-                              ),
-                    ),
-                    SizedBox(width: 20.w),
-                    Secondarybuttonwidget(
-                      run: () => Navigator.pop(context),
-                      input: "Back",
-                    ),
-                  ],
-                ),
-                // ====== FORM END ======
-              ],
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900),
+            child: IgnorePointer(
+              ignoring: _controller.isSubmitting,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [_pageHeader(), SizedBox(height: 24.h), _formCard()],
+              ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // ================= PAGE HEADER =================
+  Widget _pageHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Create Notification",
+          style: TextStyle(
+            fontSize: 28.sp,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF2B2B2B),
+          ),
+        ),
+        SizedBox(height: 6.h),
+        Text(
+          "Send announcements and updates to users",
+          style: TextStyle(fontSize: 14.sp, color: Colors.black54),
+        ),
+      ],
+    );
+  }
+
+  // ================= FORM CARD =================
+  Widget _formCard() {
+    return Container(
+      padding: EdgeInsets.all(32.w),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 236, 234, 234),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _sectionTitle("Notification Details"),
+          SizedBox(height: 24.h),
+
+          _label("Title"),
+          InputFieldWidget(
+            input: "Enter notification title",
+            controller: _titleController,
+          ),
+          SizedBox(height: 20.h),
+
+          _label("Message"),
+          InputFieldAreaWidget(
+            input: "Enter notification message",
+            controller: _bodyController,
+          ),
+          SizedBox(height: 20.h),
+
+          _label("Audience"),
+          DropdownSelectorWidget(
+            options: _audienceOptions,
+            selectedOption: _controller.audience ?? "Select Audience",
+            onChanged: (value) {
+              setState(() {
+                _controller.audience = value;
+              });
+            },
+          ),
+
+          SizedBox(height: 32.h),
+          Divider(color: Colors.grey.shade300),
+          SizedBox(height: 28.h),
+
+          _sectionTitle("Attachments (Optional)"),
+          SizedBox(height: 16.h),
+
+          UploadFileWidget(
+            fileName: _controller.uploadedDocumentName,
+            onFilePicked: (base64, name) {
+              setState(() {
+                _controller.uploadedDocumentBase64 = base64;
+                _controller.uploadedDocumentName = name;
+              });
+            },
+          ),
+
+          SizedBox(height: 40.h),
+
+          // ===== ACTIONS =====
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Secondarybuttonwidget(
+                run: () => Navigator.pop(context),
+                input: "Cancel",
+              ),
+              SizedBox(width: 16.w),
+              Primarybuttonwidget(
+                input:
+                    _controller.isSubmitting
+                        ? "Creating..."
+                        : "Create Notification",
+                run:
+                    _controller.isSubmitting
+                        ? null
+                        : () => _controller.submitNotification(
+                          () => setState(() {}),
+                        ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ================= SMALL HELPERS =================
+  Widget _label(String text) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 6.h),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 13.sp,
+          fontWeight: FontWeight.w500,
+          color: Colors.black87,
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w600,
+        color: const Color(0xFF3A3A3A),
       ),
     );
   }

@@ -160,13 +160,11 @@ class _TeacherAdmissionPageState extends State<TeacherAdmissionPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Subjects
+                        // expertise
                         TextFormField(
-                          controller: _controller.subjectsController,
+                          controller: _controller.expertiseController,
                           validator: _controller.requiredValidator,
-                          decoration: _inputDecoration(
-                            "Subject Specialization",
-                          ),
+                          decoration: _inputDecoration("Expertise"),
                           style: const TextStyle(color: Colors.white),
                         ),
                         const SizedBox(height: 16),

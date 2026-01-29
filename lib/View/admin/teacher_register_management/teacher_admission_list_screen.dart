@@ -49,6 +49,7 @@ class TeacherAdmissionListScreen extends StatelessWidget {
             itemCount: controller.applications.length,
             itemBuilder: (context, index) {
               final app = controller.applications[index];
+
               return Card(
                 color: lightPurple.withOpacity(0.7),
                 shape: RoundedRectangleBorder(
@@ -78,6 +79,8 @@ class TeacherAdmissionListScreen extends StatelessWidget {
                     color: deepPurple,
                     size: 18,
                   ),
+
+                  /// 🔥 Refresh list when coming back from detail
                   onTap: () {
                     Navigator.push(
                       context,
@@ -85,8 +88,11 @@ class TeacherAdmissionListScreen extends StatelessWidget {
                         builder:
                             (_) => TeacherAdmissionDetailView(application: app),
                       ),
-                    );
+                    ).then((_) {
+                      controller.fetchApplications(); // refresh list
+                    });
                   },
+
                   hoverColor: lightPurple.withOpacity(0.6),
                 ),
               );

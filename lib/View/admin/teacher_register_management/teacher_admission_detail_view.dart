@@ -143,7 +143,7 @@ class TeacherAdmissionDetailView extends StatelessWidget {
         _tableRow(Icons.phone, "Phone", application.phone),
         _tableRow(Icons.school, "Qualification", application.qualification),
         _tableRow(Icons.work, "Experience", application.experience),
-        _tableRow(Icons.book, "Subjects", application.subjects),
+        _tableRow(Icons.book, "Expertise", application.expertise),
         _tableRow(Icons.home, "Address", application.address),
       ],
     );

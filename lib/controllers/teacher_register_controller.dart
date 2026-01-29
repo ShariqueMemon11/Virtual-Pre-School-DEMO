@@ -23,7 +23,7 @@ class TeacherAdmissionController {
   final phoneController = TextEditingController();
   final qualificationController = TextEditingController();
   final experienceController = TextEditingController();
-  final subjectsController = TextEditingController();
+  final expertiseController = TextEditingController();
   final addressController = TextEditingController();
 
   // File Data
@@ -110,9 +110,7 @@ class TeacherAdmissionController {
     }
 
     if (profilePhotoBase64 == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please upload your profile photo.")),
       );
       return;
@@ -135,7 +133,7 @@ class TeacherAdmissionController {
         phone: phoneController.text.trim(),
         qualification: qualificationController.text.trim(),
         experience: experienceController.text.trim(),
-        subjects: subjectsController.text.trim(),
+        expertise: expertiseController.text.trim(),
         address: addressController.text.trim(),
         cvBase64: cvBase64!,
         photoBase64: profilePhotoBase64!,
@@ -195,7 +193,7 @@ class TeacherAdmissionController {
     phoneController.clear();
     qualificationController.clear();
     experienceController.clear();
-    subjectsController.clear();
+    expertiseController.clear();
     addressController.clear();
     cvFileName = null;
     cvBase64 = null;
@@ -210,8 +208,8 @@ class TeacherAdmissionController {
     phoneController.dispose();
     qualificationController.dispose();
     experienceController.dispose();
-    subjectsController.dispose();
     addressController.dispose();
+    expertiseController.dispose();
   }
 }
 

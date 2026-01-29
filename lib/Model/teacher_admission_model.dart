@@ -7,7 +7,7 @@ class TeacherAdmissionModel {
   final String phone;
   final String qualification;
   final String experience;
-  final String subjects;
+  final String expertise;
   final String address;
   final String cvBase64;
   final String photoBase64;
@@ -19,7 +19,7 @@ class TeacherAdmissionModel {
     required this.phone,
     required this.qualification,
     required this.experience,
-    required this.subjects,
+    required this.expertise,
     required this.address,
     required this.cvBase64,
     required this.photoBase64,
@@ -33,7 +33,7 @@ class TeacherAdmissionModel {
       'phone': phone,
       'qualification': qualification,
       'experience': experience,
-      'subjects': subjects,
+      'expertise': expertise,
       'address': address,
       'cvBase64': cvBase64,
       'photoBase64': photoBase64,
@@ -48,7 +48,7 @@ class TeacherAdmissionModel {
       phone: data['phone'] ?? '',
       qualification: data['qualification'] ?? '',
       experience: data['experience'] ?? '',
-      subjects: data['subjects'] ?? '',
+      expertise: data['expertise'] ?? '',
       address: data['address'] ?? '',
       cvBase64: data['cvBase64'] ?? '',
       photoBase64: data['photoBase64'] ?? '',

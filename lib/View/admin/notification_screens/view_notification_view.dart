@@ -32,7 +32,6 @@ class _ViewNotificationViewState extends State<ViewNotificationView> {
     });
   }
 
-  /// ✅ Downloads the attached document
   void _downloadDocument() {
     if (_notification?.uploadedDocument == null) return;
 
@@ -40,6 +39,16 @@ class _ViewNotificationViewState extends State<ViewNotificationView> {
     final blob = html.Blob([bytes]);
     final url = html.Url.createObjectUrlFromBlob(blob);
 
+    final anchor =
+        html.AnchorElement(href: url)
+          ..download = _notification!.documentName ?? "document"
+          ..style.display = 'none';
+
+    html.document.body!.children.add(anchor);
+    anchor.click();
+    anchor.remove();
+
+    // Revoke the URL AFTER click
     html.Url.revokeObjectUrl(url);
   }
 

@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:demo_vps/Model/user_model.dart';
 import 'package:demo_vps/View/register_screen/teacher_admission_registration/teacher_admission.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -33,18 +32,10 @@ class LoginController {
     // Check if it's admin login
     if (enteredEmail == adminEmail && enteredPassword == adminPassword) {
       // Admin login - go directly to dashboard
-      final dummyUser = UserModel(
-        name: 'Admin',
-        phone: '0316221145',
-        address: 'Lahore',
-        email: enteredEmail,
-      );
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => DashboardScreen(user: dummyUser),
-        ),
+        MaterialPageRoute(builder: (context) => DashboardScreen()),
       );
       emailController.clear();
       passwordController.clear();

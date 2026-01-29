@@ -11,12 +11,14 @@ class ClassModel {
   final Timestamp? createdAt;
   final Timestamp? updatedAt;
   final String? classroomId;
+  final int classFee;
 
   ClassModel({
     required this.id,
     required this.gradeName,
     required this.capacity,
     required this.studentCount,
+    required this.classFee,
     this.teacher,
     this.teacherid,
     this.createdAt,
@@ -42,6 +44,7 @@ class ClassModel {
               ? List<String>.from(data['studentEnrolled'])
               : [],
       classroomId: data['classroomId'],
+      classFee: data['classFee'] ?? 0,
     );
   }
 
@@ -56,6 +59,7 @@ class ClassModel {
       'updatedAt': updatedAt,
       'studentEnrolled': studentEnrolled,
       'classroomId': classroomId,
+      'classFee': classFee,
     };
   }
 
@@ -64,6 +68,7 @@ class ClassModel {
     String? gradeName,
     int? capacity,
     int? studentCount,
+    int? classFee,
     String? teacher,
     String? teacherid,
     Timestamp? createdAt,
@@ -82,6 +87,7 @@ class ClassModel {
       updatedAt: updatedAt ?? this.updatedAt,
       studentEnrolled: studentEnrolled ?? this.studentEnrolled,
       classroomId: classroomId ?? this.classroomId,
+      classFee: classFee ?? this.classFee,
     );
   }
 }

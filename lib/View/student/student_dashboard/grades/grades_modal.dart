@@ -55,8 +55,9 @@ class _GradesModalState extends State<GradesModal> {
   /// Fetch the student's current class info (classId / className) so we can
   /// filter grades to the active class only.
   Future<Map<String, String?>> _fetchStudentClassInfo(String? email) async {
-    if (email == null || email.isEmpty)
+    if (email == null || email.isEmpty) {
       return {'classId': null, 'className': null};
+    }
 
     // First, look in Students collection.
     final studentsQuery =
