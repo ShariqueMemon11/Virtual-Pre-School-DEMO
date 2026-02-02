@@ -5,16 +5,16 @@ class InvoiceController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> generateInvoices() async {
+    final Timestamp batchDate = Timestamp.now(); // 🔥 same timestamp for all
+
     final studentsSnapshot = await _firestore.collection('Students').get();
 
     for (final studentDoc in studentsSnapshot.docs) {
       final data = studentDoc.data();
 
-      // Skip if no class assigned
       if (data['assignedClass'] == null) continue;
 
-      final String classId = data['assignedClass'];
-
+      final classId = data['assignedClass'];
       final classDoc =
           await _firestore.collection('classes').doc(classId).get();
 
@@ -26,11 +26,68 @@ class InvoiceController {
         classId: classId,
         className: classDoc['gradeName'] ?? '',
         classFee: classDoc['classFee'] ?? 0,
-        date: Timestamp.now(),
+        date: batchDate, // 🔥 grouped by this
         status: 'pending',
       );
 
       await _firestore.collection('Invoices').add(invoice.toMap());
     }
+  }
+
+  /// Stream invoices grouped by generation date
+  Stream<Map<Timestamp, List<QueryDocumentSnapshot>>> invoicesGroupedByDate() {
+    return _firestore
+        .collection('Invoices')
+        .orderBy('date', descending: true)
+        .snapshots()
+        .map((snapshot) {
+          final Map<Timestamp, List<QueryDocumentSnapshot>> grouped = {};
+
+          for (var doc in snapshot.docs) {
+            final Timestamp date = doc['date'];
+            grouped.putIfAbsent(date, () => []).add(doc);
+          }
+
+          return grouped;
+        });
+  }
+
+  /// Delete entire chalan group
+  Future<void> deleteChalanGroup(Timestamp date) async {
+    final query =
+        await _firestore
+            .collection('Invoices')
+            .where('date', isEqualTo: date)
+            .get();
+
+    final batch = _firestore.batch();
+    for (var doc in query.docs) {
+      batch.delete(doc.reference);
+    }
+
+    await batch.commit();
+  }
+
+  Stream<Map<String, List<QueryDocumentSnapshot>>> invoicesByClass(
+    Timestamp date,
+  ) {
+    return _firestore
+        .collection('Invoices')
+        .where('date', isEqualTo: date)
+        .snapshots()
+        .map((snapshot) {
+          final Map<String, List<QueryDocumentSnapshot>> grouped = {};
+
+          for (var doc in snapshot.docs) {
+            final className = doc['className'] ?? 'Unknown Class';
+            grouped.putIfAbsent(className, () => []).add(doc);
+          }
+
+          return grouped;
+        });
+  }
+
+  Future<DocumentSnapshot> getInvoiceById(String invoiceId) {
+    return _firestore.collection('Invoices').doc(invoiceId).get();
   }
 }

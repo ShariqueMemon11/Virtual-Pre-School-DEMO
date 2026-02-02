@@ -1,4 +1,4 @@
-import 'package:demo_vps/View/admin/FeeChalan/generate_chalan_screen.dart';
+import 'package:demo_vps/View/admin/FeeChalan/FeeChalanManager.dart';
 import 'package:demo_vps/View/admin/admin_class_management/Class_management.dart';
 import 'package:demo_vps/View/admin/complain_management/complain_management_screen.dart';
 import 'package:demo_vps/View/admin/student_assign_to_class/student_class_assign.dart';
@@ -151,7 +151,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _dashboardCard(
               Icons.document_scanner,
               "Fee Chalans",
-              GenerateChalanScreen(),
+              FeeChalanListScreen(),
             ),
           ],
         ),
