@@ -6,8 +6,20 @@ import 'package:demo_vps/View/admin/teacher_register_management/teacher_admissio
 import 'package:flutter/material.dart';
 import 'package:demo_vps/View/admin/notification_screens/notification_managament_screen.dart';
 
-void main() {
-  runApp(const DashboardApp());
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class DashboardService {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<int> getStudentCount() async {
+    final snapshot = await _firestore.collection('Students').get();
+    return snapshot.size;
+  }
+
+  Future<int> getTeacherCount() async {
+    final snapshot = await _firestore.collection('Teachers').get();
+    return snapshot.size;
+  }
 }
 
 class DashboardApp extends StatelessWidget {
@@ -31,6 +43,28 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   bool isMenuOpen = true;
+
+  int studentCount = 0;
+  int teacherCount = 0;
+  bool isLoading = true;
+
+  final DashboardService _dashboardService = DashboardService();
+  @override
+  void initState() {
+    super.initState();
+    _loadCounts();
+  }
+
+  Future<void> _loadCounts() async {
+    final students = await _dashboardService.getStudentCount();
+    final teachers = await _dashboardService.getTeacherCount();
+
+    setState(() {
+      studentCount = students!;
+      teacherCount = teachers!;
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,11 +138,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             _statsCard(
               "Students",
-              "400",
+              isLoading ? "..." : studentCount.toString(),
               Icons.child_care,
               const Color(0xFFF1E9FF),
             ),
-            _statsCard("Teachers", "24", Icons.school, const Color(0xFFFFF4D7)),
+            _statsCard(
+              "Teachers",
+              isLoading ? "..." : teacherCount.toString(),
+              Icons.person,
+              const Color(0xFFFFF4D7),
+            ),
           ],
         ),
 

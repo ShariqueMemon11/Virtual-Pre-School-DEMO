@@ -15,7 +15,6 @@ class ChalanDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurpleAccent,
-
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
           'Chalan Details',
