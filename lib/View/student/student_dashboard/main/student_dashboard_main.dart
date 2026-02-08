@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../assignments/assignments_modal.dart';
 import '../grades/grades_modal.dart';
 import '../materials/materials_modal.dart';
+import '../fee_challan/fee_challan_modal.dart';
 import 'dart:convert';
 
 typedef FirestoreGrade = Map<String, dynamic>;
@@ -212,6 +213,13 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
                       onTap: _showClassMaterialsModal,
                     ),
                     SizedBox(width: 50.w),
+
+                    _buildQuickAccessCard(
+                      icon: Icons.receipt_long,
+                      label: "Fee Challans",
+                      color: const Color.fromARGB(255, 184, 249, 236),
+                      onTap: _showFeeChallanModal,
+                    ),
                   ],
                 ),
               ),
@@ -442,6 +450,16 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
           classId: studentClassId,
           className: studentClassName,
         );
+      },
+    );
+  }
+
+  void _showFeeChallanModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return const FeeChallanModal();
       },
     );
   }

@@ -40,7 +40,7 @@ class ChalanDetailScreen extends StatelessWidget {
                   final paid =
                       invoices.where((e) => e['status'] == 'paid').toList();
                   final pending =
-                      invoices.where((e) => e['status'] == 'pending').toList();
+                      invoices.where((e) => e['status'] == 'pending' || e['status'] == 'pending_verification').toList();
 
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
@@ -90,7 +90,11 @@ class ChalanDetailScreen extends StatelessWidget {
   Widget _studentTile(BuildContext context, QueryDocumentSnapshot doc) {
     final String status = doc['status'];
 
-    final Color dotColor = status == 'paid' ? Colors.green : Colors.orange;
+    final Color dotColor = status == 'paid' 
+        ? Colors.green 
+        : status == 'pending_verification' 
+            ? Colors.orange 
+            : Colors.red;
 
     return ListTile(
       leading: Icon(Icons.circle, color: dotColor, size: 10),

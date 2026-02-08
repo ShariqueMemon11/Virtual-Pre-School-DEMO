@@ -30,7 +30,11 @@ class InvoiceController {
         status: 'pending',
       );
 
-      await _firestore.collection('Invoices').add(invoice.toMap());
+      // Add the invoice with additional email field for easier querying
+      final invoiceData = invoice.toMap();
+      invoiceData['studentEmail'] = data['email']; // Add email for easier student matching
+
+      await _firestore.collection('Invoices').add(invoiceData);
     }
   }
 

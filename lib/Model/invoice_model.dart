@@ -8,7 +8,7 @@ class Invoice {
   final String className;
   final int classFee;
   final Timestamp date;
-  final String status;
+  final String status; // pending, pending_verification, paid
 
   Invoice({
     required this.studentId,

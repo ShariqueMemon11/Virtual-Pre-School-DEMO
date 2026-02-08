@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_vps/View/admin/FeeChalan/chalan_detail_screen.dart';
+import 'package:demo_vps/View/admin/payment_slip_management/payment_slip_management_screen.dart';
 import 'package:demo_vps/controllers/invoice_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -20,6 +21,66 @@ class FeeChalanListScreen extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text('Fee Chalans', style: TextStyle(color: Colors.white)),
         actions: [
+          // Payment Slip Management with notification badge
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('payment_slips')
+                .where('status', isEqualTo: 'pending_verification')
+                .snapshots(),
+            builder: (context, snapshot) {
+              final pendingCount = snapshot.hasData ? snapshot.data!.docs.length : 0;
+              
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.receipt_long),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PaymentSlipManagementScreen(),
+                        ),
+                      );
+                    },
+                    tooltip: 'Manage Payment Slips',
+                  ),
+                  if (pendingCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 500),
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.red.withOpacity(0.5),
+                              blurRadius: 4,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          pendingCount > 99 ? '99+' : pendingCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _confirmGenerate(context),
@@ -49,7 +110,7 @@ class FeeChalanListScreen extends StatelessWidget {
                   final paid =
                       invoices.where((e) => e['status'] == 'paid').length;
                   final pending =
-                      invoices.where((e) => e['status'] == 'pending').length;
+                      invoices.where((e) => e['status'] == 'pending' || e['status'] == 'pending_verification').length;
 
                   return Card(
                     margin: const EdgeInsets.all(12),
