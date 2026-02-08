@@ -8,6 +8,7 @@ import 'assign_activity.dart';
 import 'upload_material.dart';
 import 'update_grades.dart';
 import 'student_activities_page.dart';
+import 'mark_attendance_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
@@ -582,6 +583,8 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                             );
                           },
                         ),
+
+                        _buildAttendanceCardWithNotification(context),
                       ],
                     ),
                   ),
@@ -802,6 +805,113 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildAttendanceCardWithNotification(BuildContext context) {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return _quickAccessCard(
+        context,
+        Icons.how_to_reg,
+        'Mark Attendance',
+        const Color.fromARGB(255, 184, 236, 249),
+        () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const MarkAttendanceScreen(),
+            ),
+          );
+        },
+      );
+    }
+
+    // Check if today's attendance is marked
+    final today = DateTime.now();
+    final todayStart = DateTime(today.year, today.month, today.day);
+    final todayTimestamp = Timestamp.fromDate(todayStart);
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: _firestore
+          .collection('attendance')
+          .where('date', isEqualTo: todayTimestamp)
+          .where('markedBy', isEqualTo: user.uid)
+          .limit(1)
+          .snapshots(),
+      builder: (context, snapshot) {
+        final hasMarkedToday = snapshot.hasData && snapshot.data!.docs.isNotEmpty;
+
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const MarkAttendanceScreen(),
+              ),
+            );
+          },
+          child: Stack(
+            children: [
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  height: 160,
+                  width: 230,
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 184, 236, 249),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.how_to_reg, size: 28, color: Colors.black87),
+                      const Text(
+                        'Mark Attendance',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const Align(
+                        alignment: Alignment.bottomRight,
+                        child: Icon(Icons.arrow_circle_right, size: 20),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Red notification dot if not marked today
+              if (!hasMarkedToday)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.red.withOpacity(0.5),
+                          blurRadius: 4,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 

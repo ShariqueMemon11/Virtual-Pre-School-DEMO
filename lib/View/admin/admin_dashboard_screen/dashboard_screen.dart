@@ -1,9 +1,9 @@
 import 'package:demo_vps/View/admin/FeeChalan/FeeChalanManager.dart';
-import 'package:demo_vps/View/admin/payment_slip_management/payment_slip_management_screen.dart';
 import 'package:demo_vps/View/admin/admin_class_management/Class_management.dart';
 import 'package:demo_vps/View/admin/complain_management/complain_management_screen.dart';
 import 'package:demo_vps/View/admin/student_assign_to_class/student_class_assign.dart';
 import 'package:demo_vps/View/admin/teacher_register_management/teacher_admission_list_screen.dart';
+import 'package:demo_vps/View/admin/student_attendance/admin_view_attendance.dart';
 import 'package:flutter/material.dart';
 import 'package:demo_vps/View/admin/notification_screens/notification_managament_screen.dart';
 
@@ -193,10 +193,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               "Fee Chalans",
               FeeChalanListScreen(),
             ),
-            _dashboardCardWithNotification(
-              Icons.receipt_long,
-              "Payment Slips",
-              const PaymentSlipManagementScreen(),
+            _dashboardCard(
+              Icons.how_to_reg,
+              "Student Attendance",
+              AdminViewAttendanceScreen(),
             ),
           ],
         ),
@@ -271,90 +271,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _dashboardCardWithNotification(IconData icon, String title, Widget destination) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('payment_slips')
-          .where('status', isEqualTo: 'pending_verification')
-          .snapshots(),
-      builder: (context, snapshot) {
-        final pendingCount = snapshot.hasData ? snapshot.data!.docs.length : 0;
-        
-        return InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => destination));
-          },
-          child: Stack(
-            children: [
-              Container(
-                height: 150,
-                width: 230,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.12),
-                      blurRadius: 10,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(icon, size: 30),
-                    const Spacer(),
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-                    const Align(
-                      alignment: Alignment.bottomRight,
-                      child: Icon(Icons.arrow_forward),
-                    ),
-                  ],
-                ),
-              ),
-              if (pendingCount > 0)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 500),
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.red.withOpacity(0.5),
-                          blurRadius: 6,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 24,
-                      minHeight: 24,
-                    ),
-                    child: Text(
-                      pendingCount > 99 ? '99+' : pendingCount.toString(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
     );
   }
 

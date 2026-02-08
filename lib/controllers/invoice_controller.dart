@@ -28,6 +28,7 @@ class InvoiceController {
         classFee: classDoc['classFee'] ?? 0,
         date: batchDate, // 🔥 grouped by this
         status: 'pending',
+        accountNumber: '03163082532', // Or get from classDoc['accountNumber']
       );
 
       // Add the invoice with additional email field for easier querying

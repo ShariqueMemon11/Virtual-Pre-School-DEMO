@@ -148,6 +148,7 @@ class _FeeChallanModalState extends State<FeeChallanModal> {
             'classFee': data['classFee'] ?? 0,
             'date': data['date'] ?? Timestamp.now(),
             'status': data['status'] ?? 'pending',
+            'accountNumber': data['accountNumber'] ?? '',
             'paymentSlipFileName': paymentSlipFileName,
             'paymentSlipBase64': paymentSlipBase64,
             'slipUploadedAt': slipUploadedAt,
@@ -176,7 +177,7 @@ class _FeeChallanModalState extends State<FeeChallanModal> {
   }
 
   Future<void> _downloadChallan(String challanId, String studentName, 
-      String className, int classFee, Timestamp date) async {
+      String className, int classFee, Timestamp date, String accountNumber) async {
     try {
       // Generate a simple PDF-like content (in real app, you'd use pdf package)
       final challanContent = '''
@@ -187,6 +188,8 @@ Class: $className
 Fee Amount: Rs. $classFee
 Date: ${_formatDate(date)}
 Challan ID: $challanId
+
+Bank Account Number: $accountNumber
 
 Please pay the fee amount and upload the payment slip.
       ''';
@@ -582,6 +585,7 @@ Please pay the fee amount and upload the payment slip.
                   challan['className'],
                   challan['classFee'],
                   challan['date'],
+                  challan['accountNumber'],
                 ),
                 icon: const Icon(Icons.download),
                 label: const Text('Download Challan'),

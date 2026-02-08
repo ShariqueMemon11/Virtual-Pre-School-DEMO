@@ -9,6 +9,7 @@ import '../assignments/assignments_modal.dart';
 import '../grades/grades_modal.dart';
 import '../materials/materials_modal.dart';
 import '../fee_challan/fee_challan_modal.dart';
+import '../attendance/view_attendance_screen.dart';
 import 'dart:convert';
 
 typedef FirestoreGrade = Map<String, dynamic>;
@@ -211,6 +212,14 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
                       label: "Class Materials",
                       color: const Color.fromARGB(255, 238, 212, 248),
                       onTap: _showClassMaterialsModal,
+                    ),
+                    SizedBox(width: 50.w),
+
+                    _buildQuickAccessCard(
+                      icon: Icons.how_to_reg,
+                      label: "My Attendance",
+                      color: const Color.fromARGB(255, 184, 236, 249),
+                      onTap: _showAttendanceModal,
                     ),
                     SizedBox(width: 50.w),
 
@@ -460,6 +469,16 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
       barrierDismissible: true,
       builder: (BuildContext context) {
         return const FeeChallanModal();
+      },
+    );
+  }
+
+  void _showAttendanceModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return const ViewAttendanceScreen();
       },
     );
   }
