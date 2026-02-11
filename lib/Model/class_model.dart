@@ -12,6 +12,7 @@ class ClassModel {
   final Timestamp? updatedAt;
   final String? classroomId;
   final int classFee;
+  final String category; // Playgroup | Nursery | Kindergarten
 
   ClassModel({
     required this.id,
@@ -19,6 +20,7 @@ class ClassModel {
     required this.capacity,
     required this.studentCount,
     required this.classFee,
+    required this.category,
     this.teacher,
     this.teacherid,
     this.createdAt,
@@ -45,6 +47,7 @@ class ClassModel {
               : [],
       classroomId: data['classroomId'],
       classFee: data['classFee'] ?? 0,
+      category: data['category'] ?? '',
     );
   }
 
@@ -60,6 +63,7 @@ class ClassModel {
       'studentEnrolled': studentEnrolled,
       'classroomId': classroomId,
       'classFee': classFee,
+      'category': category,
     };
   }
 
@@ -75,6 +79,7 @@ class ClassModel {
     Timestamp? updatedAt,
     List<String>? studentEnrolled,
     String? classroomId,
+    String? category,
   }) {
     return ClassModel(
       id: id ?? this.id,
@@ -88,6 +93,7 @@ class ClassModel {
       studentEnrolled: studentEnrolled ?? this.studentEnrolled,
       classroomId: classroomId ?? this.classroomId,
       classFee: classFee ?? this.classFee,
+      category: category ?? this.category,
     );
   }
 }

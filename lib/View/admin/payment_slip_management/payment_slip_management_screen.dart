@@ -11,10 +11,12 @@ class PaymentSlipManagementScreen extends StatefulWidget {
   const PaymentSlipManagementScreen({super.key});
 
   @override
-  State<PaymentSlipManagementScreen> createState() => _PaymentSlipManagementScreenState();
+  State<PaymentSlipManagementScreen> createState() =>
+      _PaymentSlipManagementScreenState();
 }
 
-class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScreen> {
+class _PaymentSlipManagementScreenState
+    extends State<PaymentSlipManagementScreen> {
   List<Map<String, dynamic>> paymentSlips = [];
   bool isLoading = true;
   String selectedFilter = 'all'; // all, pending, verified, rejected
@@ -34,44 +36,47 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
         .where('status', isEqualTo: 'pending_verification')
         .snapshots()
         .listen((snapshot) {
-      final currentCount = snapshot.docs.length;
-      
-      // Show notification if count increased (new slip uploaded)
-      if (_lastPendingCount > 0 && currentCount > _lastPendingCount) {
-        final newSlips = currentCount - _lastPendingCount;
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(Icons.notification_important, color: Colors.white),
-                  const SizedBox(width: 8),
-                  Text(
-                    newSlips == 1 
-                        ? 'New payment slip uploaded!' 
-                        : '$newSlips new payment slips uploaded!',
+          final currentCount = snapshot.docs.length;
+
+          // Show notification if count increased (new slip uploaded)
+          if (_lastPendingCount > 0 && currentCount > _lastPendingCount) {
+            final newSlips = currentCount - _lastPendingCount;
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      const Icon(
+                        Icons.notification_important,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        newSlips == 1
+                            ? 'New payment slip uploaded!'
+                            : '$newSlips new payment slips uploaded!',
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              backgroundColor: Colors.orange,
-              duration: const Duration(seconds: 4),
-              action: SnackBarAction(
-                label: 'VIEW',
-                textColor: Colors.white,
-                onPressed: () {
-                  setState(() {
-                    selectedFilter = 'pending';
-                  });
-                  _loadPaymentSlips();
-                },
-              ),
-            ),
-          );
-        }
-      }
-      
-      _lastPendingCount = currentCount;
-    });
+                  backgroundColor: Colors.orange,
+                  duration: const Duration(seconds: 4),
+                  action: SnackBarAction(
+                    label: 'VIEW',
+                    textColor: Colors.white,
+                    onPressed: () {
+                      setState(() {
+                        selectedFilter = 'pending';
+                      });
+                      _loadPaymentSlips();
+                    },
+                  ),
+                ),
+              );
+            }
+          }
+
+          _lastPendingCount = currentCount;
+        });
   }
 
   Future<void> _loadPaymentSlips() async {
@@ -80,13 +85,18 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
         isLoading = true;
       });
 
-      Query<Map<String, dynamic>> query = FirebaseFirestore.instance
-          .collection('payment_slips');
+      Query<Map<String, dynamic>> query = FirebaseFirestore.instance.collection(
+        'payment_slips',
+      );
 
       if (selectedFilter != 'all') {
-        query = query.where('status', isEqualTo: selectedFilter == 'pending' 
-            ? 'pending_verification' 
-            : selectedFilter);
+        query = query.where(
+          'status',
+          isEqualTo:
+              selectedFilter == 'pending'
+                  ? 'pending_verification'
+                  : selectedFilter,
+        );
       }
 
       final querySnapshot = await query.get();
@@ -97,14 +107,15 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
       final List<Map<String, dynamic>> loaded = await Future.wait(
         querySnapshot.docs.map((doc) async {
           final data = doc.data();
-          
+
           // Get invoice details
           Map<String, dynamic> invoiceData = {};
           try {
-            final invoiceDoc = await FirebaseFirestore.instance
-                .collection('Invoices')
-                .doc(data['invoiceId'])
-                .get();
+            final invoiceDoc =
+                await FirebaseFirestore.instance
+                    .collection('Invoices')
+                    .doc(data['invoiceId'])
+                    .get();
             if (invoiceDoc.exists) {
               invoiceData = invoiceDoc.data() ?? {};
             }
@@ -163,20 +174,23 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
       // Show confirmation dialog
       final confirmed = await showDialog<bool>(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Verify Payment'),
-          content: const Text('Are you sure you want to verify this payment slip?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+        builder:
+            (context) => AlertDialog(
+              title: const Text('Verify Payment'),
+              content: const Text(
+                'Are you sure you want to verify this payment slip?',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Verify'),
+                ),
+              ],
             ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Verify'),
-            ),
-          ],
-        ),
       );
 
       if (confirmed != true) return;
@@ -186,10 +200,10 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
           .collection('payment_slips')
           .doc(slipId)
           .update({
-        'status': 'verified',
-        'verifiedAt': Timestamp.now(),
-        'verifiedBy': 'admin', // In real app, use current admin user
-      });
+            'status': 'verified',
+            'verifiedAt': Timestamp.now(),
+            'verifiedBy': 'admin', // In real app, use current admin user
+          });
 
       // Update invoice status to paid
       await FirebaseFirestore.instance
@@ -218,38 +232,39 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
 
   Future<void> _rejectPaymentSlip(String slipId) async {
     final reasonController = TextEditingController();
-    
+
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Reject Payment'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Please provide a reason for rejection:'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: reasonController,
-              decoration: const InputDecoration(
-                hintText: 'Reason for rejection...',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 3,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Reject Payment'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Please provide a reason for rejection:'),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: reasonController,
+                  decoration: const InputDecoration(
+                    hintText: 'Reason for rejection...',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
+                ),
+              ],
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Reject'),
+              ),
+            ],
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Reject'),
-          ),
-        ],
-      ),
     );
 
     if (confirmed != true || reasonController.text.trim().isEmpty) return;
@@ -260,11 +275,11 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
           .collection('payment_slips')
           .doc(slipId)
           .update({
-        'status': 'rejected',
-        'rejectedAt': Timestamp.now(),
-        'rejectedBy': 'admin', // In real app, use current admin user
-        'rejectionReason': reasonController.text.trim(),
-      });
+            'status': 'rejected',
+            'rejectedAt': Timestamp.now(),
+            'rejectedBy': 'admin', // In real app, use current admin user
+            'rejectionReason': reasonController.text.trim(),
+          });
 
       // Update invoice status back to pending
       final slip = paymentSlips.firstWhere((s) => s['id'] == slipId);
@@ -319,9 +334,9 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
         ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error downloading file: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error downloading file: $e')));
     }
   }
 
@@ -367,13 +382,15 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
         backgroundColor: Colors.deepPurpleAccent,
         iconTheme: const IconThemeData(color: Colors.white),
         title: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('payment_slips')
-              .where('status', isEqualTo: 'pending_verification')
-              .snapshots(),
+          stream:
+              FirebaseFirestore.instance
+                  .collection('payment_slips')
+                  .where('status', isEqualTo: 'pending_verification')
+                  .snapshots(),
           builder: (context, snapshot) {
-            final pendingCount = snapshot.hasData ? snapshot.data!.docs.length : 0;
-            
+            final pendingCount =
+                snapshot.hasData ? snapshot.data!.docs.length : 0;
+
             return Row(
               children: [
                 const Text(
@@ -383,7 +400,10 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
                 if (pendingCount > 0) ...[
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.red,
                       borderRadius: BorderRadius.circular(12),
@@ -420,21 +440,22 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
               ],
             ),
           ),
-          
+
           // Content
           Expanded(
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : paymentSlips.isEmpty
+            child:
+                isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : paymentSlips.isEmpty
                     ? _buildEmptyState()
                     : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: paymentSlips.length,
-                        itemBuilder: (context, index) {
-                          final slip = paymentSlips[index];
-                          return _buildPaymentSlipCard(slip);
-                        },
-                      ),
+                      padding: const EdgeInsets.all(16),
+                      itemCount: paymentSlips.length,
+                      itemBuilder: (context, index) {
+                        final slip = paymentSlips[index];
+                        return _buildPaymentSlipCard(slip);
+                      },
+                    ),
           ),
         ],
       ),
@@ -443,16 +464,23 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
 
   Widget _buildFilterChip(String label, String value) {
     return StreamBuilder<QuerySnapshot>(
-      stream: value == 'all' 
-          ? FirebaseFirestore.instance.collection('payment_slips').snapshots()
-          : FirebaseFirestore.instance
-              .collection('payment_slips')
-              .where('status', isEqualTo: value == 'pending' ? 'pending_verification' : value)
-              .snapshots(),
+      stream:
+          value == 'all'
+              ? FirebaseFirestore.instance
+                  .collection('payment_slips')
+                  .snapshots()
+              : FirebaseFirestore.instance
+                  .collection('payment_slips')
+                  .where(
+                    'status',
+                    isEqualTo:
+                        value == 'pending' ? 'pending_verification' : value,
+                  )
+                  .snapshots(),
       builder: (context, snapshot) {
         final count = snapshot.hasData ? snapshot.data!.docs.length : 0;
         final isSelected = selectedFilter == value;
-        
+
         return FilterChip(
           label: Row(
             mainAxisSize: MainAxisSize.min,
@@ -461,9 +489,13 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
               if (count > 0) ...[
                 const SizedBox(width: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.deepPurpleAccent : Colors.grey[400],
+                    color:
+                        isSelected ? Colors.deepPurpleAccent : Colors.grey[400],
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
@@ -511,9 +543,9 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
           ),
           SizedBox(height: 8.h),
           Text(
-            selectedFilter == 'all' 
+            selectedFilter == 'all'
                 ? 'Payment slips will appear here when students upload them'
-                : 'No ${selectedFilter} payment slips found',
+                : 'No $selectedFilter payment slips found',
             style: TextStyle(fontSize: 14.sp, color: Colors.grey[500]),
           ),
         ],
@@ -525,7 +557,7 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
     final status = slip['status'] ?? 'pending_verification';
     final statusColor = _getStatusColor(status);
     final statusText = _getStatusText(status);
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
@@ -552,16 +584,16 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
                       const SizedBox(height: 4),
                       Text(
                         '${slip['className']} • Rs. ${slip['classFee']}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: statusColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -621,11 +653,16 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
                   ),
                 ),
                 IconButton(
-                  onPressed: () => _downloadPaymentSlip(
-                    slip['fileBase64'],
-                    slip['fileName'],
+                  onPressed:
+                      () => _downloadPaymentSlip(
+                        slip['fileBase64'],
+                        slip['fileName'],
+                      ),
+                  icon: const Icon(
+                    Icons.download,
+                    size: 20,
+                    color: Colors.blue,
                   ),
-                  icon: const Icon(Icons.download, size: 20, color: Colors.blue),
                   tooltip: 'Download Payment Slip',
                 ),
               ],
@@ -643,7 +680,11 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.check_circle, color: Colors.green[700], size: 16),
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.green[700],
+                      size: 16,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       'Verified on ${_formatDate(slip['verifiedAt'])}',
@@ -686,10 +727,7 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
                       const SizedBox(height: 4),
                       Text(
                         'Reason: ${slip['rejectionReason']}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.red[700],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.red[700]),
                       ),
                     ],
                   ],
@@ -704,7 +742,9 @@ class _PaymentSlipManagementScreenState extends State<PaymentSlipManagementScree
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () => _verifyPaymentSlip(slip['id'], slip['invoiceId']),
+                      onPressed:
+                          () =>
+                              _verifyPaymentSlip(slip['id'], slip['invoiceId']),
                       icon: const Icon(Icons.check),
                       label: const Text('Verify Payment'),
                       style: ElevatedButton.styleFrom(

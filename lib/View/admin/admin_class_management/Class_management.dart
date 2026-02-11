@@ -222,33 +222,78 @@ class ClassManagementScreen extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
+
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('No classes yet.'));
           }
 
           final classes = snapshot.data!;
-          return ListView.builder(
-            itemCount: classes.length,
-            itemBuilder: (context, index) {
-              final c = classes[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                child: ListTile(
-                  title: Text(c.gradeName),
-                  subtitle: Text(
-                    'Capacity: ${c.capacity} | Students: ${c.studentCount}'
-                    '${c.teacher != null ? " | Teacher: ${c.teacher}" : ""}',
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.more_vert),
-                    onPressed: () => _showClassActions(context, c, controller),
-                  ),
-                ),
-              );
-            },
+
+          // 🔥 Group classes by category
+          final Map<String, List<ClassModel>> grouped = {};
+
+          for (var c in classes) {
+            grouped.putIfAbsent(c.category, () => []);
+            grouped[c.category]!.add(c);
+          }
+
+          final categories = ["Playgroup", "Nursery", "Kindergarten"];
+
+          return ListView(
+            padding: const EdgeInsets.all(12),
+            children:
+                categories.map((category) {
+                  final categoryClasses = grouped[category] ?? [];
+
+                  if (categoryClasses.isEmpty) return const SizedBox();
+
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: ExpansionTile(
+                      initiallyExpanded: true,
+                      tilePadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      childrenPadding: const EdgeInsets.only(bottom: 12),
+                      title: Text(
+                        category,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepPurple,
+                        ),
+                      ),
+                      children:
+                          categoryClasses.map((c) {
+                            return ListTile(
+                              title: Text(c.gradeName),
+                              subtitle: Text(
+                                'Capacity: ${c.capacity} | '
+                                'Students: ${c.studentCount}'
+                                '${c.teacher != null ? " | Teacher: ${c.teacher}" : ""}',
+                              ),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.more_vert),
+                                onPressed:
+                                    () => _showClassActions(
+                                      context,
+                                      c,
+                                      controller,
+                                    ),
+                              ),
+                            );
+                          }).toList(),
+                    ),
+                  );
+                }).toList(),
           );
         },
       ),
+
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openCreateModal(context),
         label: const Text('Add Class'),

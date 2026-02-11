@@ -31,7 +31,20 @@ class StudentController {
   }
 
   /// ─────────────────────────────────────────
-  /// ASSIGN OR UPDATE CLASS OF STUDENT
+  /// GET CLASSES BY CATEGORY
+  /// ─────────────────────────────────────────
+  Future<List<ClassModel>> getClassesByCategory(String category) async {
+    final snapshot =
+        await _firestore
+            .collection('classes')
+            .where('category', isEqualTo: category)
+            .get();
+
+    return snapshot.docs.map((doc) => ClassModel.fromFirestore(doc)).toList();
+  }
+
+  /// ─────────────────────────────────────────
+  /// ASSIGN OR UPDATE CLASS OF STUDENT SAFELY
   /// ─────────────────────────────────────────
   Future<void> assignClass({
     required String studentId,
@@ -43,12 +56,27 @@ class StudentController {
 
     WriteBatch batch = _firestore.batch();
 
+    // 🔹 Remove from old class ONLY if it exists
     if (oldClassId != null && oldClassId.isNotEmpty) {
       final oldRef = _firestore.collection("classes").doc(oldClassId);
-      batch.update(oldRef, {
-        "studentEnrolled": FieldValue.arrayRemove([studentId]),
-        "studentCount": FieldValue.increment(-1),
-      });
+      final oldDoc = await oldRef.get();
+
+      if (oldDoc.exists) {
+        batch.update(oldRef, {
+          "studentEnrolled": FieldValue.arrayRemove([studentId]),
+          "studentCount": FieldValue.increment(-1),
+        });
+      } else {
+        print("Old class $oldClassId does not exist. Skipping removal.");
+      }
+    }
+
+    // 🔹 Add to new class
+    final newDoc = await classRef.get();
+    if (!newDoc.exists) {
+      throw Exception(
+        "Cannot assign to new class $newClassId: document does not exist!",
+      );
     }
 
     batch.update(classRef, {
@@ -56,16 +84,19 @@ class StudentController {
       "studentCount": FieldValue.increment(1),
     });
 
+    // 🔹 Update student assignedClass
     batch.update(studentRef, {"assignedClass": newClassId});
 
+    // 🔹 Commit batch
     await batch.commit();
   }
 
+  /// ─────────────────────────────────────────
+  /// GET CLASS NAME BY ID
+  /// ─────────────────────────────────────────
   Future<String?> getClassName(String classId) async {
     final doc = await _firestore.collection("classes").doc(classId).get();
-
     if (!doc.exists) return null;
-
     return doc.data()?["gradeName"];
   }
 }

@@ -19,12 +19,19 @@ class ClassController {
   }
 
   // Create new class
-  Future<void> createClass(String name, int capacity, int classFee) async {
+  Future<void> createClass(
+    String category,
+    String name,
+    int capacity,
+    int classFee,
+  ) async {
     await _classCollection.add({
+      'category': category,
       'gradeName': name,
       'capacity': capacity,
       'classFee': classFee,
       'studentCount': 0,
+      'studentEnrolled': [], // ✅ ADD THIS
       'teacher': null,
       'teacherid': null,
       'createdAt': FieldValue.serverTimestamp(),
@@ -34,11 +41,13 @@ class ClassController {
   // Update class
   Future<void> updateClass(
     String id,
+    String category,
     String name,
     int capacity,
     int classFee,
   ) async {
     await _classCollection.doc(id).update({
+      'category': category,
       'gradeName': name,
       'capacity': capacity,
       'classFee': classFee,

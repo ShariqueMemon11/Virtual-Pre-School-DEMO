@@ -61,8 +61,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final teachers = await _dashboardService.getTeacherCount();
 
     setState(() {
-      studentCount = students!;
-      teacherCount = teachers!;
+      studentCount = students;
+      teacherCount = teachers;
       isLoading = false;
     });
   }
