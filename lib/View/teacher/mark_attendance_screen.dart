@@ -154,12 +154,10 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
     attendanceStatus.clear();
     for (var student in _studentsInClass) {
       // Check if attendance already exists for this student
-      final existingRecord = existingAttendance.docs.firstWhere(
-        (doc) => doc.data()['studentId'] == student['uid'],
-        orElse: () => throw StateError('Not found'),
-      );
-      
       try {
+        final existingRecord = existingAttendance.docs.firstWhere(
+          (doc) => doc.data()['studentId'] == student['uid'],
+        );
         attendanceStatus[student['uid']] = existingRecord.data()['status'] ?? 'absent';
       } catch (e) {
         // No existing record, default to absent
