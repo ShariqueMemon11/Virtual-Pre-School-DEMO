@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, avoid_web_libraries_in_flutter
 
 import 'dart:convert';
 import 'dart:html' as html;
@@ -79,8 +79,7 @@ class _FeeChallanModalState extends State<FeeChallanModal> {
             return dateB.compareTo(dateA);
           });
         } catch (e) {
-          print('Error querying by studentId: $e');
-          // Continue to fallback
+          // Error querying by studentId, continue to fallback
         }
       }
 
@@ -160,9 +159,6 @@ class _FeeChallanModalState extends State<FeeChallanModal> {
         challans = loaded;
         isLoading = false;
       });
-
-      // Debug info (remove in production)
-      print('Fee Challans loaded: ${loaded.length} challans found for user ${user.email}');
     } catch (e) {
       if (mounted) {
         setState(() {

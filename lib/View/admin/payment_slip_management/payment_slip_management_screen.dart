@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, avoid_web_libraries_in_flutter
 
 import 'dart:convert';
 import 'dart:html' as html;

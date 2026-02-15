@@ -348,7 +348,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   fontSize: ResponsiveHelper.fontSize(context, 14),
                 ),
               ),
-            )).toList(),
+            )),
           ],
         ),
       ),

@@ -43,6 +43,7 @@ class _AdminViewAttendanceScreenState extends State<AdminViewAttendanceScreen> {
         await _loadStudentAttendance();
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoadingClasses = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading classes: $e')),
@@ -63,7 +64,6 @@ class _AdminViewAttendanceScreenState extends State<AdminViewAttendanceScreen> {
           .get();
       
       List<Map<String, dynamic>> attendanceData = [];
-      double totalPercentage = 0;
       
       for (var studentDoc in studentsSnapshot.docs) {
         final studentData = studentDoc.data();
@@ -84,8 +84,6 @@ class _AdminViewAttendanceScreenState extends State<AdminViewAttendanceScreen> {
         int absentDays = totalDays - presentDays;
         double percentage = totalDays > 0 ? (presentDays / totalDays * 100) : 0.0;
         
-        totalPercentage += percentage;
-        
         attendanceData.add({
           'studentId': studentId,
           'studentName': studentName,
@@ -102,11 +100,13 @@ class _AdminViewAttendanceScreenState extends State<AdminViewAttendanceScreen> {
         (a['studentName'] as String).compareTo(b['studentName'] as String)
       );
       
+      if (!mounted) return;
       setState(() {
         _studentAttendanceData = attendanceData;
         _isLoadingStudents = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoadingStudents = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading attendance: $e')),
@@ -402,30 +402,6 @@ class _AdminViewAttendanceScreenState extends State<AdminViewAttendanceScreen> {
           label,
           style: TextStyle(
             fontSize: 9,
-            color: Colors.grey[600],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatColumn(String label, String value, Color color, IconData icon) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 28),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
             color: Colors.grey[600],
           ),
         ),

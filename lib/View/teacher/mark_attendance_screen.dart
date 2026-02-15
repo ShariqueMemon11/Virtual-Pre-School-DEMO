@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:demo_vps/Model/class_model.dart';
-import 'package:demo_vps/utils/responsive_helper.dart';
 import 'package:intl/intl.dart';
 
 class MarkAttendanceScreen extends StatefulWidget {
@@ -24,7 +23,6 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
   bool _isLoading = true;
   ClassModel? _selectedClass;
   String? _teacherDisplayName;
-  String? _teacherEmail;
   DateTime selectedDate = DateTime.now();
 
   @override
@@ -44,7 +42,6 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
         setState(() {
           _selectedClass = null;
           _teacherDisplayName = null;
-          _teacherEmail = null;
           _isLoading = false;
         });
         return;
@@ -104,7 +101,6 @@ class _MarkAttendanceScreenState extends State<MarkAttendanceScreen> {
       setState(() {
         _selectedClass = classes.isNotEmpty ? classes.first : null;
         _teacherDisplayName = displayName;
-        _teacherEmail = email;
         _isLoading = false;
       });
       if (_selectedClass != null) {

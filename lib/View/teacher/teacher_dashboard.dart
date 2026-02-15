@@ -414,8 +414,6 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    const Color lavender = Color(0xFFD9C3F7);
-    const Color lightYellow = Color(0xFFF7EBC3);
     const Color bgColor = Color(0xFFF7F5F2);
 
     return Scaffold(
@@ -487,6 +485,9 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                 ],
               ),
       ),
+    );
+  }
+
   Widget _buildMainContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

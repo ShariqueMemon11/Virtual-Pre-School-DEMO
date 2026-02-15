@@ -66,9 +66,8 @@ class StudentController {
           "studentEnrolled": FieldValue.arrayRemove([studentId]),
           "studentCount": FieldValue.increment(-1),
         });
-      } else {
-        print("Old class $oldClassId does not exist. Skipping removal.");
       }
+      // Old class doesn't exist, skip removal
     }
 
     // 🔹 Add to new class

@@ -98,36 +98,15 @@ class AttendanceController {
 
   /// Get students in a class
   Future<List<Map<String, dynamic>>> getStudentsInClass(String classId) async {
-    print('🔍 Controller: Getting students for classId: "$classId"');
-    
-    // First, let's see ALL students
-    final allStudents = await _firestore.collection('Students').get();
-    print('📊 Controller: Total students in database: ${allStudents.docs.length}');
-    
-    if (allStudents.docs.isNotEmpty) {
-      print('📋 Controller: First student sample: ${allStudents.docs.first.data()}');
-      // Check what assignedClass values exist
-      for (var doc in allStudents.docs.take(3)) {
-        final data = doc.data();
-        print('   Student: ${data['childName']}, assignedClass: "${data['assignedClass']}"');
-      }
-    }
-    
     final snapshot = await _firestore
         .collection('Students')
         .where('assignedClass', isEqualTo: classId)
         .get();
-
-    print('📊 Controller: Found ${snapshot.docs.length} students with assignedClass="$classId"');
     
     final students = snapshot.docs.map((doc) => {
       'id': doc.id,
       ...doc.data(),
     }).toList();
-    
-    if (students.isNotEmpty) {
-      print('📋 Controller: First student data: ${students[0]}');
-    }
     
     return students;
   }
