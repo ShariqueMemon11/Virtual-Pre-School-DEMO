@@ -62,6 +62,19 @@ class _StudentDashboardState extends State<StudentDashboard> {
     }
   }
 
+  Future<void> _logout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      if (!mounted) return;
+      Navigator.of(context).pushReplacementNamed('/login');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logout failed: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<DashboardController>(context);
@@ -86,15 +99,28 @@ class _StudentDashboardState extends State<StudentDashboard> {
               child: Row(
                 children: [
                   const SizedBox(width: 10),
-                  IconButton(
-                    icon: Icon(
-                      controller.isMenuOpen
-                          ? Icons.arrow_back_sharp
-                          : Icons.menu,
-                      color: Colors.white,
+                  if (!isMobile)
+                    IconButton(
+                      icon: Icon(
+                        controller.isMenuOpen
+                            ? Icons.arrow_back_sharp
+                            : Icons.menu,
+                        color: Colors.white,
+                      ),
+                      onPressed: controller.toggleMenu,
                     ),
-                    onPressed: controller.toggleMenu,
-                  ),
+                  if (isMobile)
+                    const Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        'Student Dashboard',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
                   const Spacer(),
                   if (isMobile)
                     Builder(
@@ -124,6 +150,11 @@ class _StudentDashboardState extends State<StudentDashboard> {
                           ),
                       ],
                     ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.logout, color: Colors.white),
+                    onPressed: _logout,
+                    tooltip: 'Logout',
                   ),
                   const SizedBox(width: 15),
                 ],

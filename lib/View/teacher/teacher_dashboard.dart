@@ -412,6 +412,19 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     await _firestore.collection('agenda').doc(id).delete();
   }
 
+  Future<void> _logout() async {
+    try {
+      await _auth.signOut();
+      if (!mounted) return;
+      Navigator.of(context).pushReplacementNamed('/login');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logout failed: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     const Color bgColor = Color(0xFFF7F5F2);
@@ -421,39 +434,24 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 151, 123, 218),
         elevation: 0,
-        titleSpacing: 0,
-        title: const SizedBox.shrink(),
-        leading: Builder(
-          builder:
-              (context) => IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              ),
+        titleSpacing: 16,
+        title: const Text(
+          'Teacher Dashboard',
+          style: TextStyle(color: Colors.white, fontSize: 20),
         ),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none, color: Colors.white),
             onPressed: () {},
           ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: _logout,
+            tooltip: 'Logout',
+          ),
           const SizedBox(width: 8),
         ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: const [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Color(0xFFD9C3F7)),
-              child: Center(
-                child: Text(
-                  'Teacher Menu',
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
-              ),
-            ),
-            ListTile(leading: Icon(Icons.person), title: Text('Profile')),
-            ListTile(leading: Icon(Icons.logout), title: Text('Logout')),
-          ],
-        ),
       ),
       body: Padding(
         padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
