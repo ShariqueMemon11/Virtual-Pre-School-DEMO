@@ -2,6 +2,7 @@ import 'package:demo_vps/View/admin/FeeChalan/FeeChalanManager.dart';
 import 'package:demo_vps/View/admin/admin_class_management/Class_management.dart';
 import 'package:demo_vps/View/admin/gradebook/grade_expanded.dart';
 import 'package:demo_vps/View/admin/student_assign_to_class/student_class_assign.dart';
+import 'package:demo_vps/View/admin/student_register_management/student_application_view.dart';
 import 'package:demo_vps/View/admin/teacher_register_management/teacher_admission_list_screen.dart';
 import 'package:demo_vps/View/admin/student_attendance/admin_view_attendance.dart';
 import 'package:demo_vps/View/login_screen/login_screen.dart';
@@ -201,6 +202,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Icons.people,
               "Student Management",
               StudentAssignScreen(),
+            ),
+            _dashboardCard(
+              Icons.article_rounded,
+              "Student Applications",
+              StudentApplicationView(),
             ),
             _dashboardCard(
               Icons.assignment,
