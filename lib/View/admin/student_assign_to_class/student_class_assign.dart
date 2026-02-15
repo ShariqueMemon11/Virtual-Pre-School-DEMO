@@ -1,6 +1,8 @@
+// student_assign_screen.dart
 import 'package:flutter/material.dart';
 import '../../../controllers/student_assign_controller.dart';
 import '../../../Model/student_data.dart';
+import '../../../Model/class_model.dart';
 import 'student_list_view.dart';
 
 class StudentAssignScreen extends StatefulWidget {
@@ -15,10 +17,42 @@ class _StudentAssignScreenState extends State<StudentAssignScreen>
   late TabController _tabController;
   final StudentController controller = StudentController();
 
+  Map<String, String> classCategoryMap = {}; // classId -> category
+  List<ClassModel> allClasses = [];
+
   @override
   void initState() {
     _tabController = TabController(length: 2, vsync: this);
+    loadClasses();
     super.initState();
+  }
+
+  Future<void> loadClasses() async {
+    allClasses = await controller.getClasses();
+    classCategoryMap = {for (var c in allClasses) c.id: c.category};
+    setState(() {});
+  }
+
+  // Group students by category
+  Map<String, List<StudentData>> groupByCategory(List<StudentData> students) {
+    final Map<String, List<StudentData>> map = {
+      'Playgroup': [],
+      'Nursery': [],
+      'Kindergarten': [],
+      'Unknown': [],
+    };
+
+    for (var s in students) {
+      final classId = s.assignedClass;
+      if (classId != null) {
+        final category = classCategoryMap[classId] ?? 'Unknown';
+        map.putIfAbsent(category, () => []);
+        map[category]!.add(s);
+      } else {
+        map['Unknown']!.add(s);
+      }
+    }
+    return map;
   }
 
   @override
@@ -27,9 +61,9 @@ class _StudentAssignScreenState extends State<StudentAssignScreen>
       appBar: AppBar(
         title: const Text("Students", style: TextStyle(color: Colors.white)),
         backgroundColor: const Color.fromARGB(255, 142, 88, 235),
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         bottom: TabBar(
-          labelColor: Colors.white, // Selected tab text color
+          labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
           controller: _tabController,
           tabs: const [Tab(text: "Assigned"), Tab(text: "Unassigned")],
@@ -42,17 +76,55 @@ class _StudentAssignScreenState extends State<StudentAssignScreen>
             return const Center(child: CircularProgressIndicator());
           }
 
-          var students = snapshot.data!;
+          final students = snapshot.data!;
 
           final assigned =
               students.where((s) => s.assignedClass != null).toList();
           final unassigned =
               students.where((s) => s.assignedClass == null).toList();
 
+          final grouped = groupByCategory(assigned);
+
           return TabBarView(
             controller: _tabController,
             children: [
-              StudentListView(students: assigned, controller: controller),
+              // Assigned students grouped by category
+              ListView(
+                padding: const EdgeInsets.all(12),
+                children:
+                    grouped.entries
+                        .where((e) => e.value.isNotEmpty)
+                        .map(
+                          (e) => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                                child: Text(
+                                  e.key,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              StudentListView(
+                                students: e.value,
+                                controller: controller,
+                                shrinkWrap:
+                                    true, // IMPORTANT for nested ListView
+                              ),
+                              const SizedBox(
+                                height: 16,
+                              ), // spacing between categories
+                            ],
+                          ),
+                        )
+                        .toList(),
+              ),
+              // Unassigned students
               StudentListView(students: unassigned, controller: controller),
             ],
           );

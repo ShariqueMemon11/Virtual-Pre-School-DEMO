@@ -22,22 +22,34 @@ class _CreateClassModalState extends State<CreateClassModal> {
   final _feeController = TextEditingController();
 
   final _controller = ClassController();
+
   bool _loading = false;
+
+  String? _selectedCategory;
+
+  final List<String> _categories = ["Playgroup", "Nursery", "Kindergarten"];
 
   @override
   void initState() {
     super.initState();
 
-    // 🔹 Prefill fields if editing
     if (widget.existingClass != null) {
       _nameController.text = widget.existingClass!.gradeName;
       _capacityController.text = widget.existingClass!.capacity.toString();
       _feeController.text = widget.existingClass!.classFee.toString();
+      _selectedCategory = widget.existingClass!.category;
     }
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_selectedCategory == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please select category")));
+      return;
+    }
 
     setState(() => _loading = true);
 
@@ -47,23 +59,14 @@ class _CreateClassModalState extends State<CreateClassModal> {
       final fee = int.parse(_feeController.text.trim());
 
       if (widget.existingClass == null) {
-        // ➕ CREATE
-        await _controller.createClass(name, capacity, fee);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Class created successfully')),
-        );
+        await _controller.createClass(_selectedCategory!, name, capacity, fee);
       } else {
-        // ✏️ UPDATE
         await _controller.updateClass(
           widget.existingClass!.id,
+          _selectedCategory!,
           name,
           capacity,
           fee,
-        );
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Class updated successfully')),
         );
       }
 
@@ -71,7 +74,7 @@ class _CreateClassModalState extends State<CreateClassModal> {
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -98,9 +101,9 @@ class _CreateClassModalState extends State<CreateClassModal> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 🔹 Title
+              /// TITLE
               Text(
-                isEdit ? 'Update Class' : 'Create New Class',
+                isEdit ? "Update Class" : "Create New Class",
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -110,63 +113,83 @@ class _CreateClassModalState extends State<CreateClassModal> {
 
               const SizedBox(height: 20),
 
-              // 🔹 Class Name
-              TextFormField(
-                controller: _nameController,
+              /// CATEGORY DROPDOWN
+              DropdownButtonFormField<String>(
+                value: _selectedCategory,
+                items:
+                    _categories
+                        .map(
+                          (cat) =>
+                              DropdownMenuItem(value: cat, child: Text(cat)),
+                        )
+                        .toList(),
                 decoration: const InputDecoration(
-                  labelText: 'Class Name',
-                  prefixIcon: Icon(Icons.class_),
+                  labelText: "Category",
+                  prefixIcon: Icon(Icons.category),
                 ),
-                validator:
-                    (v) => v == null || v.isEmpty ? 'Enter class name' : null,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCategory = value;
+                  });
+                },
+                validator: (value) => value == null ? "Select category" : null,
               ),
 
               const SizedBox(height: 16),
 
-              // 🔹 Capacity
+              /// CLASS NAME
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: "Class Name",
+                  prefixIcon: Icon(Icons.class_),
+                ),
+                validator:
+                    (v) => v == null || v.isEmpty ? "Enter class name" : null,
+              ),
+
+              const SizedBox(height: 16),
+
+              /// CAPACITY
               TextFormField(
                 controller: _capacityController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                  labelText: 'Capacity',
+                  labelText: "Capacity",
                   prefixIcon: Icon(Icons.people),
                 ),
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Enter capacity';
+                  if (v == null || v.isEmpty) return "Enter capacity";
                   final n = int.tryParse(v);
-                  if (n == null || n <= 0) {
-                    return 'Enter a valid number';
-                  }
+                  if (n == null || n <= 0) return "Enter valid number";
                   return null;
                 },
               ),
 
               const SizedBox(height: 16),
 
-              // 🔹 Class Fee
+              /// FEE
               TextFormField(
                 controller: _feeController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                  labelText: 'Class Fee',
+                  labelText: "Class Fee",
                   prefixIcon: Icon(Icons.money),
                 ),
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Enter class fee';
+                  if (v == null || v.isEmpty) return "Enter fee";
                   final n = int.tryParse(v);
-                  if (n == null || n < 0) {
-                    return 'Enter a valid amount';
-                  }
+                  if (n == null || n < 0) return "Enter valid amount";
                   return null;
                 },
               ),
 
               const SizedBox(height: 24),
 
-              // 🔹 Submit Button
+              /// BUTTON
               SizedBox(
                 width: double.infinity,
-                height: 48,
+                height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
@@ -179,7 +202,7 @@ class _CreateClassModalState extends State<CreateClassModal> {
                       _loading
                           ? const CircularProgressIndicator(color: Colors.white)
                           : Text(
-                            isEdit ? 'Update Class' : 'Create Class',
+                            isEdit ? "Update Class" : "Create Class",
                             style: const TextStyle(
                               fontSize: 16,
                               color: Colors.white,
@@ -192,13 +215,5 @@ class _CreateClassModalState extends State<CreateClassModal> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _capacityController.dispose();
-    _feeController.dispose();
-    super.dispose();
   }
 }
