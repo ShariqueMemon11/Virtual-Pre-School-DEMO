@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../controllers/teacher_register_controller.dart';
 import '../../custom_widgets/primary_button_widget.dart';
-import '../../custom_widgets/uploadfilewidget.dart';
 
 class TeacherAdmissionPage extends StatefulWidget {
   final String initialEmail;
