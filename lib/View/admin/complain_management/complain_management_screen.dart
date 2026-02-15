@@ -1,6 +1,7 @@
 // ignore: file_names
 import "package:flutter/material.dart";
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../utils/responsive_helper.dart';
 
 /// ------------------ HEADER ------------------
 class HeaderWidget extends StatelessWidget {
@@ -12,21 +13,27 @@ class HeaderWidget extends StatelessWidget {
     return Container(
       color: const Color.fromARGB(255, 156, 129, 219),
       width: double.infinity,
-      height: 60.h,
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      height: ResponsiveHelper.isMobile(context) ? 56 : 60.h,
+      padding: EdgeInsets.symmetric(
+        horizontal: ResponsiveHelper.padding(context, 16),
+      ),
       child: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: Colors.white, size: 20.sp),
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+              size: ResponsiveHelper.fontSize(context, 20),
+            ),
             onPressed: onBack,
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: ResponsiveHelper.spacing(context, 8)),
           Text(
-            "Complaint Management",
+            ResponsiveHelper.isMobile(context) ? "Complaints" : "Complaint Management",
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
-              fontSize: 18.sp,
+              fontSize: ResponsiveHelper.fontSize(context, 18),
             ),
           ),
         ],
@@ -91,7 +98,7 @@ class _ComplaintIssuedListState extends State<ComplaintIssuedList> {
       children: [
         /// Filter dropdown
         Padding(
-          padding: EdgeInsets.all(12.w),
+          padding: EdgeInsets.all(ResponsiveHelper.padding(context, 12)),
           child: DropdownButton<String>(
             value: selectedFilter,
             items:
@@ -112,61 +119,91 @@ class _ComplaintIssuedListState extends State<ComplaintIssuedList> {
         /// List of complaints
         Expanded(
           child: ListView.builder(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
             itemCount: filteredComplaints.length,
             itemBuilder: (context, index) {
               final complaint = filteredComplaints[index];
               return Card(
-                margin: EdgeInsets.only(bottom: 12.h),
+                margin: EdgeInsets.only(
+                  bottom: ResponsiveHelper.padding(context, 12),
+                ),
                 child: ListTile(
-                  leading: Icon(Icons.report_problem, color: Colors.deepPurple),
+                  leading: Icon(
+                    Icons.report_problem,
+                    color: Colors.deepPurple,
+                    size: ResponsiveHelper.fontSize(context, 24),
+                  ),
                   title: Text(
                     complaint["title"]!,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16.sp,
+                      fontSize: ResponsiveHelper.fontSize(context, 16),
                     ),
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 4.h),
+                      SizedBox(height: ResponsiveHelper.spacing(context, 4)),
                       Text(
                         complaint["body"]!,
-                        style: TextStyle(fontSize: 14.sp),
+                        style: TextStyle(
+                          fontSize: ResponsiveHelper.fontSize(context, 14),
+                        ),
                       ),
-                      SizedBox(height: 4.h),
-                      Text("Category: ${complaint["category"]}"),
-                      Text("Status: ${complaint["status"]}"),
-                      Text("Date: ${complaint["date"]}"),
-                      Text("By: ${complaint["submittedBy"]}"),
-                    ],
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Edit ${complaint["title"]}..."),
-                            ),
-                          );
-                        },
+                      SizedBox(height: ResponsiveHelper.spacing(context, 4)),
+                      Text(
+                        "Category: ${complaint["category"]}",
+                        style: TextStyle(
+                          fontSize: ResponsiveHelper.fontSize(context, 13),
+                        ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Deleted ${complaint["title"]}"),
-                            ),
-                          );
-                        },
+                      Text(
+                        "Status: ${complaint["status"]}",
+                        style: TextStyle(
+                          fontSize: ResponsiveHelper.fontSize(context, 13),
+                        ),
+                      ),
+                      Text(
+                        "Date: ${complaint["date"]}",
+                        style: TextStyle(
+                          fontSize: ResponsiveHelper.fontSize(context, 13),
+                        ),
+                      ),
+                      Text(
+                        "By: ${complaint["submittedBy"]}",
+                        style: TextStyle(
+                          fontSize: ResponsiveHelper.fontSize(context, 13),
+                        ),
                       ),
                     ],
                   ),
+                  trailing: ResponsiveHelper.isMobile(context)
+                      ? null
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Edit ${complaint["title"]}..."),
+                                  ),
+                                );
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Deleted ${complaint["title"]}"),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -195,34 +232,75 @@ class ComplaintDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Complaint Details"),
+        title: Text(
+          "Complaint Details",
+          style: TextStyle(
+            fontSize: ResponsiveHelper.fontSize(context, 20),
+          ),
+        ),
         backgroundColor: Colors.deepPurple,
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               "Title: ${complaint["title"]}",
-              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: ResponsiveHelper.fontSize(context, 18),
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            SizedBox(height: 10.h),
-            Text("Description: ${complaint["body"]}"),
-            SizedBox(height: 10.h),
-            Text("Category: ${complaint["category"]}"),
-            Text("Status: ${complaint["status"]}"),
-            Text("Date: ${complaint["date"]}"),
-            Text("Submitted By: ${complaint["submittedBy"]}"),
-            SizedBox(height: 20.h),
-            ElevatedButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Marked as Resolved")),
-                );
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: const Text("Mark as Resolved"),
+            SizedBox(height: ResponsiveHelper.spacing(context, 10)),
+            Text(
+              "Description: ${complaint["body"]}",
+              style: TextStyle(
+                fontSize: ResponsiveHelper.fontSize(context, 15),
+              ),
+            ),
+            SizedBox(height: ResponsiveHelper.spacing(context, 10)),
+            Text(
+              "Category: ${complaint["category"]}",
+              style: TextStyle(
+                fontSize: ResponsiveHelper.fontSize(context, 15),
+              ),
+            ),
+            Text(
+              "Status: ${complaint["status"]}",
+              style: TextStyle(
+                fontSize: ResponsiveHelper.fontSize(context, 15),
+              ),
+            ),
+            Text(
+              "Date: ${complaint["date"]}",
+              style: TextStyle(
+                fontSize: ResponsiveHelper.fontSize(context, 15),
+              ),
+            ),
+            Text(
+              "Submitted By: ${complaint["submittedBy"]}",
+              style: TextStyle(
+                fontSize: ResponsiveHelper.fontSize(context, 15),
+              ),
+            ),
+            SizedBox(height: ResponsiveHelper.spacing(context, 20)),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Marked as Resolved")),
+                  );
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                child: Text(
+                  "Mark as Resolved",
+                  style: TextStyle(
+                    fontSize: ResponsiveHelper.fontSize(context, 16),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

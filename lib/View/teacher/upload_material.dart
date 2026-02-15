@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../custom_widgets/upload_file_widget.dart';
+import '../../utils/responsive_helper.dart';
 
 class UploadMaterialPage extends StatefulWidget {
   const UploadMaterialPage({super.key});
@@ -242,20 +243,23 @@ class _UploadMaterialPageState extends State<UploadMaterialPage> {
     const pink = Color(0xFFFFC8DD);
     const bgColor = Color(0xFFF7F5F2);
 
-    final isWide = MediaQuery.of(context).size.width > 900;
+    final isWide = ResponsiveHelper.isDesktop(context);
 
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
-        title: const Text(
-          'Upload Materials',
-          style: TextStyle(color: Colors.black),
+        title: Text(
+          ResponsiveHelper.isMobile(context) ? 'Materials' : 'Upload Materials',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: ResponsiveHelper.fontSize(context, 20),
+          ),
         ),
         backgroundColor: lavender,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(ResponsiveHelper.padding(context, 20)),
         child:
             isWide
                 ? Row(
@@ -276,7 +280,7 @@ class _UploadMaterialPageState extends State<UploadMaterialPage> {
                   child: Column(
                     children: [
                       _buildForm(lavender, lightYellow, mintGreen),
-                      const SizedBox(height: 20),
+                      SizedBox(height: ResponsiveHelper.spacing(context, 20)),
                       _buildList(lavender, pink, lightYellow),
                     ],
                   ),
@@ -287,7 +291,7 @@ class _UploadMaterialPageState extends State<UploadMaterialPage> {
 
   Widget _buildForm(Color lavender, Color lightYellow, Color mintGreen) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -300,20 +304,26 @@ class _UploadMaterialPageState extends State<UploadMaterialPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Upload New Material',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: ResponsiveHelper.fontSize(context, 22),
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: ResponsiveHelper.spacing(context, 8)),
             Text(
               teacherEmail != null && teacherName != null
                   ? 'Logged in as: $teacherName ($teacherEmail)'
                   : teacherEmail != null
                       ? 'Logged in as: $teacherEmail'
                       : 'Loading teacher info...',
-              style: const TextStyle(color: Colors.black54),
+              style: TextStyle(
+                color: Colors.black54,
+                fontSize: ResponsiveHelper.fontSize(context, 14),
+              ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: ResponsiveHelper.spacing(context, 16)),
 
             TextFormField(
               controller: _titleController,
@@ -329,7 +339,7 @@ class _UploadMaterialPageState extends State<UploadMaterialPage> {
               ),
               validator: (v) => v!.isEmpty ? 'Enter material title' : null,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: ResponsiveHelper.spacing(context, 12)),
 
             TextFormField(
               controller: _descController,
@@ -349,12 +359,12 @@ class _UploadMaterialPageState extends State<UploadMaterialPage> {
               ),
               validator: (v) => v!.isEmpty ? 'Enter description' : null,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: ResponsiveHelper.spacing(context, 12)),
 
             _isClassLoading
                 ? const Center(child: CircularProgressIndicator())
                 : Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
                     decoration: BoxDecoration(
                       color: mintGreen.withOpacity(0.4),
                       borderRadius: BorderRadius.circular(10),
@@ -362,12 +372,12 @@ class _UploadMaterialPageState extends State<UploadMaterialPage> {
                     child: Row(
                       children: [
                         const Icon(Icons.class_, color: Colors.deepPurple),
-                        const SizedBox(width: 12),
+                        SizedBox(width: ResponsiveHelper.spacing(context, 12)),
                         Expanded(
                           child: Text(
                             _className ?? 'No class assigned',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: ResponsiveHelper.fontSize(context, 16),
                               fontWeight: FontWeight.w500,
                               color: _className == null ? Colors.grey : Colors.black87,
                             ),
@@ -376,7 +386,7 @@ class _UploadMaterialPageState extends State<UploadMaterialPage> {
                       ],
                     ),
                   ),
-            const SizedBox(height: 12),
+            SizedBox(height: ResponsiveHelper.spacing(context, 12)),
 
             UploadFileWidget(
               fileName: _fileName,
@@ -396,15 +406,23 @@ class _UploadMaterialPageState extends State<UploadMaterialPage> {
               ],
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: ResponsiveHelper.spacing(context, 16)),
             ElevatedButton.icon(
               onPressed: _saveMaterial,
               icon: const Icon(Icons.cloud_upload),
-              label: const Text('Upload Material'),
+              label: Text(
+                'Upload Material',
+                style: TextStyle(
+                  fontSize: ResponsiveHelper.fontSize(context, 16),
+                ),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: lavender,
                 foregroundColor: Colors.black,
-                minimumSize: const Size(double.infinity, 50),
+                minimumSize: Size(
+                  double.infinity,
+                  ResponsiveHelper.isMobile(context) ? 45 : 50,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -420,11 +438,14 @@ class _UploadMaterialPageState extends State<UploadMaterialPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Uploaded Materials',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: ResponsiveHelper.fontSize(context, 22),
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: ResponsiveHelper.spacing(context, 12)),
         StreamBuilder<QuerySnapshot>(
           stream:
               _firestore
@@ -464,7 +485,9 @@ class _UploadMaterialPageState extends State<UploadMaterialPage> {
                         : lightYellow.withOpacity(0.5);
 
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
+                  margin: EdgeInsets.only(
+                    bottom: ResponsiveHelper.padding(context, 12),
+                  ),
                   decoration: BoxDecoration(
                     color: color,
                     borderRadius: BorderRadius.circular(16),
@@ -479,14 +502,32 @@ class _UploadMaterialPageState extends State<UploadMaterialPage> {
                     ),
                     title: Text(
                       data['title'] ?? '',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: ResponsiveHelper.fontSize(context, 16),
+                      ),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(data['description'] ?? ''),
-                        Text('Class: $className'),
-                        Text('File: $fileName'),
+                        Text(
+                          data['description'] ?? '',
+                          style: TextStyle(
+                            fontSize: ResponsiveHelper.fontSize(context, 14),
+                          ),
+                        ),
+                        Text(
+                          'Class: $className',
+                          style: TextStyle(
+                            fontSize: ResponsiveHelper.fontSize(context, 13),
+                          ),
+                        ),
+                        Text(
+                          'File: $fileName',
+                          style: TextStyle(
+                            fontSize: ResponsiveHelper.fontSize(context, 12),
+                          ),
+                        ),
                       ],
                     ),
                     trailing: IconButton(

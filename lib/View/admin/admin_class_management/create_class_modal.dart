@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import '../../../controllers/class_controller.dart';
 import '../../../Model/class_model.dart';
+import '../../../utils/responsive_helper.dart';
 
 class CreateClassModal extends StatefulWidget {
   final ClassModel? existingClass;
@@ -86,10 +87,11 @@ class _CreateClassModalState extends State<CreateClassModal> {
 
     return Container(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-        left: 20,
-        right: 20,
-        top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom +
+            ResponsiveHelper.padding(context, 20),
+        left: ResponsiveHelper.padding(context, 20),
+        right: ResponsiveHelper.padding(context, 20),
+        top: ResponsiveHelper.padding(context, 20),
       ),
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -104,14 +106,14 @@ class _CreateClassModalState extends State<CreateClassModal> {
               /// TITLE
               Text(
                 isEdit ? "Update Class" : "Create New Class",
-                style: const TextStyle(
-                  fontSize: 20,
+                style: TextStyle(
+                  fontSize: ResponsiveHelper.fontSize(context, 20),
                   fontWeight: FontWeight.bold,
                   color: Colors.deepPurple,
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: ResponsiveHelper.spacing(context, 20)),
 
               /// CATEGORY DROPDOWN
               DropdownButtonFormField<String>(
@@ -135,7 +137,7 @@ class _CreateClassModalState extends State<CreateClassModal> {
                 validator: (value) => value == null ? "Select category" : null,
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: ResponsiveHelper.spacing(context, 16)),
 
               /// CLASS NAME
               TextFormField(
@@ -148,7 +150,7 @@ class _CreateClassModalState extends State<CreateClassModal> {
                     (v) => v == null || v.isEmpty ? "Enter class name" : null,
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: ResponsiveHelper.spacing(context, 16)),
 
               /// CAPACITY
               TextFormField(
@@ -166,7 +168,7 @@ class _CreateClassModalState extends State<CreateClassModal> {
                 },
               ),
 
-              const SizedBox(height: 16),
+              SizedBox(height: ResponsiveHelper.spacing(context, 16)),
 
               /// FEE
               TextFormField(
@@ -184,12 +186,12 @@ class _CreateClassModalState extends State<CreateClassModal> {
                 },
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: ResponsiveHelper.spacing(context, 24)),
 
               /// BUTTON
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: ResponsiveHelper.isMobile(context) ? 45 : 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
@@ -203,8 +205,8 @@ class _CreateClassModalState extends State<CreateClassModal> {
                           ? const CircularProgressIndicator(color: Colors.white)
                           : Text(
                             isEdit ? "Update Class" : "Create Class",
-                            style: const TextStyle(
-                              fontSize: 16,
+                            style: TextStyle(
+                              fontSize: ResponsiveHelper.fontSize(context, 16),
                               color: Colors.white,
                             ),
                           ),

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_vps/View/admin/FeeChalan/chalan_detail_screen.dart';
 import 'package:demo_vps/View/admin/payment_slip_management/payment_slip_management_screen.dart';
 import 'package:demo_vps/controllers/invoice_controller.dart';
+import 'package:demo_vps/utils/responsive_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -15,11 +16,19 @@ class FeeChalanListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = ResponsiveHelper.isMobile(context);
+    
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurpleAccent,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Fee Chalans', style: TextStyle(color: Colors.white)),
+        title: Text(
+          isMobile ? 'Fee Chalans' : 'Fee Chalans Management',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: ResponsiveHelper.fontSize(context, 20),
+          ),
+        ),
         actions: [
           // Payment Slip Management with notification badge
           StreamBuilder<QuerySnapshot>(

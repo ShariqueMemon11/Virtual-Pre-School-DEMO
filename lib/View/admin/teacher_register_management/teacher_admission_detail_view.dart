@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../../../Model/teacher_admission_model.dart';
 import '../../../controllers/teacher_register_controller.dart';
+import '../../../utils/responsive_helper.dart';
 
 class TeacherAdmissionDetailView extends StatelessWidget {
   final TeacherAdmissionModel application;
@@ -25,9 +26,13 @@ class TeacherAdmissionDetailView extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text(
-          "Teacher Application",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        title: Text(
+          ResponsiveHelper.isMobile(context) ? "Application" : "Teacher Application",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontSize: ResponsiveHelper.fontSize(context, 20),
+          ),
         ),
         centerTitle: true,
         elevation: 0,
@@ -43,7 +48,7 @@ class TeacherAdmissionDetailView extends StatelessWidget {
       ),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(ResponsiveHelper.padding(context, 24)),
           child: Card(
             elevation: 6,
             shadowColor: Colors.deepPurple.shade100,
@@ -52,74 +57,107 @@ class TeacherAdmissionDetailView extends StatelessWidget {
             ),
             color: Colors.white,
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(ResponsiveHelper.padding(context, 24)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     "Teacher Application Details",
                     style: TextStyle(
-                      fontSize: 22,
+                      fontSize: ResponsiveHelper.fontSize(context, 22),
                       fontWeight: FontWeight.bold,
                       color: deepPurple,
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  _infoTable(),
+                  SizedBox(height: ResponsiveHelper.spacing(context, 20)),
+                  _infoTable(context),
 
-                  const SizedBox(height: 20),
+                  SizedBox(height: ResponsiveHelper.spacing(context, 20)),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.access_time,
                         color: deepPurple,
-                        size: 18,
+                        size: ResponsiveHelper.fontSize(context, 18),
                       ),
-                      const SizedBox(width: 6),
-                      Text(
-                        "Submitted on: ${application.createdAt.toDate()}",
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontSize: 14,
+                      SizedBox(width: ResponsiveHelper.spacing(context, 6)),
+                      Expanded(
+                        child: Text(
+                          "Submitted on: ${application.createdAt.toDate()}",
+                          style: TextStyle(
+                            color: Colors.grey.shade700,
+                            fontSize: ResponsiveHelper.fontSize(context, 14),
+                          ),
                         ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 30),
+                  SizedBox(height: ResponsiveHelper.spacing(context, 30)),
 
                   if (cvBytes != null)
                     _primaryButton(
+                      context,
                       icon: Icons.download,
                       label: "Download CV",
                       color: deepPurple,
                       onPressed: () => controller.downloadFile(context),
                     ),
 
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _primaryButton(
-                          icon: Icons.check_circle,
-                          label: "Accept",
-                          color: Colors.green,
-                          onPressed:
-                              () => controller.acceptApplication(context),
+                  SizedBox(height: ResponsiveHelper.spacing(context, 20)),
+                  ResponsiveHelper.isMobile(context)
+                      ? Column(
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              child: _primaryButton(
+                                context,
+                                icon: Icons.check_circle,
+                                label: "Accept",
+                                color: Colors.green,
+                                onPressed:
+                                    () => controller.acceptApplication(context),
+                              ),
+                            ),
+                            SizedBox(height: ResponsiveHelper.spacing(context, 16)),
+                            SizedBox(
+                              width: double.infinity,
+                              child: _primaryButton(
+                                context,
+                                icon: Icons.cancel,
+                                label: "Reject",
+                                color: Colors.red,
+                                onPressed:
+                                    () => controller.rejectApplication(context),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            Expanded(
+                              child: _primaryButton(
+                                context,
+                                icon: Icons.check_circle,
+                                label: "Accept",
+                                color: Colors.green,
+                                onPressed:
+                                    () => controller.acceptApplication(context),
+                              ),
+                            ),
+                            SizedBox(width: ResponsiveHelper.spacing(context, 16)),
+                            Expanded(
+                              child: _primaryButton(
+                                context,
+                                icon: Icons.cancel,
+                                label: "Reject",
+                                color: Colors.red,
+                                onPressed:
+                                    () => controller.rejectApplication(context),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _primaryButton(
-                          icon: Icons.cancel,
-                          label: "Reject",
-                          color: Colors.red,
-                          onPressed:
-                              () => controller.rejectApplication(context),
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
@@ -130,7 +168,7 @@ class TeacherAdmissionDetailView extends StatelessWidget {
   }
 
   /// 📋 Info Table
-  Widget _infoTable() {
+  Widget _infoTable(BuildContext context) {
     return Table(
       columnWidths: const {0: FlexColumnWidth(0.35), 1: FlexColumnWidth(0.65)},
       border: TableBorder.all(
@@ -138,33 +176,40 @@ class TeacherAdmissionDetailView extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       children: [
-        _tableRow(Icons.person, "Name", application.name),
-        _tableRow(Icons.email, "Email", application.email),
-        _tableRow(Icons.phone, "Phone", application.phone),
-        _tableRow(Icons.school, "Qualification", application.qualification),
-        _tableRow(Icons.work, "Experience", application.experience),
-        _tableRow(Icons.book, "Expertise", application.expertise),
-        _tableRow(Icons.home, "Address", application.address),
+        _tableRow(context, Icons.person, "Name", application.name),
+        _tableRow(context, Icons.email, "Email", application.email),
+        _tableRow(context, Icons.phone, "Phone", application.phone),
+        _tableRow(context, Icons.school, "Qualification", application.qualification),
+        _tableRow(context, Icons.work, "Experience", application.experience),
+        _tableRow(context, Icons.book, "Expertise", application.expertise),
+        _tableRow(context, Icons.home, "Address", application.address),
       ],
     );
   }
 
-  TableRow _tableRow(IconData icon, String label, String value) {
+  TableRow _tableRow(BuildContext context, IconData icon, String label, String value) {
     const Color deepPurple = Color(0xFF5B3DC7);
     return TableRow(
       children: [
         Container(
           color: Colors.grey[50],
-          padding: const EdgeInsets.all(10),
+          padding: EdgeInsets.all(ResponsiveHelper.padding(context, 10)),
           child: Row(
             children: [
-              Icon(icon, color: deepPurple, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: deepPurple,
+              Icon(
+                icon,
+                color: deepPurple,
+                size: ResponsiveHelper.fontSize(context, 20),
+              ),
+              SizedBox(width: ResponsiveHelper.spacing(context, 8)),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: deepPurple,
+                    fontSize: ResponsiveHelper.fontSize(context, 14),
+                  ),
                 ),
               ),
             ],
@@ -172,10 +217,13 @@ class TeacherAdmissionDetailView extends StatelessWidget {
         ),
         Container(
           color: Colors.white,
-          padding: const EdgeInsets.all(10),
+          padding: EdgeInsets.all(ResponsiveHelper.padding(context, 10)),
           child: Text(
             value.isEmpty ? "N/A" : value,
-            style: const TextStyle(color: Colors.black87),
+            style: TextStyle(
+              color: Colors.black87,
+              fontSize: ResponsiveHelper.fontSize(context, 14),
+            ),
           ),
         ),
       ],
@@ -183,7 +231,8 @@ class TeacherAdmissionDetailView extends StatelessWidget {
   }
 
   /// 🔘 Styled Button
-  Widget _primaryButton({
+  Widget _primaryButton(
+    BuildContext context, {
     required IconData icon,
     required String label,
     required Color color,
@@ -194,14 +243,18 @@ class TeacherAdmissionDetailView extends StatelessWidget {
       icon: Icon(icon, color: Colors.white),
       label: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.w600,
+          fontSize: ResponsiveHelper.fontSize(context, 16),
         ),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+        padding: EdgeInsets.symmetric(
+          vertical: ResponsiveHelper.padding(context, 14),
+          horizontal: ResponsiveHelper.padding(context, 8),
+        ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         elevation: 3,
       ),

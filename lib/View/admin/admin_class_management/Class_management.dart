@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 
 import 'package:demo_vps/Model/teacher_model.dart';
+import 'package:demo_vps/utils/responsive_helper.dart';
 import 'package:flutter/material.dart';
 import '../../../controllers/class_controller.dart';
 import '../../../Model/class_model.dart';
@@ -209,10 +210,17 @@ class ClassManagementScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = ClassController();
+    final isMobile = ResponsiveHelper.isMobile(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('All Classes', style: TextStyle(color: Colors.white)),
+        title: Text(
+          'All Classes',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: ResponsiveHelper.fontSize(context, 20),
+          ),
+        ),
         backgroundColor: const Color.fromARGB(255, 142, 88, 235),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -229,7 +237,7 @@ class ClassManagementScreen extends StatelessWidget {
 
           final classes = snapshot.data!;
 
-          // 🔥 Group classes by category
+          // Group classes by category
           final Map<String, List<ClassModel>> grouped = {};
 
           for (var c in classes) {
@@ -240,63 +248,75 @@ class ClassManagementScreen extends StatelessWidget {
           final categories = ["Playgroup", "Nursery", "Kindergarten"];
 
           return ListView(
-            padding: const EdgeInsets.all(12),
-            children:
-                categories.map((category) {
-                  final categoryClasses = grouped[category] ?? [];
+            padding: EdgeInsets.all(ResponsiveHelper.padding(context, 12)),
+            children: categories.map((category) {
+              final categoryClasses = grouped[category] ?? [];
 
-                  if (categoryClasses.isEmpty) return const SizedBox();
+              if (categoryClasses.isEmpty) return const SizedBox();
 
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+              return Card(
+                margin: EdgeInsets.only(bottom: ResponsiveHelper.spacing(context, 12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: ExpansionTile(
+                  initiallyExpanded: !isMobile,
+                  tilePadding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveHelper.padding(context, 16),
+                    vertical: ResponsiveHelper.padding(context, 8),
+                  ),
+                  childrenPadding: EdgeInsets.only(
+                    bottom: ResponsiveHelper.padding(context, 12),
+                  ),
+                  title: Text(
+                    category,
+                    style: TextStyle(
+                      fontSize: ResponsiveHelper.fontSize(context, 18),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepPurple,
                     ),
-                    child: ExpansionTile(
-                      initiallyExpanded: true,
-                      tilePadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      childrenPadding: const EdgeInsets.only(bottom: 12),
+                  ),
+                  children: categoryClasses.map((c) {
+                    return ListTile(
                       title: Text(
-                        category,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
+                        c.gradeName,
+                        style: TextStyle(
+                          fontSize: ResponsiveHelper.fontSize(context, 16),
                         ),
                       ),
-                      children:
-                          categoryClasses.map((c) {
-                            return ListTile(
-                              title: Text(c.gradeName),
-                              subtitle: Text(
-                                'Capacity: ${c.capacity} | '
+                      subtitle: Text(
+                        isMobile
+                            ? 'Cap: ${c.capacity} | Students: ${c.studentCount}'
+                            : 'Capacity: ${c.capacity} | '
                                 'Students: ${c.studentCount}'
                                 '${c.teacher != null ? " | Teacher: ${c.teacher}" : ""}',
-                              ),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.more_vert),
-                                onPressed:
-                                    () => _showClassActions(
-                                      context,
-                                      c,
-                                      controller,
-                                    ),
-                              ),
-                            );
-                          }).toList(),
-                    ),
-                  );
-                }).toList(),
+                        style: TextStyle(
+                          fontSize: ResponsiveHelper.fontSize(context, 12),
+                        ),
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.more_vert),
+                        onPressed: () => _showClassActions(
+                          context,
+                          c,
+                          controller,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              );
+            }).toList(),
           );
         },
       ),
 
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openCreateModal(context),
-        label: const Text('Add Class'),
+        label: Text(
+          isMobile ? 'Add' : 'Add Class',
+          style: TextStyle(fontSize: ResponsiveHelper.fontSize(context, 14)),
+        ),
         icon: const Icon(Icons.add),
       ),
     );

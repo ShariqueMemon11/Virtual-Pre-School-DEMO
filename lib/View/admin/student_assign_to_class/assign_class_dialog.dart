@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../controllers/student_assign_controller.dart';
 import '../../../Model/student_data.dart';
 import '../../../Model/class_model.dart';
+import '../../../utils/responsive_helper.dart';
 
 class AssignClassDialog extends StatefulWidget {
   final StudentData student;
@@ -39,7 +40,12 @@ class _AssignClassDialogState extends State<AssignClassDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Assign Class to ${widget.student.childName}"),
+      title: Text(
+        "Assign Class to ${widget.student.childName}",
+        style: TextStyle(
+          fontSize: ResponsiveHelper.fontSize(context, 18),
+        ),
+      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -68,7 +74,7 @@ class _AssignClassDialogState extends State<AssignClassDialog> {
               },
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: ResponsiveHelper.spacing(context, 16)),
 
             /// 🔥 CLASS DROPDOWN
             if (selectedCategory != null)
@@ -95,9 +101,16 @@ class _AssignClassDialogState extends State<AssignClassDialog> {
               ),
 
             if (selectedCategory != null && classes.isEmpty)
-              const Padding(
-                padding: EdgeInsets.only(top: 12),
-                child: Text("No classes available in this category"),
+              Padding(
+                padding: EdgeInsets.only(
+                  top: ResponsiveHelper.padding(context, 12),
+                ),
+                child: Text(
+                  "No classes available in this category",
+                  style: TextStyle(
+                    fontSize: ResponsiveHelper.fontSize(context, 14),
+                  ),
+                ),
               ),
           ],
         ),
@@ -105,7 +118,12 @@ class _AssignClassDialogState extends State<AssignClassDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text("Cancel"),
+          child: Text(
+            "Cancel",
+            style: TextStyle(
+              fontSize: ResponsiveHelper.fontSize(context, 14),
+            ),
+          ),
         ),
         ElevatedButton(
           onPressed:
@@ -127,7 +145,12 @@ class _AssignClassDialogState extends State<AssignClassDialog> {
                       ).showSnackBar(SnackBar(content: Text("Error: $e")));
                     }
                   },
-          child: const Text("Assign"),
+          child: Text(
+            "Assign",
+            style: TextStyle(
+              fontSize: ResponsiveHelper.fontSize(context, 14),
+            ),
+          ),
         ),
       ],
     );

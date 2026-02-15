@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import '../../../utils/responsive_helper.dart';
 
 class PaymentSlipManagementScreen extends StatefulWidget {
   const PaymentSlipManagementScreen({super.key});
@@ -393,26 +394,34 @@ class _PaymentSlipManagementScreenState
 
             return Row(
               children: [
-                const Text(
-                  'Payment Slip Management',
-                  style: TextStyle(color: Colors.white),
+                Flexible(
+                  child: Text(
+                    ResponsiveHelper.isMobile(context)
+                        ? 'Payment Slips'
+                        : 'Payment Slip Management',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: ResponsiveHelper.fontSize(context, 20),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 if (pendingCount > 0) ...[
-                  const SizedBox(width: 8),
+                  SizedBox(width: ResponsiveHelper.spacing(context, 8)),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: ResponsiveHelper.padding(context, 8),
+                      vertical: ResponsiveHelper.padding(context, 4),
                     ),
                     decoration: BoxDecoration(
                       color: Colors.red,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      '$pendingCount pending',
-                      style: const TextStyle(
+                      '$pendingCount',
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 12,
+                        fontSize: ResponsiveHelper.fontSize(context, 12),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -427,17 +436,20 @@ class _PaymentSlipManagementScreenState
         children: [
           // Filter Tabs
           Container(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                _buildFilterChip('All', 'all'),
-                const SizedBox(width: 8),
-                _buildFilterChip('Pending', 'pending'),
-                const SizedBox(width: 8),
-                _buildFilterChip('Verified', 'verified'),
-                const SizedBox(width: 8),
-                _buildFilterChip('Rejected', 'rejected'),
-              ],
+            padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildFilterChip('All', 'all'),
+                  SizedBox(width: ResponsiveHelper.spacing(context, 8)),
+                  _buildFilterChip('Pending', 'pending'),
+                  SizedBox(width: ResponsiveHelper.spacing(context, 8)),
+                  _buildFilterChip('Verified', 'verified'),
+                  SizedBox(width: ResponsiveHelper.spacing(context, 8)),
+                  _buildFilterChip('Rejected', 'rejected'),
+                ],
+              ),
             ),
           ),
 
@@ -449,7 +461,9 @@ class _PaymentSlipManagementScreenState
                     : paymentSlips.isEmpty
                     ? _buildEmptyState()
                     : ListView.builder(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(
+                        ResponsiveHelper.padding(context, 16),
+                      ),
                       itemCount: paymentSlips.length,
                       itemBuilder: (context, index) {
                         final slip = paymentSlips[index];
@@ -559,11 +573,13 @@ class _PaymentSlipManagementScreenState
     final statusText = _getStatusText(status);
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(
+        bottom: ResponsiveHelper.padding(context, 16),
+      ),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -576,23 +592,26 @@ class _PaymentSlipManagementScreenState
                     children: [
                       Text(
                         slip['studentName'],
-                        style: const TextStyle(
-                          fontSize: 18,
+                        style: TextStyle(
+                          fontSize: ResponsiveHelper.fontSize(context, 18),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: ResponsiveHelper.spacing(context, 4)),
                       Text(
                         '${slip['className']} • Rs. ${slip['classFee']}',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontSize: ResponsiveHelper.fontSize(context, 14),
+                          color: Colors.grey[600],
+                        ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveHelper.padding(context, 8),
+                    vertical: ResponsiveHelper.padding(context, 4),
                   ),
                   decoration: BoxDecoration(
                     color: statusColor.withOpacity(0.1),
@@ -602,7 +621,7 @@ class _PaymentSlipManagementScreenState
                   child: Text(
                     statusText,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: ResponsiveHelper.fontSize(context, 12),
                       fontWeight: FontWeight.bold,
                       color: statusColor,
                     ),
@@ -611,45 +630,70 @@ class _PaymentSlipManagementScreenState
               ],
             ),
 
-            const SizedBox(height: 12),
+            SizedBox(height: ResponsiveHelper.spacing(context, 12)),
 
             // Student Info
             Row(
               children: [
-                Icon(Icons.email, size: 16, color: Colors.grey[500]),
-                const SizedBox(width: 4),
-                Text(
-                  slip['studentEmail'],
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                Icon(
+                  Icons.email,
+                  size: ResponsiveHelper.fontSize(context, 16),
+                  color: Colors.grey[500],
+                ),
+                SizedBox(width: ResponsiveHelper.spacing(context, 4)),
+                Expanded(
+                  child: Text(
+                    slip['studentEmail'],
+                    style: TextStyle(
+                      fontSize: ResponsiveHelper.fontSize(context, 12),
+                      color: Colors.grey[500],
+                    ),
+                  ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 8),
+            SizedBox(height: ResponsiveHelper.spacing(context, 8)),
 
             // Upload Info
             Row(
               children: [
-                Icon(Icons.access_time, size: 16, color: Colors.grey[500]),
-                const SizedBox(width: 4),
-                Text(
-                  'Uploaded: ${_formatDate(slip['uploadedAt'])}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                Icon(
+                  Icons.access_time,
+                  size: ResponsiveHelper.fontSize(context, 16),
+                  color: Colors.grey[500],
+                ),
+                SizedBox(width: ResponsiveHelper.spacing(context, 4)),
+                Expanded(
+                  child: Text(
+                    'Uploaded: ${_formatDate(slip['uploadedAt'])}',
+                    style: TextStyle(
+                      fontSize: ResponsiveHelper.fontSize(context, 12),
+                      color: Colors.grey[500],
+                    ),
+                  ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 8),
+            SizedBox(height: ResponsiveHelper.spacing(context, 8)),
 
             // File Info
             Row(
               children: [
-                Icon(Icons.attach_file, size: 16, color: Colors.blue),
-                const SizedBox(width: 4),
+                Icon(
+                  Icons.attach_file,
+                  size: ResponsiveHelper.fontSize(context, 16),
+                  color: Colors.blue,
+                ),
+                SizedBox(width: ResponsiveHelper.spacing(context, 4)),
                 Expanded(
                   child: Text(
                     '${slip['fileName']} (${_formatFileSize(slip['fileSize'])})',
-                    style: const TextStyle(fontSize: 14, color: Colors.blue),
+                    style: TextStyle(
+                      fontSize: ResponsiveHelper.fontSize(context, 14),
+                      color: Colors.blue,
+                    ),
                   ),
                 ),
                 IconButton(
@@ -737,36 +781,74 @@ class _PaymentSlipManagementScreenState
 
             // Action Buttons (only for pending slips)
             if (status == 'pending_verification') ...[
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed:
-                          () =>
-                              _verifyPaymentSlip(slip['id'], slip['invoiceId']),
-                      icon: const Icon(Icons.check),
-                      label: const Text('Verify Payment'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                      ),
+              SizedBox(height: ResponsiveHelper.spacing(context, 16)),
+              ResponsiveHelper.isMobile(context)
+                  ? Column(
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed:
+                                () =>
+                                    _verifyPaymentSlip(
+                                      slip['id'],
+                                      slip['invoiceId'],
+                                    ),
+                            icon: const Icon(Icons.check),
+                            label: const Text('Verify Payment'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: ResponsiveHelper.spacing(context, 8)),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () => _rejectPaymentSlip(slip['id']),
+                            icon: const Icon(Icons.close),
+                            label: const Text('Reject'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed:
+                                () =>
+                                    _verifyPaymentSlip(
+                                      slip['id'],
+                                      slip['invoiceId'],
+                                    ),
+                            icon: const Icon(Icons.check),
+                            label: const Text('Verify Payment'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: ResponsiveHelper.spacing(context, 8)),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _rejectPaymentSlip(slip['id']),
+                            icon: const Icon(Icons.close),
+                            label: const Text('Reject'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () => _rejectPaymentSlip(slip['id']),
-                      icon: const Icon(Icons.close),
-                      label: const Text('Reject'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ],
           ],
         ),

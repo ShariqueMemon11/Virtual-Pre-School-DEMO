@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../custom_widgets/upload_file_widget.dart';
+import '../../utils/responsive_helper.dart';
 
 class AssignActivityPage extends StatefulWidget {
   const AssignActivityPage({super.key});
@@ -248,20 +249,23 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
     const pink = Color(0xFFFFC8DD);
     const bgColor = Color(0xFFF7F5F2);
 
-    final isWideScreen = MediaQuery.of(context).size.width > 900;
+    final isWideScreen = ResponsiveHelper.isDesktop(context);
 
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: lavender,
-        title: const Text(
-          'Assign Activities',
-          style: TextStyle(color: Colors.black),
+        title: Text(
+          ResponsiveHelper.isMobile(context) ? 'Activities' : 'Assign Activities',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: ResponsiveHelper.fontSize(context, 20),
+          ),
         ),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.all(ResponsiveHelper.padding(context, 20)),
         child:
             isWideScreen
                 ? Row(
@@ -286,7 +290,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
                   child: Column(
                     children: [
                       buildActivityForm(lavender, lightYellow, mintGreen),
-                      const SizedBox(height: 20),
+                      SizedBox(height: ResponsiveHelper.spacing(context, 20)),
                       buildActivityList(lavender, pink, lightYellow),
                     ],
                   ),
@@ -298,7 +302,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
   // Activity Form
   Widget buildActivityForm(Color lavender, Color lightYellow, Color mintGreen) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -315,24 +319,27 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Create New Activity',
               style: TextStyle(
-                fontSize: 22,
+                fontSize: ResponsiveHelper.fontSize(context, 22),
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: ResponsiveHelper.spacing(context, 8)),
             Text(
               teacherEmail != null && teacherName != null
                   ? 'Logged in as: $teacherName ($teacherEmail)'
                   : teacherEmail != null
                       ? 'Logged in as: $teacherEmail'
                       : 'Loading teacher info...',
-              style: const TextStyle(color: Colors.black54, fontSize: 14),
+              style: TextStyle(
+                color: Colors.black54,
+                fontSize: ResponsiveHelper.fontSize(context, 14),
+              ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: ResponsiveHelper.spacing(context, 16)),
             TextFormField(
               controller: _titleController,
               decoration: InputDecoration(
@@ -347,7 +354,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
               ),
               validator: (v) => v!.isEmpty ? 'Enter activity title' : null,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: ResponsiveHelper.spacing(context, 12)),
             TextFormField(
               controller: _descController,
               maxLines: 3,
@@ -366,11 +373,11 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
               ),
               validator: (v) => v!.isEmpty ? 'Enter description' : null,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: ResponsiveHelper.spacing(context, 12)),
             _isClassLoading
                 ? const Center(child: CircularProgressIndicator())
                 : Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
                   decoration: BoxDecoration(
                     color: mintGreen.withOpacity(0.4),
                     borderRadius: BorderRadius.circular(10),
@@ -383,7 +390,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
                         child: Text(
                           _className ?? 'No class assigned',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: ResponsiveHelper.fontSize(context, 16),
                             fontWeight: FontWeight.w500,
                             color:
                                 _className == null
@@ -395,7 +402,7 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
                     ],
                   ),
                 ),
-            const SizedBox(height: 12),
+            SizedBox(height: ResponsiveHelper.spacing(context, 12)),
             Row(
               children: [
                 Expanded(
@@ -404,23 +411,31 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
                         ? 'No due date selected'
                         : 'Due: ${_dueDate!.toLocal().toString().split(' ')[0]}'
                             '${_dueTime != null ? ' at ${_dueTime!.format(context)}' : ''}',
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: ResponsiveHelper.fontSize(context, 14),
+                    ),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.calendar_month,
                     color: Colors.deepPurple,
+                    size: ResponsiveHelper.fontSize(context, 24),
                   ),
                   onPressed: pickDate,
                 ),
                 IconButton(
-                  icon: const Icon(Icons.access_time, color: Colors.deepPurple),
+                  icon: Icon(
+                    Icons.access_time,
+                    color: Colors.deepPurple,
+                    size: ResponsiveHelper.fontSize(context, 24),
+                  ),
                   onPressed: pickTime,
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: ResponsiveHelper.spacing(context, 12)),
             UploadFileWidget(
               fileName: _fileName,
               allowedExtensions: const [
@@ -438,15 +453,23 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
                 });
               },
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: ResponsiveHelper.spacing(context, 16)),
             ElevatedButton.icon(
               onPressed: saveActivity,
               icon: const Icon(Icons.send),
-              label: const Text('Assign Activity'),
+              label: Text(
+                'Assign Activity',
+                style: TextStyle(
+                  fontSize: ResponsiveHelper.fontSize(context, 16),
+                ),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: lavender,
                 foregroundColor: Colors.black,
-                minimumSize: const Size(double.infinity, 50),
+                minimumSize: Size(
+                  double.infinity,
+                  ResponsiveHelper.isMobile(context) ? 45 : 50,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -463,15 +486,15 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Assigned Activities',
           style: TextStyle(
-            fontSize: 22,
+            fontSize: ResponsiveHelper.fontSize(context, 22),
             fontWeight: FontWeight.bold,
             color: Colors.black87,
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: ResponsiveHelper.spacing(context, 12)),
         StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
           stream:
               teacherEmail == null
@@ -555,19 +578,39 @@ class _AssignActivityPageState extends State<AssignActivityPage> {
                     ),
                     title: Text(
                       data['title'] ?? '',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: ResponsiveHelper.fontSize(context, 16),
                       ),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(data['description'] ?? ''),
-                        Text('Class: ${data['className'] ?? ''}'),
-                        Text('Due: $dueText'),
+                        Text(
+                          data['description'] ?? '',
+                          style: TextStyle(
+                            fontSize: ResponsiveHelper.fontSize(context, 14),
+                          ),
+                        ),
+                        Text(
+                          'Class: ${data['className'] ?? ''}',
+                          style: TextStyle(
+                            fontSize: ResponsiveHelper.fontSize(context, 13),
+                          ),
+                        ),
+                        Text(
+                          'Due: $dueText',
+                          style: TextStyle(
+                            fontSize: ResponsiveHelper.fontSize(context, 13),
+                          ),
+                        ),
                         if ((data['fileName'] ?? '').isNotEmpty)
-                          Text(' Attached: ${data['fileName']}'),
+                          Text(
+                            ' Attached: ${data['fileName']}',
+                            style: TextStyle(
+                              fontSize: ResponsiveHelper.fontSize(context, 12),
+                            ),
+                          ),
                       ],
                     ),
                   ),

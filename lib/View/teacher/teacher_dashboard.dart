@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:demo_vps/utils/responsive_helper.dart';
 import 'dart:convert';
 import 'assign_activity.dart';
 import 'upload_material.dart';
@@ -457,305 +458,307 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Left Panel (Profile + Quick Access)
-            Expanded(
-              flex: 3,
-              child: Column(
+        padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
+        child: ResponsiveHelper.isMobile(context)
+            ? SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildMainContent(),
+                    SizedBox(height: ResponsiveHelper.spacing(context, 20)),
+                    _buildAgendaContent(),
+                  ],
+                ),
+              )
+            : Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 10.0, left: 4.0),
-                    child: Text(
-                      'Teacher Profile',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25,
-                        color: Colors.black,
-                      ),
+                  Expanded(
+                    flex: 3,
+                    child: SingleChildScrollView(
+                      child: _buildMainContent(),
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4.0, right: 20.0),
-                    child: Divider(thickness: 0.5, color: Colors.blueGrey),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: _buildTeacherProfileCard()),
-                        const SizedBox(width: 20),
-                        Expanded(child: _buildClassInfoCard()),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4.0),
-                    child: Text(
-                      'Quick Access',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4.0, right: 20.0, top: 4.0),
-                    child: Divider(thickness: 0.5, color: Colors.blueGrey),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10.0),
-                    child: Wrap(
-                      spacing: 30,
-                      runSpacing: 20,
-                      crossAxisAlignment: WrapCrossAlignment.start,
-                      children: [
-                        _quickAccessCard(
-                          context,
-                          Icons.videocam,
-                          'Start Class',
-                          const Color.fromARGB(255, 238, 212, 248),
-                          _startClass,
-                        ),
-
-                        _quickAccessCard(
-                          context,
-                          Icons.assignment,
-                          'Assign Activities',
-                          const Color.fromARGB(255, 238, 212, 248),
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const AssignActivityPage(),
-                              ),
-                            );
-                          },
-                        ),
-
-                        _quickAccessCard(
-                          context,
-                          Icons.upload_file,
-                          'Upload Class Material',
-                          const Color.fromARGB(255, 249, 236, 184),
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const UploadMaterialPage(),
-                              ),
-                            );
-                          },
-                        ),
-
-                        _quickAccessCard(
-                          context,
-                          Icons.grade,
-                          'Update Grades',
-                          const Color.fromARGB(255, 212, 248, 238),
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const UpdateGradesPage(),
-                              ),
-                            );
-                          },
-                        ),
-
-                        _quickAccessCard(
-                          context,
-                          Icons.list_alt,
-                          'Student Submissions',
-                          const Color.fromARGB(255, 238, 212, 248),
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const StudentActivitiesPage(),
-                              ),
-                            );
-                          },
-                        ),
-
-                        _buildAttendanceCardWithNotification(context),
-                      ],
-                    ),
+                  SizedBox(width: ResponsiveHelper.spacing(context, 16)),
+                  Expanded(
+                    flex: 1,
+                    child: _buildAgendaContent(),
                   ),
                 ],
               ),
+      ),
+  Widget _buildMainContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(
+            top: ResponsiveHelper.padding(context, 10),
+            left: ResponsiveHelper.padding(context, 4),
+          ),
+          child: Text(
+            'Teacher Profile',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: ResponsiveHelper.fontSize(context, 25),
+              color: Colors.black,
             ),
-
-            const SizedBox(width: 16),
-
-            //  Right Panel (Agenda)
-            Expanded(
-              flex: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
-                    ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(
+            left: ResponsiveHelper.padding(context, 4),
+            right: ResponsiveHelper.padding(context, 20),
+          ),
+          child: const Divider(thickness: 0.5, color: Colors.blueGrey),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: ResponsiveHelper.padding(context, 10)),
+          child: ResponsiveHelper.isMobile(context)
+              ? Column(
+                  children: [
+                    _buildTeacherProfileCard(),
+                    SizedBox(height: ResponsiveHelper.spacing(context, 20)),
+                    _buildClassInfoCard(),
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildTeacherProfileCard()),
+                    SizedBox(width: ResponsiveHelper.spacing(context, 20)),
+                    Expanded(child: _buildClassInfoCard()),
                   ],
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title + Add Button
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            "Today's Agenda",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.add_circle_outline),
-                            onPressed: () => showAddAgendaDialog(context),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
+        ),
+        SizedBox(height: ResponsiveHelper.spacing(context, 24)),
+        Padding(
+          padding: EdgeInsets.only(left: ResponsiveHelper.padding(context, 4)),
+          child: Text(
+            'Quick Access',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: ResponsiveHelper.fontSize(context, 25),
+              color: Colors.black,
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(
+            left: ResponsiveHelper.padding(context, 4),
+            right: ResponsiveHelper.padding(context, 20),
+            top: ResponsiveHelper.padding(context, 4),
+          ),
+          child: const Divider(thickness: 0.5, color: Colors.blueGrey),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: ResponsiveHelper.padding(context, 10)),
+          child: Wrap(
+            spacing: ResponsiveHelper.spacing(context, 30),
+            runSpacing: ResponsiveHelper.spacing(context, 20),
+            crossAxisAlignment: WrapCrossAlignment.start,
+            children: [
+              _quickAccessCard(
+                context,
+                Icons.videocam,
+                'Start Class',
+                const Color.fromARGB(255, 238, 212, 248),
+                _startClass,
+              ),
+              _quickAccessCard(
+                context,
+                Icons.assignment,
+                'Assign Activities',
+                const Color.fromARGB(255, 238, 212, 248),
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AssignActivityPage(),
+                    ),
+                  );
+                },
+              ),
+              _quickAccessCard(
+                context,
+                Icons.upload_file,
+                'Upload Class Material',
+                const Color.fromARGB(255, 249, 236, 184),
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const UploadMaterialPage(),
+                    ),
+                  );
+                },
+              ),
+              _quickAccessCard(
+                context,
+                Icons.grade,
+                'Update Grades',
+                const Color.fromARGB(255, 212, 248, 238),
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const UpdateGradesPage(),
+                    ),
+                  );
+                },
+              ),
+              _quickAccessCard(
+                context,
+                Icons.list_alt,
+                'Student Submissions',
+                const Color.fromARGB(255, 238, 212, 248),
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const StudentActivitiesPage(),
+                    ),
+                  );
+                },
+              ),
+              _buildAttendanceCardWithNotification(context),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 
-                      //  StreamBuilder showing Firestore agendas
-                      Expanded(
-                        child:
-                            teacherEmail == null
-                                ? const Center(
-                                  child: Text('Load profile to see agenda.'),
-                                )
-                                : StreamBuilder<QuerySnapshot>(
-                                  stream:
-                                      _firestore
-                                          .collection('agenda')
-                                          .where(
-                                            'teacherEmail',
-                                            isEqualTo: teacherEmail,
-                                          )
-                                          .snapshots(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    }
-                                    if (!snapshot.hasData ||
-                                        snapshot.data!.docs.isEmpty) {
-                                      return const Center(
-                                        child: Text("No agenda items yet."),
-                                      );
-                                    }
+  Widget _buildAgendaContent() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Today's Agenda",
+                  style: TextStyle(
+                    fontSize: ResponsiveHelper.fontSize(context, 18),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline),
+                  onPressed: () => showAddAgendaDialog(context),
+                ),
+              ],
+            ),
+            SizedBox(height: ResponsiveHelper.spacing(context, 10)),
+            SizedBox(
+              height: ResponsiveHelper.isMobile(context) ? 300 : double.infinity,
+              child: teacherEmail == null
+                  ? const Center(
+                      child: Text('Load profile to see agenda.'),
+                    )
+                  : StreamBuilder<QuerySnapshot>(
+                      stream: _firestore
+                          .collection('agenda')
+                          .where('teacherEmail', isEqualTo: teacherEmail)
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          return const Center(child: Text("No agenda items yet."));
+                        }
 
-                                    final items = snapshot.data!.docs;
+                        final items = snapshot.data!.docs;
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: ResponsiveHelper.isMobile(context)
+                              ? const AlwaysScrollableScrollPhysics()
+                              : const NeverScrollableScrollPhysics(),
+                          itemCount: items.length,
+                          itemBuilder: (context, index) {
+                            final data = items[index].data() as Map<String, dynamic>;
+                            final color = index.isEven
+                                ? const Color(0xFFD9C3F7)
+                                : const Color(0xFFF7EBC3);
 
-                                    return ListView.builder(
-                                      itemCount: items.length,
-                                      itemBuilder: (context, index) {
-                                        final data =
-                                            items[index].data()
-                                                as Map<String, dynamic>;
-                                        final color =
-                                            index.isEven
-                                                ? lavender
-                                                : lightYellow;
-
-                                        return Container(
-                                          margin: const EdgeInsets.only(
-                                            bottom: 12,
-                                          ),
-                                          height: 80,
-                                          decoration: BoxDecoration(
-                                            color: color,
-                                            borderRadius: BorderRadius.circular(
-                                              10,
+                            return Container(
+                              margin: EdgeInsets.only(
+                                bottom: ResponsiveHelper.spacing(context, 12),
+                              ),
+                              height: 80,
+                              decoration: BoxDecoration(
+                                color: color,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: ResponsiveHelper.padding(context, 12),
+                                  vertical: ResponsiveHelper.padding(context, 10),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            data['time'] ?? '',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: ResponsiveHelper.fontSize(context, 14),
                                             ),
                                           ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 10,
+                                          const SizedBox(height: 5),
+                                          Text(
+                                            data['task'] ?? '',
+                                            style: TextStyle(
+                                              fontSize: ResponsiveHelper.fontSize(context, 14),
                                             ),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      data['time'] ?? '',
-                                                      style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 14,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 5),
-                                                    Text(
-                                                      data['task'] ?? '',
-                                                      style: const TextStyle(
-                                                        fontSize: 14,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                IconButton(
-                                                  icon: const Icon(
-                                                    Icons.delete_outline,
-                                                    color: Colors.redAccent,
-                                                  ),
-                                                  onPressed: () async {
-                                                    await _deleteAgenda(
-                                                      items[index].id,
-                                                    );
-                                                    ScaffoldMessenger.of(
-                                                      context,
-                                                    ).showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text(
-                                                          'Agenda deleted successfully',
-                                                        ),
-                                                        duration: Duration(
-                                                          seconds: 1,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                              ],
-                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        color: Colors.redAccent,
+                                      ),
+                                      onPressed: () async {
+                                        await _deleteAgenda(items[index].id);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Agenda deleted successfully'),
+                                            duration: Duration(seconds: 1),
                                           ),
                                         );
                                       },
-                                    );
-                                  },
+                                    ),
+                                  ],
                                 ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
             ),
           ],
         ),

@@ -5,6 +5,7 @@ import 'dart:html' as html;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../utils/responsive_helper.dart';
 
 class StudentActivitiesPage extends StatefulWidget {
   const StudentActivitiesPage({super.key});
@@ -125,23 +126,29 @@ class _StudentActivitiesPageState extends State<StudentActivitiesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Student Submissions', style: TextStyle(color: Colors.black)),
+        title: Text(
+          ResponsiveHelper.isMobile(context) ? 'Submissions' : 'Student Submissions',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: ResponsiveHelper.fontSize(context, 20),
+          ),
+        ),
         backgroundColor: const Color(0xFFD9C3F7),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Submissions',
               style: TextStyle(
-                fontSize: 22,
+                fontSize: ResponsiveHelper.fontSize(context, 22),
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: ResponsiveHelper.spacing(context, 12)),
             if (_isLoadingClasses)
               const LinearProgressIndicator(minHeight: 2),
             Expanded(
@@ -198,13 +205,15 @@ class _StudentActivitiesPageState extends State<StudentActivitiesPage> {
                           isReviewed ? 'REVIEWED' : status.toString().toUpperCase();
 
                       return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
+                        margin: EdgeInsets.only(
+                          bottom: ResponsiveHelper.padding(context, 12),
+                        ),
                         elevation: 2,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.all(16),
+                          padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -213,16 +222,16 @@ class _StudentActivitiesPageState extends State<StudentActivitiesPage> {
                                   Expanded(
                                     child: Text(
                                       assignmentTitle,
-                                      style: const TextStyle(
-                                        fontSize: 18,
+                                      style: TextStyle(
+                                        fontSize: ResponsiveHelper.fontSize(context, 18),
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: ResponsiveHelper.padding(context, 8),
+                                      vertical: ResponsiveHelper.padding(context, 4),
                                     ),
                                     decoration: BoxDecoration(
                                       color: chipColor,
@@ -231,7 +240,7 @@ class _StudentActivitiesPageState extends State<StudentActivitiesPage> {
                                     child: Text(
                                       chipLabel,
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: ResponsiveHelper.fontSize(context, 12),
                                         fontWeight: FontWeight.bold,
                                         color: chipTextColor,
                                       ),
@@ -239,45 +248,45 @@ class _StudentActivitiesPageState extends State<StudentActivitiesPage> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 6),
+                              SizedBox(height: ResponsiveHelper.spacing(context, 6)),
                               Text(
                                 'Student: $studentName',
-                                style: const TextStyle(
-                                  fontSize: 14,
+                                style: TextStyle(
+                                  fontSize: ResponsiveHelper.fontSize(context, 14),
                                   color: Colors.black87,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              SizedBox(height: ResponsiveHelper.spacing(context, 4)),
                               Text(
                                 'Submitted: ${_formatDate(submittedAt)}',
-                                style: const TextStyle(
-                                  fontSize: 12,
+                                style: TextStyle(
+                                  fontSize: ResponsiveHelper.fontSize(context, 12),
                                   color: Colors.grey,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: ResponsiveHelper.spacing(context, 8)),
                               if (fileName.isNotEmpty)
                                 Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.attach_file,
-                                      size: 16,
+                                      size: ResponsiveHelper.fontSize(context, 16),
                                       color: Colors.blue,
                                     ),
-                                    const SizedBox(width: 4),
+                                    SizedBox(width: ResponsiveHelper.spacing(context, 4)),
                                     Expanded(
                                       child: Text(
                                         fileName,
-                                        style: const TextStyle(
-                                          fontSize: 14,
+                                        style: TextStyle(
+                                          fontSize: ResponsiveHelper.fontSize(context, 14),
                                           color: Colors.blue,
                                         ),
                                       ),
                                     ),
                                     IconButton(
-                                      icon: const Icon(
+                                      icon: Icon(
                                         Icons.download,
-                                        size: 20,
+                                        size: ResponsiveHelper.fontSize(context, 20),
                                         color: Colors.blue,
                                       ),
                                       tooltip: 'Download submission',

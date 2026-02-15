@@ -4,6 +4,7 @@ import 'package:demo_vps/View/admin/complain_management/complain_management_scre
 import 'package:demo_vps/View/admin/student_assign_to_class/student_class_assign.dart';
 import 'package:demo_vps/View/admin/teacher_register_management/teacher_admission_list_screen.dart';
 import 'package:demo_vps/View/admin/student_attendance/admin_view_attendance.dart';
+import 'package:demo_vps/utils/responsive_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:demo_vps/View/admin/notification_screens/notification_managament_screen.dart';
 
@@ -69,25 +70,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = ResponsiveHelper.isMobile(context);
+    
     return Scaffold(
       body: Column(
         children: [
           _header(),
           Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                /// ✅ SCROLLABLE MAIN CONTENT
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
-                    child: _mainContent(),
+            child: isMobile
+                ? SingleChildScrollView(
+                    padding: EdgeInsets.all(ResponsiveHelper.padding(context, 24)),
+                    child: Column(
+                      children: [
+                        _mainContent(),
+                        SizedBox(height: ResponsiveHelper.spacing(context, 20)),
+                        _agendaContent(),
+                      ],
+                    ),
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: EdgeInsets.all(ResponsiveHelper.padding(context, 24)),
+                          child: _mainContent(),
+                        ),
+                      ),
+                      _agenda(),
+                    ],
                   ),
-                ),
-
-                _agenda(),
-              ],
-            ),
           ),
         ],
       ),
@@ -127,15 +139,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           "School Overview",
-          style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: ResponsiveHelper.fontSize(context, 26),
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: ResponsiveHelper.spacing(context, 20)),
 
         Wrap(
-          spacing: 20,
-          runSpacing: 20,
+          spacing: ResponsiveHelper.spacing(context, 20),
+          runSpacing: ResponsiveHelper.spacing(context, 20),
           children: [
             _statsCard(
               "Students",
@@ -152,16 +167,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
 
-        const SizedBox(height: 40),
-        const Text(
+        SizedBox(height: ResponsiveHelper.spacing(context, 40)),
+        Text(
           "Quick Access",
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: ResponsiveHelper.fontSize(context, 22),
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: ResponsiveHelper.spacing(context, 20)),
 
         Wrap(
-          spacing: 20,
-          runSpacing: 20,
+          spacing: ResponsiveHelper.spacing(context, 20),
+          runSpacing: ResponsiveHelper.spacing(context, 20),
           children: [
             _dashboardCard(
               Icons.class_,
@@ -201,7 +219,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
 
-        const SizedBox(height: 40), // 👈 prevents bottom cut-off
+        SizedBox(height: ResponsiveHelper.spacing(context, 40)),
       ],
     );
   }
@@ -209,8 +227,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _statsCard(String title, String value, IconData icon, Color color) {
     return Container(
       height: 140,
-      width: 230,
-      padding: const EdgeInsets.all(18),
+      width: ResponsiveHelper.cardWidth(context),
+      padding: EdgeInsets.all(ResponsiveHelper.padding(context, 18)),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(18),
@@ -229,9 +247,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const Spacer(),
           Text(
             value,
-            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: ResponsiveHelper.fontSize(context, 26),
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          Text(title, style: const TextStyle(color: Colors.black54)),
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.black54,
+              fontSize: ResponsiveHelper.fontSize(context, 14),
+            ),
+          ),
         ],
       ),
     );
@@ -245,8 +272,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       },
       child: Container(
         height: 150,
-        width: 230,
-        padding: const EdgeInsets.all(16),
+        width: ResponsiveHelper.cardWidth(context),
+        padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -263,7 +290,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Icon(icon, size: 30),
             const Spacer(),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: ResponsiveHelper.fontSize(context, 14),
+              ),
+            ),
             const Align(
               alignment: Alignment.bottomRight,
               child: Icon(Icons.arrow_forward),
@@ -275,7 +308,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   // ================= AGENDA =================
-  Widget _agenda() {
+  Widget _agendaContent() {
     final agenda = [
       "08:00 - Check Emails",
       "09:00 - Attendance",
@@ -284,47 +317,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
       "12:00 - Reports Review",
     ];
 
-    return Container(
-      width: 280,
-      padding: const EdgeInsets.all(20),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Today's Agenda",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      child: Padding(
+        padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Today's Agenda",
+              style: TextStyle(
+                fontSize: ResponsiveHelper.fontSize(context, 20),
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: agenda.length,
-                  itemBuilder: (_, i) {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color:
-                            i.isEven
-                                ? const Color(0xFFF1E9FF)
-                                : const Color(0xFFFFF4D7),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        agenda[i],
-                        style: const TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                    );
-                  },
+            ),
+            SizedBox(height: ResponsiveHelper.spacing(context, 16)),
+            ...agenda.map((item) => Container(
+              margin: EdgeInsets.only(bottom: ResponsiveHelper.spacing(context, 12)),
+              padding: EdgeInsets.all(ResponsiveHelper.padding(context, 12)),
+              decoration: BoxDecoration(
+                color: agenda.indexOf(item).isEven
+                    ? const Color(0xFFF1E9FF)
+                    : const Color(0xFFFFF4D7),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                item,
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: ResponsiveHelper.fontSize(context, 14),
                 ),
               ),
-            ],
-          ),
+            )).toList(),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _agenda() {
+    return Container(
+      width: 280,
+      padding: EdgeInsets.all(ResponsiveHelper.padding(context, 20)),
+      child: _agendaContent(),
     );
   }
 }

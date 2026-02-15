@@ -1,5 +1,6 @@
 // student_assign_screen.dart
 import 'package:flutter/material.dart';
+import 'package:demo_vps/utils/responsive_helper.dart';
 import '../../../controllers/student_assign_controller.dart';
 import '../../../Model/student_data.dart';
 import '../../../Model/class_model.dart';
@@ -59,12 +60,19 @@ class _StudentAssignScreenState extends State<StudentAssignScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Students", style: TextStyle(color: Colors.white)),
+        title: Text(
+          "Students",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: ResponsiveHelper.fontSize(context, 20),
+          ),
+        ),
         backgroundColor: const Color.fromARGB(255, 142, 88, 235),
         iconTheme: const IconThemeData(color: Colors.white),
         bottom: TabBar(
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
+          labelStyle: TextStyle(fontSize: ResponsiveHelper.fontSize(context, 14)),
           controller: _tabController,
           tabs: const [Tab(text: "Assigned"), Tab(text: "Unassigned")],
         ),
@@ -90,7 +98,7 @@ class _StudentAssignScreenState extends State<StudentAssignScreen>
             children: [
               // Assigned students grouped by category
               ListView(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(ResponsiveHelper.padding(context, 12)),
                 children:
                     grouped.entries
                         .where((e) => e.value.isNotEmpty)

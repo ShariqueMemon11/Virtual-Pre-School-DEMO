@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../Model/student_data.dart';
 import '../../../controllers/admin_student_application_controller.dart';
+import '../../../utils/responsive_helper.dart';
 
 class StudentApplicationView extends StatefulWidget {
   const StudentApplicationView({super.key});
@@ -19,9 +20,12 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Student Applications",
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          ResponsiveHelper.isMobile(context) ? "Applications" : "Student Applications",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: ResponsiveHelper.fontSize(context, 20),
+          ),
         ),
         backgroundColor: const Color.fromARGB(255, 156, 129, 219),
         iconTheme: const IconThemeData(color: Colors.white),
@@ -42,7 +46,7 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
           final applications = snapshot.data!;
 
           return ListView.builder(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
             itemCount: applications.length,
             itemBuilder: (context, index) {
               final app = applications[index];
@@ -55,11 +59,13 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
                   borderRadius: BorderRadius.circular(16.r),
                 ),
                 elevation: 5,
-                margin: EdgeInsets.symmetric(vertical: 8.h),
+                margin: EdgeInsets.symmetric(
+                  vertical: ResponsiveHelper.padding(context, 8),
+                ),
                 child: ListTile(
-                  contentPadding: EdgeInsets.all(12.w),
+                  contentPadding: EdgeInsets.all(ResponsiveHelper.padding(context, 12)),
                   leading: CircleAvatar(
-                    radius: 28.w,
+                    radius: ResponsiveHelper.isMobile(context) ? 24 : 28.w,
                     backgroundImage: photo,
                     backgroundColor: const Color.fromARGB(
                       255,
@@ -81,25 +87,37 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
                   title: Text(
                     app.childName ?? "Unknown",
                     style: TextStyle(
-                      fontSize: 17.sp,
+                      fontSize: ResponsiveHelper.fontSize(context, 17),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(app.email ?? "No email"),
-                      SizedBox(height: 4.h),
+                      Text(
+                        app.email ?? "No email",
+                        style: TextStyle(
+                          fontSize: ResponsiveHelper.fontSize(context, 13),
+                        ),
+                      ),
+                      SizedBox(height: ResponsiveHelper.spacing(context, 4)),
                       Row(
                         children: [
-                          Icon(Icons.cake, size: 16, color: Colors.grey[600]),
-                          SizedBox(width: 5.w),
+                          Icon(
+                            Icons.cake,
+                            size: ResponsiveHelper.fontSize(context, 16),
+                            color: Colors.grey[600],
+                          ),
+                          SizedBox(width: ResponsiveHelper.spacing(context, 5)),
                           Text(
                             app.dateOfBirth
                                     ?.toIso8601String()
                                     .split("T")
                                     .first ??
                                 "N/A",
+                            style: TextStyle(
+                              fontSize: ResponsiveHelper.fontSize(context, 13),
+                            ),
                           ),
                         ],
                       ),
@@ -111,8 +129,8 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
                       // Status color chip
                       Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: 10.w,
-                          vertical: 4.h,
+                          horizontal: ResponsiveHelper.padding(context, 10),
+                          vertical: ResponsiveHelper.padding(context, 4),
                         ),
                         decoration: BoxDecoration(
                           color: _controller
@@ -129,24 +147,25 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
                           style: TextStyle(
                             color: _controller.getStatusColor(status),
                             fontWeight: FontWeight.w600,
-                            fontSize: 13.sp,
+                            fontSize: ResponsiveHelper.fontSize(context, 13),
                           ),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () async {
-                          await _controller.deleteApplication(app.id ?? "");
-                          // ignore: use_build_context_synchronously
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                "Deleted ${app.childName ?? 'application'}",
+                      if (!ResponsiveHelper.isMobile(context))
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () async {
+                            await _controller.deleteApplication(app.id ?? "");
+                            // ignore: use_build_context_synchronously
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Deleted ${app.childName ?? 'application'}",
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
+                            );
+                          },
+                        ),
                     ],
                   ),
                   onTap: () {

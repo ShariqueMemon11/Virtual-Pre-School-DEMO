@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/teacher_admission_controller.dart';
+import '../../../utils/responsive_helper.dart';
 import 'teacher_admission_detail_view.dart';
 
 class TeacherAdmissionListScreen extends StatelessWidget {
@@ -18,19 +19,23 @@ class TeacherAdmissionListScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
-          "Teacher Applications",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Text(
+          ResponsiveHelper.isMobile(context) ? "Applications" : "Teacher Applications",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: ResponsiveHelper.fontSize(context, 20),
+          ),
         ),
         backgroundColor: Color.fromARGB(255, 142, 108, 221),
         elevation: 0,
         centerTitle: true,
-        toolbarHeight: 65,
+        toolbarHeight: ResponsiveHelper.isMobile(context) ? 56 : 65,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Container(
         color: Colors.white,
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16.0)),
         child: Obx(() {
           if (controller.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
@@ -55,29 +60,35 @@ class TeacherAdmissionListScreen extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                margin: EdgeInsets.symmetric(
+                  horizontal: ResponsiveHelper.padding(context, 8),
+                  vertical: ResponsiveHelper.padding(context, 6),
+                ),
                 elevation: 3,
                 child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveHelper.padding(context, 16),
+                    vertical: ResponsiveHelper.padding(context, 8),
                   ),
                   title: Text(
                     app.name,
-                    style: const TextStyle(
-                      fontSize: 18,
+                    style: TextStyle(
+                      fontSize: ResponsiveHelper.fontSize(context, 18),
                       fontWeight: FontWeight.w600,
                       color: deepPurple,
                     ),
                   ),
                   subtitle: Text(
                     app.email,
-                    style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontSize: ResponsiveHelper.fontSize(context, 14),
+                    ),
                   ),
-                  trailing: const Icon(
+                  trailing: Icon(
                     Icons.arrow_forward_ios,
                     color: deepPurple,
-                    size: 18,
+                    size: ResponsiveHelper.fontSize(context, 18),
                   ),
 
                   /// 🔥 Refresh list when coming back from detail
