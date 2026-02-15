@@ -138,12 +138,15 @@ class _NotificationsModalState extends State<NotificationsModal> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
+    
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       child: Container(
-        width: 800.w,
-        height: 600.h,
-        padding: EdgeInsets.all(20.w),
+        width: isMobile ? screenWidth * 0.9 : 800.w,
+        height: isMobile ? MediaQuery.of(context).size.height * 0.8 : 600.h,
+        padding: EdgeInsets.all(isMobile ? 20 : 20.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -151,25 +154,25 @@ class _NotificationsModalState extends State<NotificationsModal> {
               children: [
                 Icon(
                   Icons.notifications_none,
-                  size: 28.sp,
+                  size: isMobile ? 28 : 28.sp,
                   color: Colors.purple,
                 ),
-                SizedBox(width: 10.w),
+                SizedBox(width: isMobile ? 10 : 10.w),
                 Text(
                   'Notifications',
                   style: TextStyle(
-                    fontSize: 24.sp,
+                    fontSize: isMobile ? 22 : 24.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const Spacer(),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close),
+                  icon: Icon(Icons.close, size: isMobile ? 28 : 24),
                 ),
               ],
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: isMobile ? 16 : 20.h),
             Expanded(
               child:
                   isLoading
@@ -191,32 +194,48 @@ class _NotificationsModalState extends State<NotificationsModal> {
   }
 
   Widget _buildEmpty() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
+    
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.outgoing_mail, size: 64.sp, color: Colors.grey[400]),
-          SizedBox(height: 12.h),
-          Text(
-            'No notifications yet',
-            style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
-          ),
-        ],
+      child: Padding(
+        padding: EdgeInsets.all(isMobile ? 20 : 0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.outgoing_mail,
+              size: isMobile ? 80 : 64.sp,
+              color: Colors.grey[400],
+            ),
+            SizedBox(height: isMobile ? 16 : 12.h),
+            Text(
+              'No notifications yet',
+              style: TextStyle(
+                fontSize: isMobile ? 18 : 16.sp,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _notificationCard(Map<String, dynamic> n) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
     final String? base64Doc = n['uploadedDocument'] as String?;
     final String fileName = (n['documentName'] as String?) ?? 'document';
     final bool isRead = n['isRead'] == true;
+    
     return Card(
       color: isRead ? null : Colors.purple[50],
-      margin: EdgeInsets.only(bottom: 12.h),
+      margin: EdgeInsets.only(bottom: isMobile ? 12 : 12.h),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
       child: Padding(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.all(isMobile ? 16 : 16.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -226,7 +245,7 @@ class _NotificationsModalState extends State<NotificationsModal> {
                   child: Text(
                     n['title'] ?? 'Notification',
                     style: TextStyle(
-                      fontSize: 18.sp,
+                      fontSize: isMobile ? 17 : 18.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -242,17 +261,17 @@ class _NotificationsModalState extends State<NotificationsModal> {
                           shape: BoxShape.circle,
                         ),
                       ),
-                    SizedBox(width: 8.w),
+                    SizedBox(width: isMobile ? 8 : 8.w),
                     Icon(
                       Icons.access_time,
-                      size: 16.sp,
+                      size: isMobile ? 16 : 16.sp,
                       color: Colors.grey[500],
                     ),
-                    SizedBox(width: 4.w),
+                    SizedBox(width: isMobile ? 4 : 4.w),
                     Text(
                       _formatDate(n['createdAt'] as Timestamp),
                       style: TextStyle(
-                        fontSize: 12.sp,
+                        fontSize: isMobile ? 12 : 12.sp,
                         color: Colors.grey[600],
                       ),
                     ),
@@ -261,22 +280,32 @@ class _NotificationsModalState extends State<NotificationsModal> {
               ],
             ),
             if ((n['body'] as String).isNotEmpty) ...[
-              SizedBox(height: 8.h),
+              SizedBox(height: isMobile ? 8 : 8.h),
               Text(
                 n['body'],
-                style: TextStyle(fontSize: 14.sp, color: Colors.grey[700]),
+                style: TextStyle(
+                  fontSize: isMobile ? 14 : 14.sp,
+                  color: Colors.grey[700],
+                ),
               ),
             ],
             if (base64Doc != null && base64Doc.isNotEmpty) ...[
-              SizedBox(height: 12.h),
+              SizedBox(height: isMobile ? 12 : 12.h),
               Row(
                 children: [
-                  Icon(Icons.attach_file, size: 16.sp, color: Colors.purple),
-                  SizedBox(width: 6.w),
+                  Icon(
+                    Icons.attach_file,
+                    size: isMobile ? 18 : 16.sp,
+                    color: Colors.purple,
+                  ),
+                  SizedBox(width: isMobile ? 6 : 6.w),
                   Expanded(
                     child: Text(
                       fileName,
-                      style: TextStyle(fontSize: 14.sp, color: Colors.purple),
+                      style: TextStyle(
+                        fontSize: isMobile ? 14 : 14.sp,
+                        color: Colors.purple,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -284,7 +313,7 @@ class _NotificationsModalState extends State<NotificationsModal> {
                     icon: Icon(
                       Icons.download,
                       color: Colors.purple,
-                      size: 20.sp,
+                      size: isMobile ? 24 : 20.sp,
                     ),
                     tooltip: 'Download attachment',
                   ),

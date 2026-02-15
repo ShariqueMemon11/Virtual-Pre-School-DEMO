@@ -68,35 +68,42 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
+    
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       child: Container(
-        width: 700.w,
-        height: 600.h,
-        padding: EdgeInsets.all(20.w),
+        width: isMobile ? screenWidth * 0.9 : 700.w,
+        height: isMobile ? MediaQuery.of(context).size.height * 0.8 : 600.h,
+        padding: EdgeInsets.all(isMobile ? 20 : 20.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
             Row(
               children: [
-                Icon(Icons.calendar_today, size: 28.sp, color: Colors.blue),
-                SizedBox(width: 10.w),
+                Icon(
+                  Icons.calendar_today,
+                  size: isMobile ? 28 : 28.sp,
+                  color: Colors.blue,
+                ),
+                SizedBox(width: isMobile ? 10 : 10.w),
                 Text(
                   'My Attendance',
                   style: TextStyle(
-                    fontSize: 24.sp,
+                    fontSize: isMobile ? 22 : 24.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const Spacer(),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close),
+                  icon: Icon(Icons.close, size: isMobile ? 28 : 24),
                 ),
               ],
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: isMobile ? 16 : 20.h),
 
             // Stats Card
             if (!isLoading && stats.isNotEmpty) _buildStatsCard(),
@@ -124,6 +131,8 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> {
   }
 
   Widget _buildStatsCard() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
     final percentage = stats['percentage'] ?? 0.0;
     final presentDays = stats['presentDays'] ?? 0;
     final totalDays = stats['totalDays'] ?? 0;
@@ -132,19 +141,19 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> {
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       child: Padding(
-        padding: EdgeInsets.all(20.w),
+        padding: EdgeInsets.all(isMobile ? 16 : 20.w),
         child: Row(
           children: [
             // Circular progress
             SizedBox(
-              width: 80.w,
-              height: 80.h,
+              width: isMobile ? 100 : 80.w,
+              height: isMobile ? 100 : 80.h,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
                   CircularProgressIndicator(
                     value: percentage / 100,
-                    strokeWidth: 8,
+                    strokeWidth: isMobile ? 10 : 8,
                     backgroundColor: Colors.grey[200],
                     valueColor: AlwaysStoppedAnimation<Color>(
                       percentage >= 75
@@ -158,7 +167,7 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> {
                     child: Text(
                       '${percentage.toStringAsFixed(0)}%',
                       style: TextStyle(
-                        fontSize: 18.sp,
+                        fontSize: isMobile ? 22 : 18.sp,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -166,7 +175,7 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> {
                 ],
               ),
             ),
-            SizedBox(width: 20.w),
+            SizedBox(width: isMobile ? 16 : 20.w),
 
             // Stats details
             Expanded(
@@ -176,22 +185,31 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> {
                   Text(
                     'Attendance Summary',
                     style: TextStyle(
-                      fontSize: 18.sp,
+                      fontSize: isMobile ? 17 : 18.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: isMobile ? 8 : 8.h),
                   Text(
                     'Present: $presentDays days',
-                    style: TextStyle(fontSize: 14.sp, color: Colors.green),
+                    style: TextStyle(
+                      fontSize: isMobile ? 14 : 14.sp,
+                      color: Colors.green,
+                    ),
                   ),
                   Text(
                     'Absent: ${stats['absentDays']} days',
-                    style: TextStyle(fontSize: 14.sp, color: Colors.red),
+                    style: TextStyle(
+                      fontSize: isMobile ? 14 : 14.sp,
+                      color: Colors.red,
+                    ),
                   ),
                   Text(
                     'Total: $totalDays days',
-                    style: TextStyle(fontSize: 14.sp, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: isMobile ? 14 : 14.sp,
+                      color: Colors.grey[600],
+                    ),
                   ),
                 ],
               ),
@@ -203,45 +221,61 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> {
   }
 
   Widget _buildEmptyState() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
+    
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.event_busy, size: 64.sp, color: Colors.grey[400]),
-          SizedBox(height: 16.h),
-          Text(
-            'No attendance records',
-            style: TextStyle(
-              fontSize: 18.sp,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
+      child: Padding(
+        padding: EdgeInsets.all(isMobile ? 20 : 0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.event_busy,
+              size: isMobile ? 80 : 64.sp,
+              color: Colors.grey[400],
             ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Your attendance will appear here',
-            style: TextStyle(fontSize: 14.sp, color: Colors.grey[500]),
-          ),
-        ],
+            SizedBox(height: isMobile ? 16 : 16.h),
+            Text(
+              'No attendance records',
+              style: TextStyle(
+                fontSize: isMobile ? 18 : 18.sp,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: isMobile ? 8 : 8.h),
+            Text(
+              'Your attendance will appear here',
+              style: TextStyle(
+                fontSize: isMobile ? 14 : 14.sp,
+                color: Colors.grey[500],
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildAttendanceCard(Map<String, dynamic> attendance) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
     final status = attendance['status'] ?? 'absent';
     final isPresent = status == 'present';
 
     return Card(
-      margin: EdgeInsets.only(bottom: 12.h),
+      margin: EdgeInsets.only(bottom: isMobile ? 12 : 12.h),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
       child: Padding(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.all(isMobile ? 14 : 16.w),
         child: Row(
           children: [
             // Status icon
             Container(
-              padding: EdgeInsets.all(8.w),
+              padding: EdgeInsets.all(isMobile ? 8 : 8.w),
               decoration: BoxDecoration(
                 color: isPresent ? Colors.green[50] : Colors.red[50],
                 borderRadius: BorderRadius.circular(8.r),
@@ -249,10 +283,10 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> {
               child: Icon(
                 isPresent ? Icons.check_circle : Icons.cancel,
                 color: isPresent ? Colors.green : Colors.red,
-                size: 24.sp,
+                size: isMobile ? 26 : 24.sp,
               ),
             ),
-            SizedBox(width: 16.w),
+            SizedBox(width: isMobile ? 14 : 16.w),
 
             // Date and details
             Expanded(
@@ -262,15 +296,15 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> {
                   Text(
                     _formatDate(attendance['date']),
                     style: TextStyle(
-                      fontSize: 16.sp,
+                      fontSize: isMobile ? 15 : 16.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 4.h),
+                  SizedBox(height: isMobile ? 4 : 4.h),
                   Text(
                     'Marked by: ${attendance['markedByName']}',
                     style: TextStyle(
-                      fontSize: 12.sp,
+                      fontSize: isMobile ? 13 : 12.sp,
                       color: Colors.grey[600],
                     ),
                   ),
@@ -280,7 +314,10 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> {
 
             // Status badge
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 12 : 12.w,
+                vertical: isMobile ? 6 : 6.h,
+              ),
               decoration: BoxDecoration(
                 color: isPresent ? Colors.green : Colors.red,
                 borderRadius: BorderRadius.circular(12.r),
@@ -288,7 +325,7 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> {
               child: Text(
                 isPresent ? 'PRESENT' : 'ABSENT',
                 style: TextStyle(
-                  fontSize: 12.sp,
+                  fontSize: isMobile ? 12 : 12.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),

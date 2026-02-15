@@ -118,124 +118,104 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          flex: 1,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-                child: Text(
-                  "Student Profile",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 25.sp,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 22.0, right: 42),
-                child: Divider(thickness: 0.5, color: Colors.blueGrey),
-              ),
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
+    
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(isMobile ? 16 : 20.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Student Profile",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: isMobile ? 24 : 25.sp,
+              color: Colors.black,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: isMobile ? 0 : 42.w, top: 4),
+            child: Divider(thickness: 0.5, color: Colors.blueGrey),
+          ),
+          SizedBox(height: isMobile ? 16 : 10.h),
 
-              // Student Profile Card
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-                child: Row(
+          // Student Profile Card
+          isMobile
+              ? Column(
+                  children: [
+                    _buildStudentProfileCard(),
+                    SizedBox(height: 16),
+                    _buildStudentProgressCard(),
+                  ],
+                )
+              : Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildStudentProfileCard(),
                     _buildStudentProgressCard(),
                   ],
                 ),
+
+          SizedBox(height: isMobile ? 20 : 15.h),
+          Text(
+            "Quick Access",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: isMobile ? 24 : 25.sp,
+              color: Colors.black,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: isMobile ? 0 : 42.w, top: 4),
+            child: Divider(thickness: 0.5, color: Colors.blueGrey),
+          ),
+          SizedBox(height: isMobile ? 16 : 10.h),
+          
+          Wrap(
+            spacing: isMobile ? 16 : 50.w,
+            runSpacing: isMobile ? 16 : 12.h,
+            children: [
+              _buildQuickAccessCard(
+                icon: Icons.schedule,
+                label: "Join Class",
+                color: const Color.fromARGB(255, 249, 236, 184),
+                onTap: _joinLiveClass,
               ),
-
-              Padding(
-                padding: const EdgeInsets.only(top: 15.0, left: 20.0),
-                child: Text(
-                  "Quick Access",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 25.sp,
-                    color: Colors.black,
-                  ),
-                ),
+              _buildQuickAccessCard(
+                icon: Icons.grade,
+                label: "My Grades",
+                color: const Color.fromARGB(255, 212, 248, 238),
+                onTap: _showGradesModal,
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 22.0, right: 42),
-                child: Divider(thickness: 0.5, color: Colors.blueGrey),
+              _buildQuickAccessCard(
+                icon: Icons.assignment,
+                label: "My Assignments",
+                color: const Color.fromARGB(255, 238, 212, 248),
+                onTap: _showAssignmentsModal,
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    _buildQuickAccessCard(
-                      icon: Icons.schedule,
-                      label: "Join Class",
-                      color: const Color.fromARGB(255, 249, 236, 184),
-                      onTap: _joinLiveClass, // ✅ ADD THIS
-                    ),
-                    SizedBox(width: 50.w),
-
-                    _buildQuickAccessCard(
-                      icon: Icons.grade,
-                      label: "My Grades",
-                      color: const Color.fromARGB(255, 212, 248, 238),
-                      onTap: _showGradesModal,
-                    ),
-                    SizedBox(width: 50.w),
-
-                    _buildQuickAccessCard(
-                      icon: Icons.assignment,
-                      label: "My Assignments",
-                      color: const Color.fromARGB(255, 238, 212, 248),
-                      onTap: _showAssignmentsModal,
-                    ),
-                    SizedBox(width: 50.w),
-                  ],
-                ),
+              _buildQuickAccessCard(
+                icon: Icons.folder_copy_outlined,
+                label: "Class Materials",
+                color: const Color.fromARGB(255, 238, 212, 248),
+                onTap: _showClassMaterialsModal,
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    _buildQuickAccessCard(
-                      icon: Icons.folder_copy_outlined,
-                      label: "Class Materials",
-                      color: const Color.fromARGB(255, 238, 212, 248),
-                      onTap: _showClassMaterialsModal,
-                    ),
-                    SizedBox(width: 50.w),
-
-                    _buildQuickAccessCard(
-                      icon: Icons.how_to_reg,
-                      label: "My Attendance",
-                      color: const Color.fromARGB(255, 184, 236, 249),
-                      onTap: _showAttendanceModal,
-                    ),
-                    SizedBox(width: 50.w),
-
-                    _buildQuickAccessCard(
-                      icon: Icons.receipt_long,
-                      label: "Fee Challans",
-                      color: const Color.fromARGB(255, 184, 249, 236),
-                      onTap: _showFeeChallanModal,
-                    ),
-                  ],
-                ),
+              _buildQuickAccessCard(
+                icon: Icons.how_to_reg,
+                label: "My Attendance",
+                color: const Color.fromARGB(255, 184, 236, 249),
+                onTap: _showAttendanceModal,
+              ),
+              _buildQuickAccessCard(
+                icon: Icons.receipt_long,
+                label: "Fee Challans",
+                color: const Color.fromARGB(255, 184, 249, 236),
+                onTap: _showFeeChallanModal,
               ),
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -266,30 +246,14 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
     return null;
   }
 
-  Widget _buildStudentImage() {
-    final imageProvider = _getImageProvider();
-
-    if (imageProvider != null) {
-      return CircleAvatar(
-        radius: 50.r,
-        backgroundColor: const Color.fromARGB(255, 151, 123, 218),
-        backgroundImage: imageProvider,
-        child: null,
-      );
-    } else {
-      return CircleAvatar(
-        radius: 50.r,
-        backgroundColor: const Color.fromARGB(255, 151, 123, 218),
-        child: Icon(Icons.person, size: 50.sp, color: Colors.white),
-      );
-    }
-  }
-
   Widget _buildStudentProfileCard() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
+    
     if (isLoading) {
       return Container(
-        height: 160.h,
-        width: 500.w,
+        height: isMobile ? 180 : 160.h,
+        width: isMobile ? double.infinity : 500.w,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10.r),
@@ -307,8 +271,8 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
     }
 
     return Container(
-      height: 160.h,
-      width: 500.w,
+      height: isMobile ? 180 : 160.h,
+      width: isMobile ? double.infinity : 500.w,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10.r),
@@ -322,12 +286,19 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.all(isMobile ? 16 : 20.w),
         child: Row(
           children: [
             // Student Image
-            _buildStudentImage(),
-            SizedBox(width: 20.w),
+            CircleAvatar(
+              radius: isMobile ? 45 : 50.r,
+              backgroundColor: const Color.fromARGB(255, 151, 123, 218),
+              backgroundImage: _getImageProvider(),
+              child: _getImageProvider() == null
+                  ? Icon(Icons.person, size: isMobile ? 45 : 50.sp, color: Colors.white)
+                  : null,
+            ),
+            SizedBox(width: isMobile ? 16 : 20.w),
 
             // Student Info
             Expanded(
@@ -339,20 +310,27 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
                     studentName ?? 'Student',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 24.sp,
+                      fontSize: isMobile ? 22 : 24.sp,
                       color: Colors.black,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 8),
                   Text(
                     studentEmail ?? 'No email',
-                    style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: isMobile ? 14 : 16.sp,
+                      color: Colors.grey[600],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 8),
                   Text(
                     'Student',
                     style: TextStyle(
-                      fontSize: 14.sp,
+                      fontSize: isMobile ? 14 : 14.sp,
                       color: const Color.fromARGB(255, 151, 123, 218),
                       fontWeight: FontWeight.w500,
                     ),
@@ -374,6 +352,9 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
     required Color color,
     VoidCallback? onTap,
   }) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
+    
     return GestureDetector(
       onTap:
           onTap ??
@@ -388,9 +369,9 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
           borderRadius: BorderRadius.circular(12.r),
         ),
         child: Container(
-          padding: const EdgeInsets.all(16),
-          height: 160.h,
-          width: 230.w,
+          padding: EdgeInsets.all(isMobile ? 16 : 16.w),
+          height: isMobile ? 160 : 160.h,
+          width: isMobile ? (screenWidth - 64) / 2 : 230.w,
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(12.r),
@@ -399,18 +380,23 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, size: 28.sp, color: Colors.black87),
+              Icon(icon, size: isMobile ? 32 : 28.sp, color: Colors.black87),
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: isMobile ? 15 : 14.sp,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              const Align(
+              Align(
                 alignment: Alignment.bottomRight,
-                child: Icon(Icons.arrow_circle_right, size: 20),
+                child: Icon(
+                  Icons.arrow_circle_right,
+                  size: isMobile ? 22 : 20,
+                ),
               ),
             ],
           ),
@@ -485,6 +471,9 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
 
   // Replace _buildStudentProgressCard body with fetch from Firestore
   Widget _buildStudentProgressCard() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
+    
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: _fetchStudentGrades(),
       builder: (context, snapshot) {
@@ -520,10 +509,10 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
             borderRadius: BorderRadius.circular(10.r),
           ),
           elevation: 3,
-          margin: EdgeInsets.only(left: 36.w),
+          margin: EdgeInsets.only(left: isMobile ? 0 : 36.w),
           child: Container(
-            height: 160.h,
-            width: 320.w,
+            height: isMobile ? 180 : 160.h,
+            width: isMobile ? double.infinity : 320.w,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(10.r),
@@ -536,18 +525,21 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
                 ),
               ],
             ),
-            padding: EdgeInsets.symmetric(vertical: 22.h, horizontal: 18.w),
+            padding: EdgeInsets.symmetric(
+              vertical: isMobile ? 20 : 22.h,
+              horizontal: isMobile ? 16 : 18.w,
+            ),
             child: Row(
               children: [
                 SizedBox(
-                  width: 90.w,
-                  height: 95.h,
+                  width: isMobile ? 90 : 90.w,
+                  height: isMobile ? 90 : 95.h,
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
                       CircularProgressIndicator(
                         value: avg / 100.0,
-                        strokeWidth: 10,
+                        strokeWidth: isMobile ? 10 : 10,
                         backgroundColor: Colors.grey[200],
                         valueColor: AlwaysStoppedAnimation<Color>(color),
                       ),
@@ -556,7 +548,7 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
                           '${avg.toStringAsFixed(1)}%',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 20.sp,
+                            fontSize: isMobile ? 18 : 20.sp,
                             color: color,
                           ),
                         ),
@@ -564,7 +556,7 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
                     ],
                   ),
                 ),
-                SizedBox(width: 22.w),
+                SizedBox(width: isMobile ? 16 : 22.w),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -574,17 +566,19 @@ class _StudentDashboardMainState extends State<StudentDashboardMain> {
                         remark,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 18.sp,
+                          fontSize: isMobile ? 18 : 18.sp,
                           color: color,
                         ),
                       ),
-                      SizedBox(height: 10.h),
+                      SizedBox(height: isMobile ? 8 : 10.h),
                       Text(
                         advice,
                         style: TextStyle(
-                          fontSize: 14.sp,
+                          fontSize: isMobile ? 13 : 14.sp,
                           color: Colors.grey[800],
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),

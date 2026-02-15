@@ -119,34 +119,41 @@ class _ClassMaterialsModalState extends State<ClassMaterialsModal> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
+    
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       child: Container(
-        width: 800.w,
-        height: 600.h,
-        padding: EdgeInsets.all(20.w),
+        width: isMobile ? screenWidth * 0.9 : 800.w,
+        height: isMobile ? MediaQuery.of(context).size.height * 0.8 : 600.h,
+        padding: EdgeInsets.all(isMobile ? 20 : 20.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(Icons.folder_copy, size: 28.sp, color: Colors.deepPurple),
-                SizedBox(width: 10.w),
+                Icon(
+                  Icons.folder_copy,
+                  size: isMobile ? 28 : 28.sp,
+                  color: Colors.deepPurple,
+                ),
+                SizedBox(width: isMobile ? 10 : 10.w),
                 Text(
                   'Class Materials',
                   style: TextStyle(
-                    fontSize: 24.sp,
+                    fontSize: isMobile ? 22 : 24.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const Spacer(),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close),
+                  icon: Icon(Icons.close, size: isMobile ? 28 : 24),
                 ),
               ],
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: isMobile ? 16 : 20.h),
             Expanded(
               child:
                   _isLoading
@@ -168,33 +175,49 @@ class _ClassMaterialsModalState extends State<ClassMaterialsModal> {
   }
 
   Widget _buildEmptyState() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
     final classId = widget.classId;
     final className = widget.className;
     final hasClass = (classId != null && classId.isNotEmpty) ||
         (className != null && className.isNotEmpty);
+    
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.folder_open, size: 64.sp, color: Colors.grey[400]),
-          SizedBox(height: 16.h),
-          Text(
-            'No materials available',
-            style: TextStyle(
-              fontSize: 18.sp,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
+      child: Padding(
+        padding: EdgeInsets.all(isMobile ? 20 : 0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.folder_open,
+              size: isMobile ? 80 : 64.sp,
+              color: Colors.grey[400],
             ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            hasClass
-                ? 'Please check back later for new uploads from your teacher.'
-                : 'Class not assigned yet. Contact your teacher for access.',
-            style: TextStyle(fontSize: 14.sp, color: Colors.grey[500]),
-            textAlign: TextAlign.center,
-          ),
-        ],
+            SizedBox(height: isMobile ? 16 : 16.h),
+            Text(
+              'No materials available',
+              style: TextStyle(
+                fontSize: isMobile ? 18 : 18.sp,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: isMobile ? 8 : 8.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 0),
+              child: Text(
+                hasClass
+                    ? 'Please check back later for new uploads from your teacher.'
+                    : 'Class not assigned yet. Contact your teacher for access.',
+                style: TextStyle(
+                  fontSize: isMobile ? 14 : 14.sp,
+                  color: Colors.grey[500],
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

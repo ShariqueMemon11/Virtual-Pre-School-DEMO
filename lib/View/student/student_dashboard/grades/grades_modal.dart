@@ -139,11 +139,17 @@ class _GradesModalState extends State<GradesModal> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
+    
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       child: Container(
-        width: 600.w,
-        padding: EdgeInsets.all(20.w),
+        width: isMobile ? screenWidth * 0.9 : 600.w,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+        ),
+        padding: EdgeInsets.all(isMobile ? 20 : 20.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,37 +157,40 @@ class _GradesModalState extends State<GradesModal> {
             // Header
             Row(
               children: [
-                Icon(Icons.grade, size: 28.sp, color: Colors.orange),
-                SizedBox(width: 10.w),
+                Icon(Icons.grade, size: isMobile ? 28 : 28.sp, color: Colors.orange),
+                SizedBox(width: isMobile ? 10 : 10.w),
                 Text(
                   'My Grades',
                   style: TextStyle(
-                    fontSize: 24.sp,
+                    fontSize: isMobile ? 22 : 24.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const Spacer(),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close),
+                  icon: Icon(Icons.close, size: isMobile ? 28 : 24),
                 ),
               ],
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: isMobile ? 16 : 20.h),
 
             // Content
-            FutureBuilder<List<Map<String, dynamic>>>(
-              future: _gradesFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState != ConnectionState.done) {
-                  return _buildEmptyState();
-                }
-                final grades = snapshot.data ?? [];
-                if (grades.isEmpty) return _buildEmptyState();
-                return Column(
-                  children: grades.map((g) => _buildSubjectCard(g)).toList(),
-                );
-              },
+            Flexible(
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: _gradesFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return _buildEmptyState();
+                  }
+                  final grades = snapshot.data ?? [];
+                  if (grades.isEmpty) return _buildEmptyState();
+                  return ListView(
+                    shrinkWrap: true,
+                    children: grades.map((g) => _buildSubjectCard(g)).toList(),
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -215,14 +224,17 @@ class _GradesModalState extends State<GradesModal> {
   }
 
   Widget _buildSubjectCard(Map<String, dynamic> subject) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
     final double percentage = subject['percentage'] ?? 0.0;
     final String gradeStr = subject['gradeStr']?.toString() ?? '';
+    
     return Card(
-      margin: EdgeInsets.only(bottom: 16.h),
+      margin: EdgeInsets.only(bottom: isMobile ? 12 : 16.h),
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       child: Padding(
-        padding: EdgeInsets.all(20.w),
+        padding: EdgeInsets.all(isMobile ? 16 : 20.w),
         child: Row(
           children: [
             Expanded(
@@ -232,23 +244,26 @@ class _GradesModalState extends State<GradesModal> {
                   Text(
                     subject['subjectName'],
                     style: TextStyle(
-                      fontSize: 20.sp,
+                      fontSize: isMobile ? 18 : 20.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: isMobile ? 6 : 8.h),
                   Text(
                     'Teacher: ${subject['teacherName']}',
-                    style: TextStyle(fontSize: 14.sp, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: isMobile ? 14 : 14.sp,
+                      color: Colors.grey[600],
+                    ),
                   ),
                   if (gradeStr.isNotEmpty)
                     Padding(
-                      padding: EdgeInsets.only(top: 6.h),
+                      padding: EdgeInsets.only(top: isMobile ? 4 : 6.h),
                       child: Text(
                         'Grade: $gradeStr',
                         style: TextStyle(
-                          fontSize: 13.sp,
+                          fontSize: isMobile ? 13 : 13.sp,
                           color: Colors.deepPurple,
                         ),
                       ),
@@ -256,7 +271,7 @@ class _GradesModalState extends State<GradesModal> {
                 ],
               ),
             ),
-            SizedBox(width: 20.w),
+            SizedBox(width: isMobile ? 12 : 20.w),
             _buildPercentageCircle(percentage),
           ],
         ),
@@ -265,17 +280,19 @@ class _GradesModalState extends State<GradesModal> {
   }
 
   Widget _buildPercentageCircle(double percentage) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
     final String letterGrade = _getLetterGrade(percentage);
 
     return SizedBox(
-      width: 80.w,
-      height: 80.h,
+      width: isMobile ? 70 : 80.w,
+      height: isMobile ? 70 : 80.h,
       child: Stack(
         fit: StackFit.expand,
         children: [
           CircularProgressIndicator(
             value: percentage / 100,
-            strokeWidth: 8,
+            strokeWidth: isMobile ? 7 : 8,
             backgroundColor: Colors.grey[200],
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
           ),
@@ -286,7 +303,7 @@ class _GradesModalState extends State<GradesModal> {
                 Text(
                   letterGrade,
                   style: TextStyle(
-                    fontSize: 18.sp,
+                    fontSize: isMobile ? 16 : 18.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.orange[800],
                   ),

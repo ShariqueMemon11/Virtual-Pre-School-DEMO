@@ -17,11 +17,16 @@ class _StudentDashboardAgendaState extends State<StudentDashboardAgenda> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
+    
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(isMobile ? 0 : 12.r),
+      ),
       child: Padding(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.all(isMobile ? 20 : 16.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -30,7 +35,7 @@ class _StudentDashboardAgendaState extends State<StudentDashboardAgenda> {
                 Text(
                   "Today's Schedule",
                   style: TextStyle(
-                    fontSize: 22.sp,
+                    fontSize: isMobile ? 22 : 22.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -38,17 +43,21 @@ class _StudentDashboardAgendaState extends State<StudentDashboardAgenda> {
                 if (agendaItems.isNotEmpty)
                   IconButton(
                     onPressed: _clearAllScheduleItems,
-                    icon: Icon(Icons.clear_all, color: Colors.orange[600]),
+                    icon: Icon(
+                      Icons.clear_all,
+                      color: Colors.orange[600],
+                      size: isMobile ? 26 : 24,
+                    ),
                     tooltip: 'Clear All',
                   ),
                 IconButton(
                   onPressed: _showAddScheduleDialog,
-                  icon: const Icon(Icons.add),
+                  icon: Icon(Icons.add, size: isMobile ? 26 : 24),
                   tooltip: 'Add Schedule Item',
                 ),
               ],
             ),
-            SizedBox(height: 12.h),
+            SizedBox(height: isMobile ? 16 : 12.h),
             Expanded(
               child:
                   agendaItems.isEmpty
@@ -78,58 +87,75 @@ class _StudentDashboardAgendaState extends State<StudentDashboardAgenda> {
   }
 
   Widget _agendaItem(String time, String task, Color bgColor, int index) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
+    
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(bottom: 10.h),
-      padding: EdgeInsets.all(12.w),
+      margin: EdgeInsets.only(bottom: isMobile ? 12 : 10.h),
+      padding: EdgeInsets.all(isMobile ? 14 : 12.w),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(8.r),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  time,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  task,
-                  style: TextStyle(fontSize: 13.sp, color: Colors.black87),
-                ),
-              ],
-            ),
-          ),
           Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
-                onPressed: () => _editScheduleItem(index),
-                icon: Icon(
-                  Icons.edit_outlined,
-                  size: 18.sp,
-                  color: Colors.blue[600],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      time,
+                      style: TextStyle(
+                        fontSize: isMobile ? 15 : 14.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: isMobile ? 6 : 4.h),
+                    Text(
+                      task,
+                      style: TextStyle(
+                        fontSize: isMobile ? 14 : 13.sp,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
                 ),
-                padding: EdgeInsets.zero,
-                constraints: BoxConstraints(),
               ),
-              IconButton(
-                onPressed: () => _removeScheduleItem(index),
-                icon: Icon(
-                  Icons.delete_outline,
-                  size: 18.sp,
-                  color: Colors.red[600],
-                ),
-                padding: EdgeInsets.zero,
-                constraints: BoxConstraints(),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () => _editScheduleItem(index),
+                    icon: Icon(
+                      Icons.edit_outlined,
+                      size: isMobile ? 22 : 18.sp,
+                      color: Colors.blue[600],
+                    ),
+                    padding: EdgeInsets.all(isMobile ? 4 : 0),
+                    constraints: BoxConstraints(
+                      minWidth: isMobile ? 36 : 32,
+                      minHeight: isMobile ? 36 : 32,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => _removeScheduleItem(index),
+                    icon: Icon(
+                      Icons.delete_outline,
+                      size: isMobile ? 22 : 18.sp,
+                      color: Colors.red[600],
+                    ),
+                    padding: EdgeInsets.all(isMobile ? 4 : 0),
+                    constraints: BoxConstraints(
+                      minWidth: isMobile ? 36 : 32,
+                      minHeight: isMobile ? 36 : 32,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

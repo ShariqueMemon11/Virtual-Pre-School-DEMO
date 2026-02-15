@@ -421,35 +421,42 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
+    
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
       child: Container(
-        width: 800.w,
-        height: 600.h,
-        padding: EdgeInsets.all(20.w),
+        width: isMobile ? screenWidth * 0.9 : 800.w,
+        height: isMobile ? MediaQuery.of(context).size.height * 0.8 : 600.h,
+        padding: EdgeInsets.all(isMobile ? 20 : 20.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
             Row(
               children: [
-                Icon(Icons.assignment, size: 28.sp, color: Colors.blue),
-                SizedBox(width: 10.w),
+                Icon(
+                  Icons.assignment,
+                  size: isMobile ? 28 : 28.sp,
+                  color: Colors.blue,
+                ),
+                SizedBox(width: isMobile ? 10 : 10.w),
                 Text(
                   'My Assignments',
                   style: TextStyle(
-                    fontSize: 24.sp,
+                    fontSize: isMobile ? 22 : 24.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const Spacer(),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close),
+                  icon: Icon(Icons.close, size: isMobile ? 28 : 24),
                 ),
               ],
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: isMobile ? 16 : 20.h),
 
             // Content
             Expanded(
@@ -473,26 +480,40 @@ class _AssignmentsModalState extends State<AssignmentsModal> {
   }
 
   Widget _buildEmptyState() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
+    
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.assignment_outlined, size: 64.sp, color: Colors.grey[400]),
-          SizedBox(height: 16.h),
-          Text(
-            'No assignments available',
-            style: TextStyle(
-              fontSize: 18.sp,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
+      child: Padding(
+        padding: EdgeInsets.all(isMobile ? 20 : 0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.assignment_outlined,
+              size: isMobile ? 80 : 64.sp,
+              color: Colors.grey[400],
             ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Check back later for new assignments',
-            style: TextStyle(fontSize: 14.sp, color: Colors.grey[500]),
-          ),
-        ],
+            SizedBox(height: isMobile ? 16 : 16.h),
+            Text(
+              'No assignments available',
+              style: TextStyle(
+                fontSize: isMobile ? 18 : 18.sp,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: isMobile ? 8 : 8.h),
+            Text(
+              'Check back later for new assignments',
+              style: TextStyle(
+                fontSize: isMobile ? 14 : 14.sp,
+                color: Colors.grey[500],
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

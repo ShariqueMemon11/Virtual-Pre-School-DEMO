@@ -65,9 +65,17 @@ class _StudentDashboardState extends State<StudentDashboard> {
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<DashboardController>(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 247, 243, 243),
+      endDrawer: isMobile
+          ? Drawer(
+              width: screenWidth * 0.85,
+              child: const StudentDashboardAgenda(),
+            )
+          : null,
       body: Column(
         children: [
           // Header
@@ -88,6 +96,13 @@ class _StudentDashboardState extends State<StudentDashboard> {
                     onPressed: controller.toggleMenu,
                   ),
                   const Spacer(),
+                  if (isMobile)
+                    Builder(
+                      builder: (context) => IconButton(
+                        onPressed: () => Scaffold.of(context).openEndDrawer(),
+                        icon: const Icon(Icons.calendar_today, color: Colors.white),
+                      ),
+                    ),
                   IconButton(
                     onPressed: () => _showNotificationsModal(context),
                     icon: Stack(
@@ -119,14 +134,16 @@ class _StudentDashboardState extends State<StudentDashboard> {
           // Content
           Expanded(
             flex: 12,
-            child: Row(
-              children: [
-                if (controller.isMenuOpen)
-                  Expanded(flex: 1, child: const SideMenu()),
-                Expanded(flex: 5, child: const StudentDashboardMain()),
-                Expanded(flex: 2, child: const StudentDashboardAgenda()),
-              ],
-            ),
+            child: isMobile
+                ? const StudentDashboardMain()
+                : Row(
+                    children: [
+                      if (controller.isMenuOpen)
+                        Expanded(flex: 1, child: const SideMenu()),
+                      Expanded(flex: 5, child: const StudentDashboardMain()),
+                      Expanded(flex: 2, child: const StudentDashboardAgenda()),
+                    ],
+                  ),
           ),
         ],
       ),
