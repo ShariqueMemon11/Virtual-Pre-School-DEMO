@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:demo_vps/controllers/dashboard_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../sidebar/dashboard_sidebar.dart';
+import '../../../login_screen/login_screen.dart';
 import 'student_dashboard_main.dart';
 import '../agenda/student_dashboard_agenda.dart';
 import '../notifications/notifications_modal.dart';
@@ -62,9 +60,24 @@ class _StudentDashboardState extends State<StudentDashboard> {
     }
   }
 
+  Future<void> _logout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        (route) => false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logout failed: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<DashboardController>(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 650;
 
@@ -85,15 +98,14 @@ class _StudentDashboardState extends State<StudentDashboard> {
               color: const Color.fromARGB(255, 151, 123, 218),
               child: Row(
                 children: [
-                  const SizedBox(width: 10),
-                  IconButton(
-                    icon: Icon(
-                      controller.isMenuOpen
-                          ? Icons.arrow_back_sharp
-                          : Icons.menu,
+                  const SizedBox(width: 18),
+                  const Text(
+                    'Student Dashboard',
+                    style: TextStyle(
                       color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
                     ),
-                    onPressed: controller.toggleMenu,
                   ),
                   const Spacer(),
                   if (isMobile)
@@ -125,6 +137,11 @@ class _StudentDashboardState extends State<StudentDashboard> {
                       ],
                     ),
                   ),
+                  IconButton(
+                    icon: const Icon(Icons.logout, color: Colors.white),
+                    onPressed: _logout,
+                    tooltip: 'Logout',
+                  ),
                   const SizedBox(width: 15),
                 ],
               ),
@@ -138,8 +155,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 ? const StudentDashboardMain()
                 : Row(
                     children: [
-                      if (controller.isMenuOpen)
-                        Expanded(flex: 1, child: const SideMenu()),
                       Expanded(flex: 5, child: const StudentDashboardMain()),
                       Expanded(flex: 2, child: const StudentDashboardAgenda()),
                     ],

@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:demo_vps/utils/responsive_helper.dart';
 import 'dart:convert';
+import '../login_screen/login_screen.dart';
 import 'assign_activity.dart';
 import 'upload_material.dart';
 import 'update_grades.dart';
@@ -412,6 +413,23 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     await _firestore.collection('agenda').doc(id).delete();
   }
 
+  Future<void> _logout() async {
+    try {
+      await _auth.signOut();
+      if (!mounted) return;
+      // Navigate to root and clear all routes
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+        (route) => false,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logout failed: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     const Color bgColor = Color(0xFFF7F5F2);
@@ -421,39 +439,24 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 151, 123, 218),
         elevation: 0,
-        titleSpacing: 0,
-        title: const SizedBox.shrink(),
-        leading: Builder(
-          builder:
-              (context) => IconButton(
-                icon: const Icon(Icons.menu, color: Colors.white),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              ),
+        titleSpacing: 16,
+        title: const Text(
+          'Teacher Dashboard',
+          style: TextStyle(color: Colors.white, fontSize: 20),
         ),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none, color: Colors.white),
             onPressed: () {},
           ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: _logout,
+            tooltip: 'Logout',
+          ),
           const SizedBox(width: 8),
         ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: const [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Color(0xFFD9C3F7)),
-              child: Center(
-                child: Text(
-                  'Teacher Menu',
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
-              ),
-            ),
-            ListTile(leading: Icon(Icons.person), title: Text('Profile')),
-            ListTile(leading: Icon(Icons.logout), title: Text('Logout')),
-          ],
-        ),
       ),
       body: Padding(
         padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
