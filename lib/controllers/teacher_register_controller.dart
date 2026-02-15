@@ -109,13 +109,6 @@ class TeacherAdmissionController {
       return;
     }
 
-    if (profilePhotoBase64 == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please upload your profile photo.")),
-      );
-      return;
-    }
-
     try {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Submitting application...')),
@@ -136,7 +129,6 @@ class TeacherAdmissionController {
         expertise: expertiseController.text.trim(),
         address: addressController.text.trim(),
         cvBase64: cvBase64!,
-        photoBase64: profilePhotoBase64!,
         createdAt: Timestamp.now(),
       );
 
