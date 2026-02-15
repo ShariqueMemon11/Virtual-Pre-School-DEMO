@@ -1,0 +1,297 @@
+@startuml Teacher_Mark_Attendance_Flow
+title Teacher Side - Mark Attendance Flow
+
+actor Teacher
+participant "Teacher\nDashboard" as Dashboard
+participant "Mark Attendance\nScreen" as AttendanceScreen
+participant "Firebase\nAuth" as Auth
+participant "Firestore\nDatabase" as Firebase
+
+== Dashboard Loading ==
+Teacher -> Dashboard: Opens Teacher Dashboard
+Dashboard -> Firebase: Query Teachers collection\nby email
+Firebase --> Dashboard: Return teacher data\n(id, name)
+Dashboard -> Firebase: Query classes collection\nby teacherid/teacher name
+Firebase --> Dashboard: Return assigned class\n(Prep-1, id, gradeName)
+Dashboard -> Firebase: Query attendance for today\nwhere markedBy = teacherId
+Firebase --> Dashboard: Return today's attendance\n(if exists)
+Dashboard --> Teacher: Display "Mark Attendance" card\n(Red dot if not marked today)
+
+== Mark Attendance ==
+Teacher -> AttendanceScreen: Clicks "Mark Attendance"
+AttendanceScreen -> Auth: Get current user
+Auth --> AttendanceScreen: Return user\n(email, uid)
+
+AttendanceScreen -> Firebase: Query Teachers collection\nby email
+Firebase --> AttendanceScreen: Return teacher document\n(id, name)
+
+AttendanceScreen -> Firebase: Query classes collection\nby teacherid
+Firebase --> AttendanceScreen: Return class\n(Prep-1, id, gradeName)
+
+AttendanceScreen -> Firebase: Query Students collection\nwhere assignedClass = classId
+Firebase --> AttendanceScreen: Return students list\n(raza, StudentSE, Ximal)
+
+AttendanceScreen -> Firebase: Query attendance collection\nwhere date = today AND classId = classId
+Firebase --> AttendanceScreen: Return existing attendance\nrecords (if any)
+
+AttendanceScreen -> AttendanceScreen: Initialize attendance status\n(Pre-fill if exists, else default to absent)
+AttendanceScreen --> Teacher: Display students with\nPresent/Absent buttons
+
+== Save Attendance ==
+Teacher -> AttendanceScreen: Marks attendance\n(raza=Absent, StudentSE=Present, Ximal=Present)
+Teacher -> AttendanceScreen: Clicks "Save" button
+
+AttendanceScreen -> AttendanceScreen: Validate: Can only mark\nfor TODAY (same-day restriction)
+
+alt Validation Failed
+    AttendanceScreen --> Teacher: Show error message\n"Cannot mark attendance for past/future dates"
+else Validation Passed
+    loop For each student (3 students)
+        AttendanceScreen -> Firebase: Save/Update attendance document\nID: studentId_YYYYMMDD\nData: {studentId, studentName, classId,\nclassName, date, status, markedBy,\nmarkedByName, markedAt}
+        Firebase --> AttendanceScreen: Confirm saved
+    end
+    
+    AttendanceScreen --> Teacher: Show success message\n"Attendance saved successfully!"
+    Teacher -> Dashboard: Returns to dashboard
+    Dashboard --> Teacher: Red dot removed from\n"Mark Attendance" card
+end
+
+@enduml
+
+@startuml Student_View_Attendance_Flow
+title Student Side - View Attendance Flow
+
+actor Student
+participant "Student\nDashboard" as Dashboard
+participant "View Attendance\nModal" as AttendanceModal
+participant "Firebase\nAuth" as Auth
+participant "Firestore\nDatabase" as Firebase
+
+== Dashboard Loading ==
+Student -> Dashboard: Opens Student Dashboard
+Dashboard -> Auth: Get current user
+Auth --> Dashboard: Return user\n(email, uid)
+
+Dashboard -> Firebase: Query Students collection\nby email
+Firebase --> Dashboard: Return student data\n(name, assignedClass, childName)
+
+Dashboard --> Student: Display "My Attendance" card\nin Quick Access
+
+== View Attendance ==
+Student -> AttendanceModal: Clicks "My Attendance"
+AttendanceModal -> Auth: Get current user
+Auth --> AttendanceModal: Return user email
+
+AttendanceModal -> Firebase: Query Students collection\nby email
+Firebase --> AttendanceModal: Return student document\n(id, childName, assignedClass)
+
+AttendanceModal -> Firebase: Query attendance collection\nwhere studentId = student.id\nOrder by date descending
+Firebase --> AttendanceModal: Return all attendance records\n(with dates, status, teacher names)
+
+AttendanceModal -> AttendanceModal: Calculate statistics:\n- Total days\n- Present days (count status='present')\n- Absent days (total - present)\n- Percentage = (present/total) × 100
+
+AttendanceModal --> Student: Display:\n1. Circular progress with percentage\n2. Summary (Total: X, Present: Y, Absent: Z)\n3. History list with dates
+
+== View History Details ==
+Student -> AttendanceModal: Scrolls through attendance history
+AttendanceModal --> Student: Shows color-coded records:\n- Green badge for "Present"\n- Red badge for "Absent"\n- Teacher who marked it\n- Date and time
+
+@enduml
+
+@startuml Admin_View_Attendance_Flow
+title Admin Side - View All Students' Attendance Flow
+
+actor Admin
+participant "Admin\nDashboard" as Dashboard
+participant "Admin View\nAttendance Screen" as AttendanceScreen
+participant "Firestore\nDatabase" as Firebase
+
+== Dashboard Loading ==
+Admin -> Dashboard: Opens Admin Dashboard
+Dashboard --> Admin: Display "Student Attendance" card\nin Quick Access
+
+== View Attendance Screen ==
+Admin -> AttendanceScreen: Clicks "Student Attendance"
+AttendanceScreen -> Firebase: Query classes collection\n(get all classes)
+Firebase --> AttendanceScreen: Return all classes\n(Prep-1, Prep-2, etc.)
+
+AttendanceScreen --> Admin: Display class dropdown\nwith first class selected (Prep-1)
+
+== Load Class Attendance ==
+AttendanceScreen -> Firebase: Query Students collection\nwhere assignedClass = selectedClassId
+Firebase --> AttendanceScreen: Return students in class\n(raza, StudentSE, Ximal)
+
+loop For each student (3 students)
+    AttendanceScreen -> Firebase: Query attendance collection\nwhere studentId = student.id\nAND classId = selectedClassId
+    Firebase --> AttendanceScreen: Return attendance records\nfor this student
+    AttendanceScreen -> AttendanceScreen: Calculate for student:\n- Total days\n- Present days\n- Absent days\n- Percentage
+end
+
+AttendanceScreen -> AttendanceScreen: Calculate class statistics:\n- Total students\n- Average attendance %\n- Get teacher name from class
+
+AttendanceScreen --> Admin: Display:\n1. Class Summary Card (purple):\n   - Teacher: shariq\n   - Students: 3\n   - Avg Attendance: 66.6%\n2. Student Cards (compact):\n   - raza: 100% (1 present, 0 absent)\n   - StudentSE: 0% (0 present, 1 absent)\n   - Ximal: 100% (1 present, 0 absent)
+
+== Change Class ==
+Admin -> AttendanceScreen: Selects different class\nfrom dropdown (e.g., Prep-2)
+AttendanceScreen -> Firebase: Query Students collection\nwhere assignedClass = newClassId
+Firebase --> AttendanceScreen: Return students in new class
+
+loop For each student in new class
+    AttendanceScreen -> Firebase: Query attendance records\nfor student
+    Firebase --> AttendanceScreen: Return records
+    AttendanceScreen -> AttendanceScreen: Calculate statistics
+end
+
+AttendanceScreen -> AttendanceScreen: Calculate new class statistics
+AttendanceScreen --> Admin: Update display with\nnew class data
+
+@enduml
+
+@startuml Complete_Attendance_System_Overview
+title Complete Attendance System - All Actors
+
+actor Teacher
+actor Student
+actor Admin
+participant "Teacher\nDashboard" as TeacherDash
+participant "Student\nDashboard" as StudentDash
+participant "Admin\nDashboard" as AdminDash
+participant "Mark Attendance\nScreen" as MarkScreen
+participant "View Attendance\nModal" as ViewModal
+participant "Admin View\nAttendance" as AdminView
+database "Firestore\nDatabase" as Firebase
+
+== Teacher Marks Attendance ==
+Teacher -> TeacherDash: Login & Open Dashboard
+TeacherDash -> Firebase: Load teacher's assigned class
+Firebase --> TeacherDash: Return class (Prep-1)
+Teacher -> MarkScreen: Click "Mark Attendance"
+MarkScreen -> Firebase: Load students in class
+Firebase --> MarkScreen: Return 3 students
+Teacher -> MarkScreen: Mark attendance\n(Present/Absent)
+MarkScreen -> Firebase: Save attendance records\n(3 documents)
+Firebase --> MarkScreen: Confirm saved
+MarkScreen --> Teacher: Success message
+
+== Student Views Attendance ==
+Student -> StudentDash: Login & Open Dashboard
+StudentDash -> Firebase: Load student data
+Firebase --> StudentDash: Return student info
+Student -> ViewModal: Click "My Attendance"
+ViewModal -> Firebase: Query attendance records\nfor this student
+Firebase --> ViewModal: Return attendance history
+ViewModal -> ViewModal: Calculate percentage
+ViewModal --> Student: Display stats & history
+
+== Admin Views All Attendance ==
+Admin -> AdminDash: Login & Open Dashboard
+Admin -> AdminView: Click "Student Attendance"
+AdminView -> Firebase: Load all classes
+Firebase --> AdminView: Return classes list
+AdminView -> Firebase: Load students in selected class
+Firebase --> AdminView: Return students
+loop For each student
+    AdminView -> Firebase: Query attendance records
+    Firebase --> AdminView: Return records
+end
+AdminView -> AdminView: Calculate statistics
+AdminView --> Admin: Display class summary\n& student cards
+
+note over Firebase
+  **Firestore Collections:**
+  - attendance (studentId_YYYYMMDD)
+  - Students (assignedClass)
+  - classes (teacherid, gradeName)
+  - Teachers (email, name)
+end note
+
+@enduml
+
+@startuml Data_Flow_Architecture
+title Attendance System - Data Flow Architecture
+
+package "Frontend (Flutter)" {
+    [Teacher Dashboard] as TD
+    [Student Dashboard] as SD
+    [Admin Dashboard] as AD
+    [Mark Attendance Screen] as MAS
+    [View Attendance Modal] as VAM
+    [Admin View Attendance] as AVA
+}
+
+package "Controllers" {
+    [Attendance Controller] as AC
+}
+
+package "Models" {
+    [Attendance Model] as AM
+    [Student Data Model] as SDM
+    [Class Model] as CM
+    [Teacher Model] as TM
+}
+
+database "Firestore Database" {
+    [attendance] as AttCol
+    [Students] as StuCol
+    [classes] as ClsCol
+    [Teachers] as TeaCol
+}
+
+TD --> MAS : Navigate
+MAS --> AC : Use
+AC --> AM : Create/Parse
+AC --> AttCol : CRUD Operations
+AC --> StuCol : Query
+AC --> ClsCol : Query
+AC --> TeaCol : Query
+
+SD --> VAM : Navigate
+VAM --> AC : Use
+AC --> AM : Parse
+
+AD --> AVA : Navigate
+AVA --> AC : Use
+AVA --> AttCol : Direct Query
+AVA --> StuCol : Direct Query
+AVA --> ClsCol : Direct Query
+
+AM --> AttCol : Map to/from
+SDM --> StuCol : Map to/from
+CM --> ClsCol : Map to/from
+TM --> TeaCol : Map to/from
+
+note right of AttCol
+  **Document Structure:**
+  ID: studentId_YYYYMMDD
+  Fields:
+  - studentId
+  - studentName
+  - classId
+  - className
+  - date (Timestamp)
+  - status (present/absent)
+  - markedBy (teacher UID)
+  - markedByName
+  - markedAt (Timestamp)
+end note
+
+note right of StuCol
+  **Document Structure:**
+  Fields:
+  - childName
+  - email
+  - assignedClass (class ID)
+  - ... other fields
+end note
+
+note right of ClsCol
+  **Document Structure:**
+  Fields:
+  - gradeName (e.g., "Prep-1")
+  - teacher (teacher name)
+  - teacherid (teacher doc ID)
+  - capacity
+  - studentCount
+end note
+
+@enduml
