@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:demo_vps/controllers/dashboard_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../sidebar/dashboard_sidebar.dart';
+import '../../../login_screen/login_screen.dart';
 import 'student_dashboard_main.dart';
 import '../agenda/student_dashboard_agenda.dart';
 import '../notifications/notifications_modal.dart';
@@ -66,7 +64,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
     try {
       await FirebaseAuth.instance.signOut();
       if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed('/login');
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        (route) => false,
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -77,7 +78,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<DashboardController>(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 650;
 
@@ -98,29 +98,15 @@ class _StudentDashboardState extends State<StudentDashboard> {
               color: const Color.fromARGB(255, 151, 123, 218),
               child: Row(
                 children: [
-                  const SizedBox(width: 10),
-                  if (!isMobile)
-                    IconButton(
-                      icon: Icon(
-                        controller.isMenuOpen
-                            ? Icons.arrow_back_sharp
-                            : Icons.menu,
-                        color: Colors.white,
-                      ),
-                      onPressed: controller.toggleMenu,
+                  const SizedBox(width: 18),
+                  const Text(
+                    'Student Dashboard',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
                     ),
-                  if (isMobile)
-                    const Padding(
-                      padding: EdgeInsets.only(left: 8.0),
-                      child: Text(
-                        'Student Dashboard',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
+                  ),
                   const Spacer(),
                   if (isMobile)
                     Builder(
@@ -169,8 +155,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 ? const StudentDashboardMain()
                 : Row(
                     children: [
-                      if (controller.isMenuOpen)
-                        Expanded(flex: 1, child: const SideMenu()),
                       Expanded(flex: 5, child: const StudentDashboardMain()),
                       Expanded(flex: 2, child: const StudentDashboardAgenda()),
                     ],

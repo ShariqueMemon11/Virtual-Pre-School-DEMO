@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:demo_vps/utils/responsive_helper.dart';
 import 'dart:convert';
+import '../login_screen/login_screen.dart';
 import 'assign_activity.dart';
 import 'upload_material.dart';
 import 'update_grades.dart';
@@ -416,7 +417,11 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     try {
       await _auth.signOut();
       if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed('/login');
+      // Navigate to root and clear all routes
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+        (route) => false,
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
