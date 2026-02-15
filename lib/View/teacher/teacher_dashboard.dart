@@ -631,6 +631,53 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
   }
 
   Widget _buildAgendaContent() {
+    if (ResponsiveHelper.isMobile(context)) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Today's Agenda",
+                    style: TextStyle(
+                      fontSize: ResponsiveHelper.fontSize(context, 18),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline),
+                    onPressed: () => showAddAgendaDialog(context),
+                  ),
+                ],
+              ),
+              SizedBox(height: ResponsiveHelper.spacing(context, 10)),
+              SizedBox(
+                height: 300,
+                child: _buildAgendaList(),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Desktop layout
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -643,12 +690,12 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
           ),
         ],
       ),
-      child: Padding(
-        padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
@@ -664,107 +711,115 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                 ),
               ],
             ),
-            SizedBox(height: ResponsiveHelper.spacing(context, 10)),
-            SizedBox(
-              height: ResponsiveHelper.isMobile(context) ? 300 : double.infinity,
-              child: teacherEmail == null
-                  ? const Center(
-                      child: Text('Load profile to see agenda.'),
-                    )
-                  : StreamBuilder<QuerySnapshot>(
-                      stream: _firestore
-                          .collection('agenda')
-                          .where('teacherEmail', isEqualTo: teacherEmail)
-                          .snapshots(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
-                        }
-                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                          return const Center(child: Text("No agenda items yet."));
-                        }
-
-                        final items = snapshot.data!.docs;
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: ResponsiveHelper.isMobile(context)
-                              ? const AlwaysScrollableScrollPhysics()
-                              : const NeverScrollableScrollPhysics(),
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            final data = items[index].data() as Map<String, dynamic>;
-                            final color = index.isEven
-                                ? const Color(0xFFD9C3F7)
-                                : const Color(0xFFF7EBC3);
-
-                            return Container(
-                              margin: EdgeInsets.only(
-                                bottom: ResponsiveHelper.spacing(context, 12),
-                              ),
-                              height: 80,
-                              decoration: BoxDecoration(
-                                color: color,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: ResponsiveHelper.padding(context, 12),
-                                  vertical: ResponsiveHelper.padding(context, 10),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            data['time'] ?? '',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: ResponsiveHelper.fontSize(context, 14),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 5),
-                                          Text(
-                                            data['task'] ?? '',
-                                            style: TextStyle(
-                                              fontSize: ResponsiveHelper.fontSize(context, 14),
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.delete_outline,
-                                        color: Colors.redAccent,
-                                      ),
-                                      onPressed: () async {
-                                        await _deleteAgenda(items[index].id);
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            content: Text('Agenda deleted successfully'),
-                                            duration: Duration(seconds: 1),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: ResponsiveHelper.padding(context, 16),
+              ),
+              child: _buildAgendaList(),
             ),
-          ],
-        ),
+          ),
+          SizedBox(height: ResponsiveHelper.spacing(context, 16)),
+        ],
       ),
     );
+  }
+
+  Widget _buildAgendaList() {
+    return teacherEmail == null
+        ? const Center(
+            child: Text('Load profile to see agenda.'),
+          )
+        : StreamBuilder<QuerySnapshot>(
+            stream: _firestore
+                .collection('agenda')
+                .where('teacherEmail', isEqualTo: teacherEmail)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const Center(child: Text("No agenda items yet."));
+              }
+
+              final items = snapshot.data!.docs;
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: ResponsiveHelper.isMobile(context)
+                    ? const AlwaysScrollableScrollPhysics()
+                    : const NeverScrollableScrollPhysics(),
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  final data = items[index].data() as Map<String, dynamic>;
+                  final color = index.isEven
+                      ? const Color(0xFFD9C3F7)
+                      : const Color(0xFFF7EBC3);
+
+                  return Container(
+                    margin: EdgeInsets.only(
+                      bottom: ResponsiveHelper.spacing(context, 12),
+                    ),
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ResponsiveHelper.padding(context, 12),
+                        vertical: ResponsiveHelper.padding(context, 10),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  data['time'] ?? '',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: ResponsiveHelper.fontSize(context, 14),
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  data['task'] ?? '',
+                                  style: TextStyle(
+                                    fontSize: ResponsiveHelper.fontSize(context, 14),
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.redAccent,
+                            ),
+                            onPressed: () async {
+                              await _deleteAgenda(items[index].id);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Agenda deleted successfully'),
+                                  duration: Duration(seconds: 1),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          );
   }
 
   //  Quick Access Card Widget
