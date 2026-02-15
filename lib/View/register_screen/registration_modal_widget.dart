@@ -24,6 +24,8 @@ class _RegistrationModalWidgetState extends State<RegistrationModalWidget>
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  bool _passwordHidden = true;
+  bool _confirmPasswordHidden = true;
 
   late final RegistrationController _registerController;
 
@@ -144,7 +146,12 @@ class _RegistrationModalWidgetState extends State<RegistrationModalWidget>
                                 label: "Password",
                                 icon: Icons.lock_outline,
                                 controller: _passwordController,
-                                obscureText: true,
+                                obscureText: _passwordHidden,
+                                onToggleVisibility: () {
+                                  setState(
+                                    () => _passwordHidden = !_passwordHidden,
+                                  );
+                                },
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Required';
@@ -155,6 +162,7 @@ class _RegistrationModalWidgetState extends State<RegistrationModalWidget>
                                   return null;
                                 },
                               ),
+
                               SizedBox(height: 20.h),
 
                               // Confirm Password Field
@@ -162,7 +170,14 @@ class _RegistrationModalWidgetState extends State<RegistrationModalWidget>
                                 label: "Confirm Password",
                                 icon: Icons.verified_user_outlined,
                                 controller: _confirmPasswordController,
-                                obscureText: true,
+                                obscureText: _confirmPasswordHidden,
+                                onToggleVisibility: () {
+                                  setState(
+                                    () =>
+                                        _confirmPasswordHidden =
+                                            !_confirmPasswordHidden,
+                                  );
+                                },
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Required';
@@ -173,6 +188,7 @@ class _RegistrationModalWidgetState extends State<RegistrationModalWidget>
                                   return null;
                                 },
                               ),
+
                               SizedBox(height: 40.h),
 
                               /// Register Button
@@ -218,6 +234,7 @@ class _RegistrationModalWidgetState extends State<RegistrationModalWidget>
     required IconData icon,
     required TextEditingController controller,
     bool obscureText = false,
+    VoidCallback? onToggleVisibility,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
@@ -228,6 +245,19 @@ class _RegistrationModalWidgetState extends State<RegistrationModalWidget>
       cursorColor: Colors.white,
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: Colors.white70),
+
+        // 👇 add this
+        suffixIcon:
+            onToggleVisibility != null
+                ? IconButton(
+                  icon: Icon(
+                    obscureText ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.white70,
+                  ),
+                  onPressed: onToggleVisibility,
+                )
+                : null,
+
         labelText: label,
         labelStyle: const TextStyle(color: Colors.white70),
         filled: true,
