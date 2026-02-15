@@ -457,33 +457,29 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
       ),
       body: Padding(
         padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
-        child: ResponsiveHelper.isMobile(context)
-            ? SingleChildScrollView(
-                child: Column(
+        child:
+            ResponsiveHelper.isMobile(context)
+                ? SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildMainContent(),
+                      SizedBox(height: ResponsiveHelper.spacing(context, 20)),
+                      _buildAgendaContent(),
+                    ],
+                  ),
+                )
+                : Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildMainContent(),
-                    SizedBox(height: ResponsiveHelper.spacing(context, 20)),
-                    _buildAgendaContent(),
+                    Expanded(
+                      flex: 3,
+                      child: SingleChildScrollView(child: _buildMainContent()),
+                    ),
+                    SizedBox(width: ResponsiveHelper.spacing(context, 16)),
+                    Expanded(flex: 1, child: _buildAgendaContent()),
                   ],
                 ),
-              )
-            : Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: SingleChildScrollView(
-                      child: _buildMainContent(),
-                    ),
-                  ),
-                  SizedBox(width: ResponsiveHelper.spacing(context, 16)),
-                  Expanded(
-                    flex: 1,
-                    child: _buildAgendaContent(),
-                  ),
-                ],
-              ),
       ),
     );
   }
@@ -515,22 +511,23 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
         ),
         Padding(
           padding: EdgeInsets.only(top: ResponsiveHelper.padding(context, 10)),
-          child: ResponsiveHelper.isMobile(context)
-              ? Column(
-                  children: [
-                    _buildTeacherProfileCard(),
-                    SizedBox(height: ResponsiveHelper.spacing(context, 20)),
-                    _buildClassInfoCard(),
-                  ],
-                )
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: _buildTeacherProfileCard()),
-                    SizedBox(width: ResponsiveHelper.spacing(context, 20)),
-                    Expanded(child: _buildClassInfoCard()),
-                  ],
-                ),
+          child:
+              ResponsiveHelper.isMobile(context)
+                  ? Column(
+                    children: [
+                      _buildTeacherProfileCard(),
+                      SizedBox(height: ResponsiveHelper.spacing(context, 20)),
+                      _buildClassInfoCard(),
+                    ],
+                  )
+                  : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: _buildTeacherProfileCard()),
+                      SizedBox(width: ResponsiveHelper.spacing(context, 20)),
+                      Expanded(child: _buildClassInfoCard()),
+                    ],
+                  ),
         ),
         SizedBox(height: ResponsiveHelper.spacing(context, 24)),
         Padding(
@@ -602,9 +599,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                 () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => const UpdateGradesPage(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const UpdateGradesPage()),
                   );
                 },
               ),
@@ -667,10 +662,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                 ],
               ),
               SizedBox(height: ResponsiveHelper.spacing(context, 10)),
-              SizedBox(
-                height: 300,
-                child: _buildAgendaList(),
-              ),
+              SizedBox(height: 300, child: _buildAgendaList()),
             ],
           ),
         ),
@@ -728,98 +720,105 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
   Widget _buildAgendaList() {
     return teacherEmail == null
-        ? const Center(
-            child: Text('Load profile to see agenda.'),
-          )
+        ? const Center(child: Text('Load profile to see agenda.'))
         : StreamBuilder<QuerySnapshot>(
-            stream: _firestore
-                .collection('agenda')
-                .where('teacherEmail', isEqualTo: teacherEmail)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return const Center(child: Text("No agenda items yet."));
-              }
+          stream:
+              _firestore
+                  .collection('agenda')
+                  .where('teacherEmail', isEqualTo: teacherEmail)
+                  .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Center(child: Text("No agenda items yet."));
+            }
 
-              final items = snapshot.data!.docs;
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: ResponsiveHelper.isMobile(context)
-                    ? const AlwaysScrollableScrollPhysics()
-                    : const NeverScrollableScrollPhysics(),
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  final data = items[index].data() as Map<String, dynamic>;
-                  final color = index.isEven
-                      ? const Color(0xFFD9C3F7)
-                      : const Color(0xFFF7EBC3);
+            final items = snapshot.data!.docs;
+            return ListView.builder(
+              shrinkWrap: true,
+              physics:
+                  ResponsiveHelper.isMobile(context)
+                      ? const AlwaysScrollableScrollPhysics()
+                      : const NeverScrollableScrollPhysics(),
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final data = items[index].data() as Map<String, dynamic>;
+                final color =
+                    index.isEven
+                        ? const Color(0xFFD9C3F7)
+                        : const Color(0xFFF7EBC3);
 
-                  return Container(
-                    margin: EdgeInsets.only(
-                      bottom: ResponsiveHelper.spacing(context, 12),
+                return Container(
+                  margin: EdgeInsets.only(
+                    bottom: ResponsiveHelper.spacing(context, 12),
+                  ),
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: ResponsiveHelper.padding(context, 12),
+                      vertical: ResponsiveHelper.padding(context, 10),
                     ),
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: ResponsiveHelper.padding(context, 12),
-                        vertical: ResponsiveHelper.padding(context, 10),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  data['time'] ?? '',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: ResponsiveHelper.fontSize(context, 14),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                data['time'] ?? '',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: ResponsiveHelper.fontSize(
+                                    context,
+                                    14,
                                   ),
                                 ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  data['task'] ?? '',
-                                  style: TextStyle(
-                                    fontSize: ResponsiveHelper.fontSize(context, 14),
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                data['task'] ?? '',
+                                style: TextStyle(
+                                  fontSize: ResponsiveHelper.fontSize(
+                                    context,
+                                    14,
                                   ),
-                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              ],
-                            ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
-                          IconButton(
-                            icon: const Icon(
-                              Icons.delete_outline,
-                              color: Colors.redAccent,
-                            ),
-                            onPressed: () async {
-                              await _deleteAgenda(items[index].id);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Agenda deleted successfully'),
-                                  duration: Duration(seconds: 1),
-                                ),
-                              );
-                            },
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.redAccent,
                           ),
-                        ],
-                      ),
+                          onPressed: () async {
+                            await _deleteAgenda(items[index].id);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Agenda deleted successfully'),
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                  );
-                },
-              );
-            },
-          );
+                  ),
+                );
+              },
+            );
+          },
+        );
   }
 
   //  Quick Access Card Widget
@@ -878,9 +877,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
         () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => const MarkAttendanceScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const MarkAttendanceScreen()),
           );
         },
       );
@@ -892,22 +889,22 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     final todayTimestamp = Timestamp.fromDate(todayStart);
 
     return StreamBuilder<QuerySnapshot>(
-      stream: _firestore
-          .collection('attendance')
-          .where('date', isEqualTo: todayTimestamp)
-          .where('markedBy', isEqualTo: user.uid)
-          .limit(1)
-          .snapshots(),
+      stream:
+          _firestore
+              .collection('attendance')
+              .where('date', isEqualTo: todayTimestamp)
+              .where('markedBy', isEqualTo: user.uid)
+              .limit(1)
+              .snapshots(),
       builder: (context, snapshot) {
-        final hasMarkedToday = snapshot.hasData && snapshot.data!.docs.isNotEmpty;
+        final hasMarkedToday =
+            snapshot.hasData && snapshot.data!.docs.isNotEmpty;
 
         return GestureDetector(
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const MarkAttendanceScreen(),
-              ),
+              MaterialPageRoute(builder: (_) => const MarkAttendanceScreen()),
             );
           },
           child: Stack(
@@ -929,7 +926,11 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.how_to_reg, size: 28, color: Colors.black87),
+                      const Icon(
+                        Icons.how_to_reg,
+                        size: 28,
+                        color: Colors.black87,
+                      ),
                       const Text(
                         'Mark Attendance',
                         style: TextStyle(

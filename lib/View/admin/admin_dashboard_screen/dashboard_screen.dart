@@ -4,6 +4,7 @@ import 'package:demo_vps/View/admin/gradebook/grade_expanded.dart';
 import 'package:demo_vps/View/admin/student_assign_to_class/student_class_assign.dart';
 import 'package:demo_vps/View/admin/teacher_register_management/teacher_admission_list_screen.dart';
 import 'package:demo_vps/View/admin/student_attendance/admin_view_attendance.dart';
+import 'package:demo_vps/View/login_screen/login_screen.dart';
 import 'package:demo_vps/utils/responsive_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:demo_vps/View/admin/notification_screens/notification_managament_screen.dart';
@@ -89,7 +90,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           SizedBox(
                             height: ResponsiveHelper.spacing(context, 20),
                           ),
-                          _agendaContent(),
                         ],
                       ),
                     )
@@ -104,7 +104,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             child: _mainContent(),
                           ),
                         ),
-                        _agenda(),
                       ],
                     ),
           ),
@@ -134,7 +133,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(width: 16),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => LoginScreen()),
+              );
+            },
           ),
         ],
       ),
@@ -311,67 +315,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  // ================= AGENDA =================
-  Widget _agendaContent() {
-    final agenda = [
-      "08:00 - Check Emails",
-      "09:00 - Attendance",
-      "10:00 - Parent Queries",
-      "11:00 - Teacher Meeting",
-      "12:00 - Reports Review",
-    ];
-
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      child: Padding(
-        padding: EdgeInsets.all(ResponsiveHelper.padding(context, 16)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Today's Agenda",
-              style: TextStyle(
-                fontSize: ResponsiveHelper.fontSize(context, 20),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: ResponsiveHelper.spacing(context, 16)),
-            ...agenda.map(
-              (item) => Container(
-                margin: EdgeInsets.only(
-                  bottom: ResponsiveHelper.spacing(context, 12),
-                ),
-                padding: EdgeInsets.all(ResponsiveHelper.padding(context, 12)),
-                decoration: BoxDecoration(
-                  color:
-                      agenda.indexOf(item).isEven
-                          ? const Color(0xFFF1E9FF)
-                          : const Color(0xFFFFF4D7),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  item,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: ResponsiveHelper.fontSize(context, 14),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _agenda() {
-    return Container(
-      width: 280,
-      padding: EdgeInsets.all(ResponsiveHelper.padding(context, 20)),
-      child: _agendaContent(),
     );
   }
 }
