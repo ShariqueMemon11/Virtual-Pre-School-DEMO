@@ -1,6 +1,6 @@
 import 'package:demo_vps/View/admin/FeeChalan/FeeChalanManager.dart';
 import 'package:demo_vps/View/admin/admin_class_management/Class_management.dart';
-import 'package:demo_vps/View/admin/complain_management/complain_management_screen.dart';
+import 'package:demo_vps/View/admin/gradebook/grade_expanded.dart';
 import 'package:demo_vps/View/admin/student_assign_to_class/student_class_assign.dart';
 import 'package:demo_vps/View/admin/teacher_register_management/teacher_admission_list_screen.dart';
 import 'package:demo_vps/View/admin/student_attendance/admin_view_attendance.dart';
@@ -71,35 +71,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final isMobile = ResponsiveHelper.isMobile(context);
-    
+
     return Scaffold(
       body: Column(
         children: [
           _header(),
           Expanded(
-            child: isMobile
-                ? SingleChildScrollView(
-                    padding: EdgeInsets.all(ResponsiveHelper.padding(context, 24)),
-                    child: Column(
+            child:
+                isMobile
+                    ? SingleChildScrollView(
+                      padding: EdgeInsets.all(
+                        ResponsiveHelper.padding(context, 24),
+                      ),
+                      child: Column(
+                        children: [
+                          _mainContent(),
+                          SizedBox(
+                            height: ResponsiveHelper.spacing(context, 20),
+                          ),
+                          _agendaContent(),
+                        ],
+                      ),
+                    )
+                    : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _mainContent(),
-                        SizedBox(height: ResponsiveHelper.spacing(context, 20)),
-                        _agendaContent(),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: EdgeInsets.all(
+                              ResponsiveHelper.padding(context, 24),
+                            ),
+                            child: _mainContent(),
+                          ),
+                        ),
+                        _agenda(),
                       ],
                     ),
-                  )
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: SingleChildScrollView(
-                          padding: EdgeInsets.all(ResponsiveHelper.padding(context, 24)),
-                          child: _mainContent(),
-                        ),
-                      ),
-                      _agenda(),
-                    ],
-                  ),
           ),
         ],
       ),
@@ -197,14 +204,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               TeacherAdmissionListScreen(),
             ),
             _dashboardCard(
+              Icons.content_paste,
+              "Final Grade Check",
+              GradeOverviewExpandable(),
+            ),
+            _dashboardCard(
               Icons.notifications,
               "Notifications",
               NotificationManagementScreen(),
-            ),
-            _dashboardCard(
-              Icons.report_problem,
-              "Complaints",
-              ComplaintManagementScreen(),
             ),
             _dashboardCard(
               Icons.document_scanner,
@@ -332,23 +339,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             SizedBox(height: ResponsiveHelper.spacing(context, 16)),
-            ...agenda.map((item) => Container(
-              margin: EdgeInsets.only(bottom: ResponsiveHelper.spacing(context, 12)),
-              padding: EdgeInsets.all(ResponsiveHelper.padding(context, 12)),
-              decoration: BoxDecoration(
-                color: agenda.indexOf(item).isEven
-                    ? const Color(0xFFF1E9FF)
-                    : const Color(0xFFFFF4D7),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                item,
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: ResponsiveHelper.fontSize(context, 14),
+            ...agenda.map(
+              (item) => Container(
+                margin: EdgeInsets.only(
+                  bottom: ResponsiveHelper.spacing(context, 12),
+                ),
+                padding: EdgeInsets.all(ResponsiveHelper.padding(context, 12)),
+                decoration: BoxDecoration(
+                  color:
+                      agenda.indexOf(item).isEven
+                          ? const Color(0xFFF1E9FF)
+                          : const Color(0xFFFFF4D7),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  item,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: ResponsiveHelper.fontSize(context, 14),
+                  ),
                 ),
               ),
-            )),
+            ),
           ],
         ),
       ),
