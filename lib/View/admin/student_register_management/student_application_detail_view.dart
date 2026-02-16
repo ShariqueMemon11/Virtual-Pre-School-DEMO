@@ -1,7 +1,7 @@
-// ignore_for_file: file_names, use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, avoid_web_libraries_in_flutter
 
 import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:html' as html;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -31,8 +31,10 @@ class _StudentApplicationDetailScreenState
     status = widget.application["approval"] ?? "Pending";
   }
 
+  // ✅ Update status
   Future<void> _updateStatus(String newStatus) async {
     setState(() => status = newStatus);
+
     final firestore = FirebaseFirestore.instance;
     final docRef = firestore
         .collection('student applications')
@@ -42,8 +44,8 @@ class _StudentApplicationDetailScreenState
       await docRef.update({'approval': newStatus});
 
       if (newStatus == "Approved") {
-        final docSnapshot = await docRef.get();
-        final data = docSnapshot.data();
+        final snap = await docRef.get();
+        final data = snap.data();
 
         if (data != null) {
           await firestore.collection('Students').doc(widget.documentId).set({
@@ -60,10 +62,11 @@ class _StudentApplicationDetailScreenState
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Failed to update: $e")));
+      ).showSnackBar(SnackBar(content: Text("Failed: $e")));
     }
   }
 
+  // ✅ Status color
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case "approved":
@@ -75,36 +78,49 @@ class _StudentApplicationDetailScreenState
     }
   }
 
-  // 🧩 Decode base64 string safely
-  ImageProvider? _decodeBase64Image(String? base64Str) {
-    if (base64Str == null || base64Str.isEmpty) return null;
+  // ✅ WEB DOWNLOAD
+  void _downloadDocument(String base64File, String title) {
     try {
+      String base64Str = base64File;
+
       if (base64Str.contains(',')) {
         base64Str = base64Str.split(',').last;
       }
-      Uint8List bytes = base64Decode(base64Str);
-      return MemoryImage(bytes);
-    } catch (e) {
-      debugPrint("Image decode error: $e");
-      return null;
-    }
-  }
 
-  // 📄 Opens document viewer
-  void _openDocumentViewer(String base64File, String title) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (_) => DocumentViewerScreen(base64File: base64File, title: title),
-      ),
-    );
+      final bytes = base64Decode(base64Str);
+
+      final isPDF = base64Str.trim().startsWith("JVBER");
+      final extension = isPDF ? "pdf" : "png";
+
+      final blob = html.Blob([bytes]);
+      final url = html.Url.createObjectUrlFromBlob(blob);
+
+      final studentName = widget.application["childName"] ?? "student";
+
+      final anchor =
+          html.AnchorElement(href: url)
+            ..download = "${studentName}_$title.$extension"
+            ..style.display = 'none';
+
+      html.document.body!.children.add(anchor);
+      anchor.click();
+      anchor.remove();
+
+      html.Url.revokeObjectUrl(url);
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("$title downloaded")));
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Download failed: $e")));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final app = widget.application;
-    final childPhoto = _decodeBase64Image(app["childPhotoFile"]);
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -115,56 +131,13 @@ class _StudentApplicationDetailScreenState
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: const Color.fromARGB(255, 156, 129, 219),
-        elevation: 0,
       ),
       body: ListView(
         padding: EdgeInsets.all(16.w),
         children: [
-          // 🧒 Child Photo
-          if (childPhoto != null)
-            Center(
-              child: CircleAvatar(backgroundImage: childPhoto, radius: 60.w),
-            )
-          else
-            Center(
-              child: CircleAvatar(
-                radius: 60.w,
-                backgroundColor: const Color.fromARGB(
-                  255,
-                  156,
-                  129,
-                  219,
-                  // ignore: deprecated_member_use
-                ).withOpacity(0.3),
-                child: const Icon(Icons.person, size: 50, color: Colors.white),
-              ),
-            ),
-          SizedBox(height: 10.h),
+          // ✅ header icon (no photo)
 
-          // Status chip
-          Center(
-            child: Chip(
-              avatar: Icon(
-                status == "Approved"
-                    ? Icons.check_circle
-                    : status == "Rejected"
-                    ? Icons.cancel
-                    : Icons.hourglass_empty,
-                color: _getStatusColor(status),
-              ),
-              label: Text(
-                status,
-                style: TextStyle(
-                  color: _getStatusColor(status),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15.sp,
-                ),
-              ),
-              // ignore: deprecated_member_use
-              backgroundColor: _getStatusColor(status).withOpacity(0.15),
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-            ),
-          ),
+          // ✅ status chip
           SizedBox(height: 20.h),
 
           _infoCard("Child Details", [
@@ -206,10 +179,11 @@ class _StudentApplicationDetailScreenState
           ]),
           SizedBox(height: 16.h),
 
+          // ✅ DOWNLOAD BUTTONS
           _infoCard("Documents", [
-            _docButton("Mother CNIC", app["motherCnicFile"]),
-            _docButton("Father CNIC", app["fatherCnicFile"]),
-            _docButton("Birth Certificate", app["birthCertificateFile"]),
+            _docButton("Mother_CNIC", app["motherCnicFile"]),
+            _docButton("Father_CNIC", app["fatherCnicFile"]),
+            _docButton("Birth_Certificate", app["birthCertificateFile"]),
           ]),
           SizedBox(height: 16.h),
 
@@ -228,7 +202,6 @@ class _StudentApplicationDetailScreenState
           ]),
           SizedBox(height: 30.h),
 
-          // Action buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -251,8 +224,11 @@ class _StudentApplicationDetailScreenState
     );
   }
 
+  // ---------- UI ----------
+
   Widget _docButton(String label, String? file) {
     final hasFile = file != null && file.isNotEmpty;
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6.h),
       child: ElevatedButton.icon(
@@ -264,8 +240,8 @@ class _StudentApplicationDetailScreenState
             borderRadius: BorderRadius.circular(12.r),
           ),
         ),
-        onPressed: hasFile ? () => _openDocumentViewer(file, label) : null,
-        icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
+        onPressed: hasFile ? () => _downloadDocument(file, label) : null,
+        icon: const Icon(Icons.download, color: Colors.white),
         label: Text(label, style: const TextStyle(color: Colors.white)),
       ),
     );
@@ -282,13 +258,9 @@ class _StudentApplicationDetailScreenState
           children: [
             Text(
               title,
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
             ),
-            Divider(thickness: 1, color: Colors.grey[300]),
+            Divider(color: Colors.grey[300]),
             ...children,
           ],
         ),
@@ -308,10 +280,7 @@ class _StudentApplicationDetailScreenState
           ),
           SizedBox(width: 10.w),
           Expanded(
-            child: Text(
-              "$label: $value",
-              style: TextStyle(fontSize: 15.sp, color: Colors.black87),
-            ),
+            child: Text("$label: $value", style: TextStyle(fontSize: 15.sp)),
           ),
         ],
       ),
@@ -335,40 +304,6 @@ class _StudentApplicationDetailScreenState
       onPressed: onTap,
       icon: Icon(icon, color: Colors.white),
       label: Text(label, style: const TextStyle(color: Colors.white)),
-    );
-  }
-}
-
-class DocumentViewerScreen extends StatelessWidget {
-  final String base64File;
-  final String title;
-
-  const DocumentViewerScreen({
-    super.key,
-    required this.base64File,
-    required this.title,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    Uint8List bytes;
-    String base64Str = base64File;
-    if (base64Str.contains(',')) base64Str = base64Str.split(',').last;
-    bytes = base64Decode(base64Str);
-
-    // Check if it's a PDF or image
-    final isPDF = base64Str.trim().startsWith("JVBER");
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title, style: const TextStyle(color: Colors.white)),
-        backgroundColor: const Color.fromARGB(255, 156, 129, 219),
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body:
-          isPDF
-              ? Center(child: Text("📄 PDF viewer to be implemented here"))
-              : Center(child: Image.memory(bytes, fit: BoxFit.contain)),
     );
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: file_names, use_build_context_synchronously
+
 import 'package:demo_vps/View/admin/student_register_management/student_application_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,7 +23,9 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          ResponsiveHelper.isMobile(context) ? "Applications" : "Student Applications",
+          ResponsiveHelper.isMobile(context)
+              ? "Applications"
+              : "Student Applications",
           style: TextStyle(
             color: Colors.white,
             fontSize: ResponsiveHelper.fontSize(context, 20),
@@ -50,7 +54,6 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
             itemCount: applications.length,
             itemBuilder: (context, index) {
               final app = applications[index];
-              final photo = _controller.decodeBase64Image(app.childPhotoFile);
               final status =
                   app.policyAccepted == true ? "Approved" : "Pending";
 
@@ -63,27 +66,22 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
                   vertical: ResponsiveHelper.padding(context, 8),
                 ),
                 child: ListTile(
-                  contentPadding: EdgeInsets.all(ResponsiveHelper.padding(context, 12)),
+                  contentPadding: EdgeInsets.all(
+                    ResponsiveHelper.padding(context, 12),
+                  ),
+
+                  // ✅ Avatar with initial
                   leading: CircleAvatar(
                     radius: ResponsiveHelper.isMobile(context) ? 24 : 28.w,
-                    backgroundImage: photo,
-                    backgroundColor: const Color.fromARGB(
-                      255,
-                      156,
-                      129,
-                      219,
-                      // ignore: deprecated_member_use
-                    ).withOpacity(0.3),
-                    child:
-                        photo == null
-                            ? Text(
-                              app.childName?.isNotEmpty == true
-                                  ? app.childName![0].toUpperCase()
-                                  : "?",
-                              style: const TextStyle(color: Colors.white),
-                            )
-                            : null,
+                    backgroundColor: const Color.fromARGB(255, 156, 129, 219),
+                    child: Text(
+                      app.childName?.isNotEmpty == true
+                          ? app.childName![0].toUpperCase()
+                          : "?",
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ),
+
                   title: Text(
                     app.childName ?? "Unknown",
                     style: TextStyle(
@@ -91,6 +89,7 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -123,10 +122,10 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
                       ),
                     ],
                   ),
+
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Status color chip
                       Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: ResponsiveHelper.padding(context, 10),
@@ -135,7 +134,6 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
                         decoration: BoxDecoration(
                           color: _controller
                               .getStatusColor(status)
-                              // ignore: deprecated_member_use
                               .withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20.r),
                           border: Border.all(
@@ -156,7 +154,6 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () async {
                             await _controller.deleteApplication(app.id ?? "");
-                            // ignore: use_build_context_synchronously
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
@@ -168,6 +165,7 @@ class _StudentApplicationViewState extends State<StudentApplicationView> {
                         ),
                     ],
                   ),
+
                   onTap: () {
                     Navigator.push(
                       context,
